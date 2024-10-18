@@ -4,14 +4,14 @@
     "C:\\Users\\keato\\github-projects\\faceitWebApp\\faceitWebApp.csproj": {}
   },
   "projects": {
-    "c:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj": {
+    "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj",
+        "projectUniqueName": "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj",
         "projectName": "faceitApp",
-        "projectPath": "c:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj",
+        "projectPath": "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj",
         "packagesPath": "C:\\Users\\keato\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\keato\\github-projects\\faceitApp\\obj\\",
+        "outputPath": "C:\\Users\\keato\\github-projects\\faceitApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\keato\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -106,8 +106,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "c:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj": {
-                "projectPath": "c:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj"
+              "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj": {
+                "projectPath": "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj"
               }
             }
           }

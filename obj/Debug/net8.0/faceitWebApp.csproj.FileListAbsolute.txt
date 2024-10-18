@@ -37,3 +37,4 @@ C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\refint\faceitWebApp
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.pdb
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.genruntimeconfig.cache
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\ref\faceitWebApp.dll
+C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.sourcelink.json
