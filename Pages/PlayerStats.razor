@@ -19,7 +19,15 @@
     <button @onclick="FetchStats">Search</button>
 </div>
 
-@if (statsResult != null)
+@if (isLoading)
+{
+    <div class="loading">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+}
+else if (statsResult != null)
 {
     <pre>@statsResult</pre> <!-- Display the result in a readable format -->
 }
@@ -28,31 +36,53 @@
     private string nickname;
     private string selectedStatsType = "basic";
     private string statsResult;
+    private bool isLoading;
 
     private async Task FetchStats()
     {
         if (!string.IsNullOrEmpty(nickname))
         {
-            string playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(nickname);
-            if (!string.IsNullOrEmpty(playerId) && !playerId.StartsWith("Failed"))
+            isLoading = true;
+            statsResult = null;
+            try
             {
-                if (selectedStatsType == "basic")
+                string playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(nickname);
+                if (!string.IsNullOrEmpty(playerId) && !playerId.StartsWith("Failed"))
                 {
-                    statsResult = await BasicStatsHandler.GetAverageBasicStatsAsync(playerId);
+                    if (selectedStatsType == "basic")
+                    {
+                        statsResult = await BasicStatsHandler.GetAverageBasicStatsAsync(playerId);
+                    }
+                    else if (selectedStatsType == "detailed")
+                    {
+                        statsResult = await FullStatsHandler.GetFullStatsAsync(playerId);
+                    }
+                    else if (selectedStatsType == "league")
+                    {
+                        statsResult = await PlayerLeagueStatsHandler.GetLeagueStatsAsync(playerId);
+                    }
                 }
-                else if (selectedStatsType == "detailed")
+                else
                 {
-                    statsResult = await FullStatsHandler.GetFullStatsAsync(playerId);
-                }
-                else if (selectedStatsType == "league")
-                {
-                    statsResult = await PlayerLeagueStatsHandler.GetLeagueStatsAsync(playerId);
+                    statsResult = "Failed to fetch player ID.";
                 }
             }
-            else
+            finally
             {
-                statsResult = "Failed to fetch player ID.";
+                isLoading = false;
             }
         }
     }
 }
+
+<style>
+    .loading {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+</style>
