@@ -1,0 +1,24 @@
+﻿@page "/fetchdata"
+@using faceitApp.Handlers
+@inject ApiQueryHandler ApiQueryHandler
+
+<h3>Data from Backend</h3>
+
+@if (data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <pre>@data</pre> <!-- Display raw JSON response -->
+}
+
+@code {
+    private string data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        data = await ApiQueryHandler.GetDataAsync();
+        Console.WriteLine(data); // Log data to console
+    }
+}

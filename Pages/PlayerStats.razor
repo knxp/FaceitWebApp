@@ -1,0 +1,58 @@
+@page "/player-stats"
+@using faceitApp.Handlers
+@using faceitApp.Utilities
+@inject BasicStatsHandler BasicStatsHandler
+@inject FullStatsHandler FullStatsHandler
+@inject PlayerLeagueStatsHandler PlayerLeagueStatsHandler
+@inject GetPlayerID GetPlayerID
+
+<h3>Player Stats</h3>
+<p>Enter the player's nickname and select the type of stats to fetch.</p>
+
+<div>
+    <InputText @bind-Value="nickname" placeholder="Enter player nickname" class="large-input" />
+    <select @bind="selectedStatsType">
+        <option value="basic">Basic Stats</option>
+        <option value="detailed">Detailed Stats</option>
+        <option value="league">League Stats</option>
+    </select>
+    <button @onclick="FetchStats">Search</button>
+</div>
+
+@if (statsResult != null)
+{
+    <pre>@statsResult</pre> <!-- Display the result in a readable format -->
+}
+
+@code {
+    private string nickname;
+    private string selectedStatsType = "basic";
+    private string statsResult;
+
+    private async Task FetchStats()
+    {
+        if (!string.IsNullOrEmpty(nickname))
+        {
+            string playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(nickname);
+            if (!string.IsNullOrEmpty(playerId) && !playerId.StartsWith("Failed"))
+            {
+                if (selectedStatsType == "basic")
+                {
+                    statsResult = await BasicStatsHandler.GetAverageBasicStatsAsync(playerId);
+                }
+                else if (selectedStatsType == "detailed")
+                {
+                    statsResult = await FullStatsHandler.GetFullStatsAsync(playerId);
+                }
+                else if (selectedStatsType == "league")
+                {
+                    statsResult = await PlayerLeagueStatsHandler.GetLeagueStatsAsync(playerId);
+                }
+            }
+            else
+            {
+                statsResult = "Failed to fetch player ID.";
+            }
+        }
+    }
+}
