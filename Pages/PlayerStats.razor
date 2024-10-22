@@ -1,88 +1,285 @@
 @page "/player-stats"
+@using System.Text.Json
 @using faceitApp.Handlers
 @using faceitApp.Utilities
+@using faceitApp.Models
+@using ChartJs.Blazor.ChartJS.LineChart;
 @inject BasicStatsHandler BasicStatsHandler
 @inject FullStatsHandler FullStatsHandler
 @inject PlayerLeagueStatsHandler PlayerLeagueStatsHandler
 @inject GetPlayerID GetPlayerID
+@inject GetPlayerInfo GetPlayerInfo
+@inject GetMatchHistory GetMatchHistory
+@inject HttpClient HttpClient
+@inject IConfiguration Configuration
 
-<h3>Player Stats</h3>
-<p>Enter the player's nickname and select the type of stats to fetch.</p>
+<h3 class="text-center">Player Stats</h3>
 
-<div>
-    <InputText @bind-Value="nickname" placeholder="Enter player nickname" class="large-input" />
-    <select @bind="selectedStatsType">
-        <option value="basic">Basic Stats</option>
-        <option value="detailed">Detailed Stats</option>
-        <option value="league">League Stats</option>
-    </select>
-    <button @onclick="FetchStats">Search</button>
+<div class="search-container mb-4">
+    <input @bind="nickname" class="form-control search-input" placeholder="Enter Player Nickname" />
+    <button @onclick="FetchPlayerStats" class="btn btn-primary search-button">Search</button>
 </div>
 
-@if (isLoading)
+@if (playerStats != null && playerInfo != null)
 {
-    <div class="loading">
-        <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
+    <div class="result-container">
+        <div class="player-card">
+            <div class="player-info">
+                <img src="@playerInfo.Avatar" alt="@playerInfo.Nickname's Avatar" class="avatar" />
+                <div class="level-elo-container">
+                    <h5 class="player-level">Level @playerInfo.Level</h5>
+                    <p class="player-elo">ELO @playerInfo.Elo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stats-box">
+                <h6 class="stats-title text-center">Basic Stats</h6> <!-- Moved here for top middle positioning -->
+                <div class="stat-item">
+                    <div class="stat-name">Kills:</div>
+                    <div class="stat-value">@Math.Round(playerStats.Kills, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Assists:</div>
+                    <div class="stat-value">@Math.Round(playerStats.Assists, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Deaths:</div>
+                    <div class="stat-value">@Math.Round(playerStats.Deaths, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">K/D Ratio:</div>
+                    <div class="stat-value">@Math.Round(playerStats.KDRatio, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">K/R Ratio:</div>
+                    <div class="stat-value">@Math.Round(playerStats.KRRRatio, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Headshots:</div>
+                    <div class="stat-value">@Math.Round(playerStats.Headshots, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Headshots %:</div>
+                    <div class="stat-value">@Math.Round(playerStats.HeadshotsPercentage, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Triple Kills:</div>
+                    <div class="stat-value">@Math.Round(playerStats.TripleKills, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Quadro Kills:</div>
+                    <div class="stat-value">@Math.Round(playerStats.QuadroKills, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">Penta Kills:</div>
+                    <div class="stat-value">@Math.Round(playerStats.PentaKills, 2)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-name">MVPs:</div>
+                    <div class="stat-value">@Math.Round(playerStats.MVPs, 2)</div>
+                </div>
+            </div>
         </div>
     </div>
 }
-else if (statsResult != null)
+else if (isLoading)
 {
-    <pre>@statsResult</pre> <!-- Display the result in a readable format -->
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
 }
 
 @code {
     private string nickname;
-    private string selectedStatsType = "basic";
-    private string statsResult;
+    private Player playerStats;
+    private Player playerInfo;
     private bool isLoading;
+    private string errorMessage;
 
-    private async Task FetchStats()
+    private async Task FetchPlayerStats()
     {
-        if (!string.IsNullOrEmpty(nickname))
+        if (string.IsNullOrWhiteSpace(nickname))
         {
-            isLoading = true;
-            statsResult = null;
-            try
+            errorMessage = "Please enter a nickname.";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var getPlayerIdUtility = new GetPlayerID(HttpClient, Configuration);
+            var playerId = await getPlayerIdUtility.GetPlayerIDFromNicknameAsync(nickname);
+
+            if (playerId.StartsWith("!!CASE SENSITIVE!!"))
             {
-                string playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(nickname);
-                if (!string.IsNullOrEmpty(playerId) && !playerId.StartsWith("Failed"))
-                {
-                    if (selectedStatsType == "basic")
-                    {
-                        statsResult = await BasicStatsHandler.GetAverageBasicStatsAsync(playerId);
-                    }
-                    else if (selectedStatsType == "detailed")
-                    {
-                        statsResult = await FullStatsHandler.GetFullStatsAsync(playerId);
-                    }
-                    else if (selectedStatsType == "league")
-                    {
-                        statsResult = await PlayerLeagueStatsHandler.GetLeagueStatsAsync(playerId);
-                    }
-                }
-                else
-                {
-                    statsResult = "Failed to fetch player ID.";
-                }
+                errorMessage = playerId; // Show error if the ID retrieval fails
+                playerStats = null;
+                playerInfo = null;
+                return;
             }
-            finally
-            {
-                isLoading = false;
-            }
+
+            // Fetch player info
+            var getPlayerInfoUtility = new GetPlayerInfo(HttpClient, Configuration);
+            playerInfo = await getPlayerInfoUtility.GetPlayerInfoAsync(playerId);
+
+            // Fetch basic stats
+            var basicStatsHandler = new BasicStatsHandler(HttpClient, Configuration);
+            playerStats = await basicStatsHandler.GetAverageBasicStatsAsync(playerId);
+
+            // Fetch match history (results)
+            var matchResults = new List<MatchHistory>();
+            var getMatchHistory = new GetMatchHistory(HttpClient, Configuration);
+            matchResults = await getMatchHistory.GetMatchHistoryAsync(playerId); // Fetch match results
+
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 }
 
 <style>
-    .loading {
-        text-align: center;
-        margin: 20px 0;
+    body {
+        background-color: #2e2e2e;
+        color: #e0e0e0;
+        font-family: 'TolyerNo1', sans-serif;
     }
 
-    .spinner-border {
-        width: 3rem;
-        height: 3rem;
+    .text-center {
+        font-size: 3rem;
+        color: #fd7d27;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .result-container {
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 20px;
+    }
+
+    .player-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        width: 500px;
+        height: 200px;
+        margin-right: 20px;
+    }
+
+    .player-info {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 15px;
+        margin-right: 50px;
+    }
+
+    .level-elo-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: right;
+    }
+
+    .player-level {
+        font-size: 3rem;
+        color: #fd7d27;
+        margin-bottom: 1px;
+        text-align: right;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .player-elo {
+        font-size: 2rem;
+        color: #8d8d8d;
+        margin-bottom: 1px;
+        text-align: right;
+        font-weight: bold;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .stats-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end margin-top: 20px;
+        width: 100%;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .stats-title {
+        margin-bottom: px;
+        color: #fd7d27;
+        font-size: 3rem;
+    }
+
+    .stats-box {
+        display: flex;
+        flex-direction: column;
+        /* Changed to column for single box layout */
+        padding: 10px;
+        border: 1px solid #fd7d27;
+        /* Border for the entire stats box */
+        border-radius: 5px;
+        /* Rounded corners */
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.1);
+        /* Optional: background color for the stats box */
+        align-items: center;
+        font-size: 2rem;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        width: 100%;
+    }
+
+    .stat-name {
+        font-weight: bold;
+    }
+
+    .stat-value {
+        color: #fd7d27;
+        font-weight: bold;
+    }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .search-input {
+        width: 300px;
+        margin-right: 10px;
+    }
+
+    .search-button {
+        margin-left: 10px;
+    }
+
+    .card {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #007bff;
+        border-radius: 10px;
     }
 </style>
