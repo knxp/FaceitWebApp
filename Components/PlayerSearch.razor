@@ -1,0 +1,90 @@
+@using faceitWebApp.Components
+@inject IConfiguration Configuration
+@inject HttpClient HttpClient
+
+<div class="search-container mb-4">
+    <input @bind="nickname" @bind:event="oninput" @onkeypress="HandleKeyPress" class="form-control search-input"
+        placeholder="Enter Player Nickname" />
+    <button @onclick="OnSearch" class="btn btn-primary search-button">Search</button>
+</div>
+
+<style>
+    .search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .search-input {
+        width: 400px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 1.2rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .search-input::placeholder {
+        color: #8d8d8d;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .search-input:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
+        outline: none;
+        color: #ffffff;
+        
+    }
+
+    .search-button {
+        height: 50px;
+        padding: 0 30px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        
+        transition: all 0.3s ease;
+    }
+
+    .search-button:hover {
+        background-color: #ff8f44;
+        transform: translateY(-1px);
+    }
+
+    .search-button:active {
+        transform: translateY(1px);
+    }
+</style>
+
+@code {
+    private string nickname;
+
+    [Parameter]
+    public EventCallback<string> OnSearchComplete { get; set; }
+
+    private async Task OnSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(nickname))
+        {
+            await OnSearchComplete.InvokeAsync(nickname);
+        }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await OnSearch();
+        }
+    }
+}

@@ -1,0 +1,162 @@
+@using faceitApp.Models
+@using faceitApp.Utilities
+@using faceitWebApp.Components
+
+<div class="player-card">
+    <div class="player-info">
+        <div class="avatar-container">
+            <img src="@PlayerInfo?.Avatar" alt="@PlayerInfo?.Nickname's Avatar" class="avatar" />
+        </div>
+        <div class="stats-container">
+            <div class="level">
+                @if (PlayerInfo?.Level != null)
+                {
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="level-badge">
+                        <title>Skill level @PlayerInfo.Level</title>
+                        <circle cx="12" cy="12" r="12" fill="#121212"></circle>
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M16.686 17.467a7.2 7.2 0 1 0-9.371 0l-1.563 1.822A9.58 9.58 0 0 1 2.4 12 9.6 9.6 0 0 1 12 2.4a9.6 9.6 0 0 1 9.6 9.6 9.58 9.58 0 0 1-3.352 7.29l-1.562-1.823z"
+                            fill="#CDCDCD" fill-opacity=".1"></path>
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M17.934 7.92a7.2 7.2 0 1 0-10.62 9.546L5.752 19.29A9.58 9.58 0 0 1 2.4 12a9.6 9.6 0 0 1 17.512-5.44l-1.978 1.36z"
+                            fill="@GetLevelColor(PlayerInfo.Level)"></path>
+                        <text x="12" y="15" font-size="8" fill="@GetLevelColor(PlayerInfo.Level)" text-anchor="middle"
+                            font-family="Arial">@PlayerInfo.Level</text>
+                    </svg>
+                }
+            </div>
+            <div class="elo">
+                <svg viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="elo-icon">
+                    <path
+                        d="M12 3c0 .463-.105.902-.292 1.293l1.998 2A2.97 2.97 0 0115 6a2.99 2.99 0 011.454.375l1.921-1.921a3 3 0 111.5 1.328l-2.093 2.093a3 3 0 11-5.49-.168l-1.999-2a2.992 2.992 0 01-2.418.074L5.782 7.876a3 3 0 11-1.328-1.5l1.921-1.921A3 3 0 1112 3z"
+                        fill="#ffffff"></path>
+                </svg>
+                <span class="elo-number">@PlayerInfo?.Elo</span>
+            </div>
+            <div class="match-history">
+                @if (MatchHistory != null && MatchHistory.Any())
+                {
+                    @foreach (var match in MatchHistory.Take(5).Reverse())
+                    {
+                        <span class="@(match.Result == 1 ? "win" : "loss")">
+                            @(match.Result == 1 ? "W" : "L")
+                        </span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .player-card {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        width: 400px;
+        height: 200px;
+    }
+
+    .player-info {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        height: 100%;
+    }
+
+    .avatar-container {
+        flex: 0 0 auto;
+    }
+
+    .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 15px;
+        object-fit: cover;
+    }
+
+    .stats-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-right: 10px;
+        height: 150px;
+    }
+
+    .level {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .level-badge {
+        width: 60px;
+        height: 60px;
+    }
+
+    .elo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .elo-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .elo-number {
+        font-size: 2rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: #ffffff;
+    }
+
+    .match-history {
+        display: flex;
+        gap: 10px;
+    }
+
+    .match-history span {
+        font-size: 1.8rem;
+        font-weight: bold;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .win {
+        color: #00ff00;
+    }
+
+    .loss {
+        color: #ff0000;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public Player PlayerInfo { get; set; }
+
+    [Parameter]
+    public List<MatchHistory> MatchHistory { get; set; }
+
+    private string GetLevelColor(int? level)
+    {
+        return level switch
+        {
+            1 => "#acacac", // White/Silver
+            2 => "#48ff70", // Green
+            3 => "#48ff70", // Green
+            4 => "#d5e400", // Yellow
+            5 => "#d5e400", // Yellow
+            6 => "#d5e400", // Yellow
+            7 => "#d5e400", // Yellow
+            8 => "#d68c03", // Orange
+            9 => "#d68c03", // Orange
+            10 => "#FF0000", // Bright Red
+            _ => "#acacac" // Default color
+        };
+    }
+}
