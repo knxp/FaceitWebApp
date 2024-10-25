@@ -1,0 +1,154 @@
+@using faceitApp.Models
+
+<div class="comparison-box">
+    <h4>Detailed Comparison</h4>
+    <div class="stats-grid">
+        <div class="stat-value @GetComparisonClass(Player1?.Kills, Player2?.Kills)">
+            @(Player1?.Kills.ToString("F2"))</div>
+        <div class="stat-label">Kills</div>
+        <div class="stat-value @GetComparisonClass(Player2?.Kills, Player1?.Kills)">
+            @(Player2?.Kills.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.Deaths, Player2?.Deaths, true)">
+            @(Player1?.Deaths.ToString("F2"))</div>
+        <div class="stat-label">Deaths</div>
+        <div class="stat-value @GetComparisonClass(Player2?.Deaths, Player1?.Deaths, true)">
+            @(Player2?.Deaths.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.Assists, Player2?.Assists)">
+            @(Player1?.Assists.ToString("F2"))</div>
+        <div class="stat-label">Assists</div>
+        <div class="stat-value @GetComparisonClass(Player2?.Assists, Player1?.Assists)">
+            @(Player2?.Assists.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.KDRatio, Player2?.KDRatio)">
+            @(Player1?.KDRatio.ToString("F2"))</div>
+        <div class="stat-label">K/D Ratio</div>
+        <div class="stat-value @GetComparisonClass(Player2?.KDRatio, Player1?.KDRatio)">
+            @(Player2?.KDRatio.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.KRRRatio, Player2?.KRRRatio)">
+            @(Player1?.KRRRatio.ToString("F2"))</div>
+        <div class="stat-label">K/R Ratio</div>
+        <div class="stat-value @GetComparisonClass(Player2?.KRRRatio, Player1?.KRRRatio)">
+            @(Player2?.KRRRatio.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.Headshots, Player2?.Headshots)">
+            @(Player1?.Headshots.ToString("F2"))</div>
+        <div class="stat-label">Headshots</div>
+        <div class="stat-value @GetComparisonClass(Player2?.Headshots, Player1?.Headshots)">
+            @(Player2?.Headshots.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.HeadshotsPercentage, Player2?.HeadshotsPercentage)">
+            @(Player1?.HeadshotsPercentage.ToString("F2"))%</div>
+        <div class="stat-label">Headshot %</div>
+        <div class="stat-value @GetComparisonClass(Player2?.HeadshotsPercentage, Player1?.HeadshotsPercentage)">
+            @(Player2?.HeadshotsPercentage.ToString("F2"))%</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.TripleKills, Player2?.TripleKills)">
+            @(Player1?.TripleKills.ToString("F2"))</div>
+        <div class="stat-label">Triple Kills</div>
+        <div class="stat-value @GetComparisonClass(Player2?.TripleKills, Player1?.TripleKills)">
+            @(Player2?.TripleKills.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.QuadroKills, Player2?.QuadroKills)">
+            @(Player1?.QuadroKills.ToString("F2"))</div>
+        <div class="stat-label">Quadro Kills</div>
+        <div class="stat-value @GetComparisonClass(Player2?.QuadroKills, Player1?.QuadroKills)">
+            @(Player2?.QuadroKills.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.PentaKills, Player2?.PentaKills)">
+            @(Player1?.PentaKills.ToString("F2"))</div>
+        <div class="stat-label">Penta Kills</div>
+        <div class="stat-value @GetComparisonClass(Player2?.PentaKills, Player1?.PentaKills)">
+            @(Player2?.PentaKills.ToString("F2"))</div>
+
+        <div class="stat-value @GetComparisonClass(Player1?.MVPs, Player2?.MVPs)">
+            @(Player1?.MVPs.ToString("F2"))</div>
+        <div class="stat-label">MVPs</div>
+        <div class="stat-value @GetComparisonClass(Player2?.MVPs, Player1?.MVPs)">
+            @(Player2?.MVPs.ToString("F2"))</div>
+    </div>
+</div>
+
+<style>
+    .comparison-box {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px auto;
+        width: 840px;
+        position: relative;
+        left: 46%;
+        transform: translateX(-50%);
+    }
+
+    .comparison-box h4 {
+        color: #fd7d27;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1fr;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .stat-label {
+        color: #ffffff;
+        font-size: 2rem;
+        text-align: center;
+        font-family: 'TolyerNo1', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        text-align: center;
+        font-family: 'TolyerNo1', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    .better {
+        color: #90EE90;
+        /* Light green */
+    }
+
+    .worse {
+        color: #FFB6C1;
+        /* Light red */
+    }
+
+    .equal {
+        color: #7ad5ec;
+        /* Light blue */
+    }
+</style>
+
+@code {
+    [Parameter]
+    public Player Player1 { get; set; }
+
+    [Parameter]
+    public Player Player2 { get; set; }
+
+    private string GetComparisonClass(double? value1, double? value2, bool isInverse = false)
+    {
+        if (!value1.HasValue || !value2.HasValue) return "";
+
+        if (Math.Abs(value1.Value - value2.Value) < 0.01) return "equal";
+
+        if (isInverse)
+        {
+            return value1 < value2 ? "better" : "worse";
+        }
+
+        return value1 > value2 ? "better" : "worse";
+    }
+}

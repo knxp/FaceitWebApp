@@ -1,0 +1,14 @@
+@using faceitWebApp.Components
+
+<div class="stat-item">
+    <div class="stat-name">@Name:</div>
+    <div class="stat-value">@(Value.HasValue ? Math.Round(Value.Value, 2).ToString() : "-")</div>
+</div>
+
+@code {
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public double? Value { get; set; }
+}

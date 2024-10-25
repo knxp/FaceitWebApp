@@ -1,0 +1,203 @@
+@page "/team-stats"
+@using faceitApp.Handlers
+@using faceitApp.Utilities
+@using faceitApp.Models
+@using faceitWebApp.Components
+@inject TeamStatsHandler TeamStatsHandler
+@inject GetTeamID GetTeamID
+
+<h3 class="text-center">Team Stats</h3>
+
+<div class="search-container mb-4">
+    <input @bind="teamInput" @bind:event="oninput" @onkeypress="HandleKeyPress" class="form-control search-input"
+        placeholder="Enter Team URL or Name" />
+    <button @onclick="FetchTeamStats" class="btn btn-primary search-button">Search</button>
+</div>
+
+@if (currentTeamInfo != null && currentTeamStats != null)
+{
+    <div class="result-container">
+        <TeamCard TeamInfo="@currentTeamInfo" TeamStats="@currentTeamStats" />
+        <MapStatsCard MapStats="@mapStats" />
+    </div>
+}
+else if (isLoading)
+{
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading team stats...</p>
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="error-message">
+        @errorMessage
+    </div>
+}
+
+<style>
+    .search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .search-input {
+        width: 400px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff !important;
+        font-size: 1.2rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .search-input::placeholder {
+        color: #8d8d8d;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .search-input:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
+        color: #ffffff !important;
+    }
+
+    .search-button {
+        height: 50px;
+        min-width: 120px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-button:hover {
+        background-color: #ff8f44;
+    }
+
+    .result-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        -webkit-animation: spin 1s linear infinite;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+        color: #fd7d27;
+        font-size: 1.2rem;
+        margin-top: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .error-message {
+        text-align: center;
+        color: #ff4444;
+        margin-top: 20px;
+        font-size: 1.2rem;
+    }
+
+    @@-webkit-keyframes spin {
+        from {
+            -webkit-transform: rotate(0deg);
+        }
+
+        to {
+            -webkit-transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+@code {
+    private string teamInput;
+    private TeamInfo currentTeamInfo;
+    private TeamStats currentTeamStats;
+    private List<MapStats> mapStats;
+    private bool isLoading;
+    private string errorMessage;
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await FetchTeamStats();
+        }
+    }
+
+    private async Task FetchTeamStats()
+    {
+        if (string.IsNullOrWhiteSpace(teamInput))
+        {
+            errorMessage = "Please enter a team URL or name";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            string teamId = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
+            if (!string.IsNullOrEmpty(teamId) && !teamId.StartsWith("Failed"))
+            {
+                var (info, stats, maps) = await TeamStatsHandler.GetTeamStatsAsync(teamId, "cs2");
+                currentTeamInfo = info;
+                currentTeamStats = stats;
+                mapStats = maps;
+            }
+            else
+            {
+                errorMessage = "Failed to fetch team information. Please check the URL or name and try again.";
+                currentTeamInfo = null;
+                currentTeamStats = null;
+                mapStats = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            currentTeamInfo = null;
+            currentTeamStats = null;
+            mapStats = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

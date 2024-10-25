@@ -5,7 +5,8 @@
 <div class="player-card">
     <div class="player-info">
         <div class="avatar-container">
-            <img src="@PlayerInfo?.Avatar" alt="@PlayerInfo?.Nickname's Avatar" class="avatar" />
+            <img src="@(string.IsNullOrEmpty(PlayerInfo?.Avatar) ? "/images/defaultPic.webp" : PlayerInfo.Avatar)"
+                alt="@PlayerInfo?.Nickname's Avatar" class="avatar" onerror="this.src='/images/defaultPic.webp'" />
         </div>
         <div class="stats-container">
             <div class="level">
@@ -76,15 +77,6 @@
         object-fit: cover;
     }
 
-    .stats-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-end;
-        padding-right: 10px;
-        height: 150px;
-    }
-
     .level {
         display: flex;
         align-items: center;
@@ -117,11 +109,11 @@
 
     .match-history {
         display: flex;
-        gap: 10px;
+        gap: 8px;
     }
 
     .match-history span {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         font-weight: bold;
         font-family: 'TolyerNo1', sans-serif;
     }

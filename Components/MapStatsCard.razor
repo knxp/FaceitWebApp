@@ -1,0 +1,112 @@
+@using faceitApp.Models
+
+<div class="map-stats-box">
+    <div class="map-header">
+        <div class="map-header-cell header-map">Map</div>
+        <div class="map-header-cell">Matches</div>
+        <div class="map-header-cell">Win Rate</div>
+    </div>
+    <div class="map-stats-grid">
+        @{
+            var defaultMaps = new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Dust2" };
+            var existingMaps = MapStats?.Where(s => !s.Map.Contains("wingman", StringComparison.OrdinalIgnoreCase)
+                && !s.Map.Equals("Overpass", StringComparison.OrdinalIgnoreCase))
+                .ToDictionary(s => s.Map, s => s) ?? new Dictionary<string, MapStats>();
+
+            foreach (var mapName in defaultMaps)
+            {
+                var mapStats = existingMaps.GetValueOrDefault(mapName, new MapStats { Map = mapName, TotalMatches = 0, Wins = 0 });
+
+                <div class="map-stat-row">
+                    <span class="map-stat-label">@mapStats.Map</span>
+                    <span class="stat-value matches">@mapStats.TotalMatches</span>
+                    <span class="map-stat-value">@($"{mapStats.WinRate:F1}%")</span>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<style>
+    .map-stats-box {
+        background-color: #ffffff1a;
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        width: 700px;
+        margin-left: 10px;
+    }
+
+    .map-header {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(253, 125, 39, 0.3);
+        margin-bottom: 15px;
+        font-size: 2rem;
+    }
+
+    .header-cell {
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'TolyerNo1', sans-serif;
+    text-align: center;
+    letter-spacing: 1px;
+    }
+
+    .header-map {
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .map-stats-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .map-stat-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: center;
+    padding: 8px 5px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    border: 0.5px solid #ffffff1a;
+}
+
+    .map-stat-row:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .map-stat-label {
+        color: #ffffff;
+        font-size: 2rem;
+        font-family: 'TolyerNo1', sans-serif;
+        letter-spacing: 0.5px;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .map-stat-value {
+        color: #fd7d27;
+        font-size: 2.2rem;
+        font-family: 'TolyerNo1', sans-serif;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-align: center;
+    }
+
+    .matches {
+        color: #ffffff;
+        font-size: 2rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public List<MapStats> MapStats { get; set; }
+}

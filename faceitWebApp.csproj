@@ -9,4 +9,12 @@
   <ItemGroup>
     <ProjectReference Include="..\faceitApp\faceitApp.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazorise" Version="1.3.3" />
+    <PackageReference Include="Blazorise.Bootstrap" Version="1.3.3" />
+    <PackageReference Include="Blazorise.Charts" Version="1.3.3" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.3.3" />
+    <PackageReference Include="Blazorise.Licensing" Version="1.2.0" />
+  </ItemGroup>
 </Project>

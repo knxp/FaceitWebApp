@@ -1,0 +1,231 @@
+@page "/compare-players"
+@using faceitApp.Handlers
+@using faceitApp.Utilities
+@using faceitApp.Models
+@using faceitWebApp.Components
+@inject BasicStatsHandler BasicStatsHandler
+@inject GetPlayerID GetPlayerID
+@inject GetPlayerInfo GetPlayerInfo
+@inject GetMatchHistory GetMatchHistory
+
+<h3 class="text-center">Compare Players</h3>
+
+<div class="compare-container">
+    <div class="search-section">
+        <input @bind="player1Input" 
+               @bind:event="oninput"
+               class="form-control search-input" 
+               placeholder="Enter First Player Nickname" />
+        <input @bind="player2Input" 
+               @bind:event="oninput"
+               class="form-control search-input" 
+               placeholder="Enter Second Player Nickname" />
+        <button @onclick="CompareStats" class="btn btn-primary search-button">Compare</button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading comparison...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">
+            @errorMessage
+        </div>
+    }
+    else if (player1Info != null && player2Info != null)
+    {
+        <div class="result-container">
+            <PlayerCard PlayerInfo="@player1Info" MatchHistory="@player1History" />
+            <PlayerCard PlayerInfo="@player2Info" MatchHistory="@player2History" />
+        </div>
+
+        <PlayerComparison Player1="@player1Stats" Player2="@player2Stats" />
+    }
+</div>
+
+<style>
+    .compare-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .search-section {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .search-input {
+        width: 300px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff !important;
+        font-size: 1.2rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .search-input::placeholder {
+        color: #8d8d8d;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .search-input:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
+        color: #ffffff !important;
+    }
+
+    .search-button {
+        height: 50px;
+        min-width: 120px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-button:hover {
+        background-color: #ff8f44;
+    }
+
+    .result-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        -webkit-animation: spin 1s linear infinite;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+        color: #fd7d27;
+        font-size: 1.2rem;
+        margin-top: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .error-message {
+        text-align: center;
+        color: #ff4444;
+        margin-top: 20px;
+        font-size: 1.2rem;
+    }
+
+    @@-webkit-keyframes spin {
+        from { -webkit-transform: rotate(0deg); }
+        to { -webkit-transform: rotate(360deg); }
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+@code {
+    private string player1Input;
+    private string player2Input;
+    private Player player1Info;
+    private Player player2Info;
+    private Player player1Stats;
+    private Player player2Stats;
+    private List<MatchHistory> player1History;
+    private List<MatchHistory> player2History;
+    private bool isLoading;
+    private string errorMessage;
+
+    private async Task CompareStats()
+    {
+        if (string.IsNullOrWhiteSpace(player1Input) || string.IsNullOrWhiteSpace(player2Input))
+        {
+            errorMessage = "Please enter both player nicknames";
+            return;
+        }
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var player1Id = await GetPlayerID.GetPlayerIDFromNicknameAsync(player1Input);
+            var player2Id = await GetPlayerID.GetPlayerIDFromNicknameAsync(player2Input);
+
+            if (!player1Id.StartsWith("Error") && !player2Id.StartsWith("Error"))
+            {
+                // Get all data in parallel for better performance
+                var player1InfoTask = GetPlayerInfo.GetPlayerInfoAsync(player1Id);
+                var player1StatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(player1Id);
+                var player1HistoryTask = GetMatchHistory.GetMatchHistoryAsync(player1Id);
+
+                var player2InfoTask = GetPlayerInfo.GetPlayerInfoAsync(player2Id);
+                var player2StatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(player2Id);
+                var player2HistoryTask = GetMatchHistory.GetMatchHistoryAsync(player2Id);
+
+                await Task.WhenAll(player1InfoTask, player1StatsTask, player1HistoryTask,
+                                 player2InfoTask, player2StatsTask, player2HistoryTask);
+
+                player1Info = await player1InfoTask;
+                player1Stats = await player1StatsTask;
+                player1History = await player1HistoryTask;
+
+                player2Info = await player2InfoTask;
+                player2Stats = await player2StatsTask;
+                player2History = await player2HistoryTask;
+            }
+            else
+            {
+                errorMessage = "Failed to fetch player information. Please check the nicknames and try again.";
+                ResetPlayerData();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            ResetPlayerData();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ResetPlayerData()
+    {
+        player1Info = null;
+        player1Stats = null;
+        player1History = null;
+        player2Info = null;
+        player2Stats = null;
+        player2History = null;
+    }
+}

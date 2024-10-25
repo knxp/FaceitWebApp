@@ -9,7 +9,14 @@ C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitWebApp.deps.j
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitWebApp.runtimeconfig.json
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitWebApp.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitWebApp.pdb
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Bootstrap.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Charts.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Icons.FontAwesome.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Licensing.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\DeepCloner.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\FaceitAPI.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Lambda2Js.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Newtonsoft.Json.dll
@@ -23,6 +30,7 @@ C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.csproj
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.RazorAssemblyInfo.cache
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.RazorAssemblyInfo.cs
+C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.sourcelink.json
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\staticwebassets\msbuild.faceitWebApp.Microsoft.AspNetCore.StaticWebAssets.props
@@ -37,4 +45,3 @@ C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\refint\faceitWebApp
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.pdb
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.genruntimeconfig.cache
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\ref\faceitWebApp.dll
-C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.sourcelink.json

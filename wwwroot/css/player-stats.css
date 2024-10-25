@@ -1,0 +1,123 @@
+body {
+    background-color: #2e2e2e;
+    color: #e0e0e0;
+    font-family: 'TolyerNo1', sans-serif;
+}
+
+.text-center {
+    font-size: 3rem;
+    color: #fd7d27;
+    font-family: 'TolyerNo1', sans-serif;
+}
+
+.result-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+.player-card {
+    background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        width: 400px;
+        height: 200px;
+        margin-right: 20px;
+}
+
+.player-info {
+    display: flex;
+        justify-content: space-between;
+        width: 100%;
+}
+
+.avatar {
+    width: 150px;
+        height: 150px;
+        border-radius: 15px;
+        object-fit: cover;
+}
+
+.avatar-container {
+    flex: 0 0 auto;
+}
+
+.level-elo-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+}
+
+.player-level {
+    font-size: 3rem;
+    color: #fd7d27;
+    margin-bottom: 1px;
+    text-align: right;
+    font-family: 'TolyerNo1', sans-serif;
+}
+
+.player-elo {
+    font-size: 2rem;
+    color: #8d8d8d;
+    margin-bottom: 1px;
+    text-align: right;
+    font-weight: bold;
+    font-family: 'TolyerNo1', sans-serif;
+}
+
+.stats-container {
+    display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        padding-right: 10px;
+        width: 400px;
+    font-family: 'TolyerNo1', sans-serif;
+}
+
+.stats-title {
+    margin-bottom: px;
+    color: #fd7d27;
+    font-size: 3rem;
+}
+
+.stats-box {
+    display: flex;
+    flex-direction: column;
+    /* Changed to column for single box layout */
+    padding: 10px;
+    border: 1px solid #fd7d27;
+    /* Border for the entire stats box */
+    border-radius: 5px;
+    /* Rounded corners */
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1);
+    /* Optional: background color for the stats box */
+    align-items: center;
+    font-size: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    width: 100%;
+}
+
+.stat-name {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.stat-value {
+    color: #fd7d27;
+    font-weight: bold;
+}
+
+
+.card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #007bff;
+    border-radius: 10px;
+}
+

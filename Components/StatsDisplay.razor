@@ -1,0 +1,24 @@
+@using faceitApp.Models
+@using faceitWebApp.Components
+
+<div class="stats-container">
+    <div class="stats-box">
+        <h6 class="stats-title text-center">Basic Stats</h6>
+        <StatItem Name="Kills" Value="@PlayerStats?.Kills" />
+        <StatItem Name="Assists" Value="@PlayerStats?.Assists" />
+        <StatItem Name="Deaths" Value="@PlayerStats?.Deaths" />
+        <StatItem Name="K/D Ratio" Value="@PlayerStats?.KDRatio" />
+        <StatItem Name="K/R Ratio" Value="@PlayerStats?.KRRRatio" />
+        <StatItem Name="Headshots" Value="@PlayerStats?.Headshots" />
+        <StatItem Name="Headshots %" Value="@PlayerStats?.HeadshotsPercentage" />
+        <StatItem Name="Triple Kills" Value="@PlayerStats?.TripleKills" />
+        <StatItem Name="Quadro Kills" Value="@PlayerStats?.QuadroKills" />
+        <StatItem Name="Penta Kills" Value="@PlayerStats?.PentaKills" />
+        <StatItem Name="MVPs" Value="@PlayerStats?.MVPs" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Player PlayerStats { get; set; }
+}

@@ -1,0 +1,152 @@
+@using faceitApp.Models
+
+<div class="team-card">
+    <div class="team-info">
+        <div class="avatar-container">
+            <img src="@(string.IsNullOrEmpty(TeamInfo?.Avatar) ? "/images/defaultPic.webp" : TeamInfo.Avatar)"
+                alt="@TeamInfo?.Name's Avatar" class="avatar" onerror="this.src='/images/defaultPic.webp'" />
+        </div>
+        <div class="content-container">
+            <div class="team-name">@TeamInfo?.Name</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">Total Matches</div>
+                    <div class="stat-value">@TeamStats?.TotalMatches</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Win Rate</div>
+                    <div class="stat-value">@($"{TeamStats?.WinRate:F1}%")</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value">@TeamStats?.CurrentStreak</div>
+                </div>
+            </div>
+            <div class="recent-results">
+                @if (TeamStats?.RecentMatches != null)
+                {
+                    @foreach (var match in TeamStats.RecentMatches)
+                    {
+                        <span class="@(match.Result == 1 ? "win" : "loss")">
+                            @(match.Result == 1 ? "W" : "L")
+                        </span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .team-card {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        width: 600px;
+        height: 200px;
+        margin-right: 10px;
+    }
+
+    .team-info {
+        display: flex;
+        gap: 20px;
+        height: 100%;
+    }
+
+    .avatar-container {
+        flex: 0 0 auto;
+    }
+
+    .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 15px;
+        object-fit: cover;
+    }
+
+    .content-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .team-name {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #fd7d27;
+        font-family: 'TolyerNo1', sans-serif;
+        text-align: center;
+        margin-top: -5px;
+        margin-bottom: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: auto 0;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stat-label {
+        color: #a3a3a3;
+        font-size: 1.35rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: -4px;
+    }
+
+    .stat-value {
+        color: #ffffff;
+        font-size: 1.35rem;
+        font-weight: bold;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .recent-results {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: auto;
+        padding-top: 15px;
+    }
+
+    .recent-results span {
+        font-size: 1.5rem;
+        font-weight: bold;
+        font-family: 'TolyerNo1', sans-serif;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .win {
+        color: #00ff00;
+    }
+
+    .loss {
+        color: #ff0000;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public TeamInfo TeamInfo { get; set; }
+
+    [Parameter]
+    public TeamStats TeamStats { get; set; }
+}

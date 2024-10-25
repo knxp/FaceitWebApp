@@ -1,12 +1,12 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
-      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\AveragePlayerStats.json",
+      "PackagePath": "staticwebassets\\AveragePlayerStats.json"
     },
     {
-      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
-      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\chart.js",
+      "PackagePath": "staticwebassets\\chart.js"
     },
     {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
@@ -45,12 +45,24 @@
       "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.woff"
     },
     {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\player-stats.css",
+      "PackagePath": "staticwebassets\\css\\player-stats.css"
+    },
+    {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\fonts\\TolyerNo1-Medium.ttf",
+      "PackagePath": "staticwebassets\\fonts\\TolyerNo1-Medium.ttf"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\images\\defaultPic.webp",
+      "PackagePath": "staticwebassets\\images\\defaultPic.webp"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.faceitWebApp.props",
