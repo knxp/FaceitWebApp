@@ -8,46 +8,104 @@
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
 
-<h3 class="text-center">Compare Players</h3>
+<div class="@(isLoading ? "compare-overlay" : "")">
+    <h3 class="text-center">Compare Players</h3>
 
-<div class="compare-container">
-    <div class="search-section">
-        <input @bind="player1Input" 
-               @bind:event="oninput"
-               class="form-control search-input" 
-               placeholder="Enter First Player Nickname" />
-        <input @bind="player2Input" 
-               @bind:event="oninput"
-               class="form-control search-input" 
-               placeholder="Enter Second Player Nickname" />
-        <button @onclick="CompareStats" class="btn btn-primary search-button">Compare</button>
+    <div class="compare-container">
+        <div class="search-section">
+            <input @bind="player1Input" @bind:event="oninput" @onkeypress="HandleKeyPress"
+                class="form-control search-input" placeholder="Enter First Player Nickname" />
+            <input @bind="player2Input" @bind:event="oninput" @onkeypress="HandleKeyPress"
+                class="form-control search-input" placeholder="Enter Second Player Nickname" />
+            <button @onclick="CompareStats" class="btn btn-primary search-button">Compare</button>
+        </div>
+
+        @if (player1Info != null && player2Info != null)
+        {
+            <div class="result-container">
+                <PlayerCard PlayerInfo="@player1Info" MatchHistory="@player1History" />
+                <PlayerCard PlayerInfo="@player2Info" MatchHistory="@player2History" />
+            </div>
+
+            <PlayerComparison Player1="@player1Stats" Player2="@player2Stats" />
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">
+                @errorMessage
+            </div>
+        }
     </div>
-
-    @if (isLoading)
-    {
-        <div class="loading-container">
-            <div class="spinner"></div>
-            <p class="loading-text">Loading comparison...</p>
-        </div>
-    }
-    else if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="error-message">
-            @errorMessage
-        </div>
-    }
-    else if (player1Info != null && player2Info != null)
-    {
-        <div class="result-container">
-            <PlayerCard PlayerInfo="@player1Info" MatchHistory="@player1History" />
-            <PlayerCard PlayerInfo="@player2Info" MatchHistory="@player2History" />
-        </div>
-
-        <PlayerComparison Player1="@player1Stats" Player2="@player2Stats" />
-    }
 </div>
 
+@if (isLoading)
+{
+    <div class="compare-loading-overlay">
+        <div class="compare-loading-content">
+            <div class="compare-spinner"></div>
+            <p class="compare-loading-text">Loading comparison...</p>
+        </div>
+    </div>
+}
+
 <style>
+    .compare-overlay {
+        position: relative;
+        filter: blur(
+    @(isLoading
+        ?
+        "2px"
+        :
+        "0")
+            );
+        pointer-events:
+    @(isLoading
+        ?
+        "none"
+        :
+        "auto")
+        ;
+        transition: filter 0.3s ease;
+    }
+
+    .compare-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .compare-loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .compare-spinner {
+        width: 80px;
+        height: 80px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        -webkit-animation: compare-spin 1s linear infinite;
+        animation: compare-spin 1s linear infinite;
+    }
+
+    .compare-loading-text {
+        color: #fd7d27;
+        font-size: 2rem;
+        margin-top: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
     .compare-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -109,31 +167,6 @@
         margin-top: 30px;
     }
 
-    .loading-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-
-    .spinner {
-        width: 60px;
-        height: 60px;
-        border: 6px solid rgba(253, 125, 39, 0.1);
-        border-left-color: #fd7d27;
-        border-radius: 50%;
-        -webkit-animation: spin 1s linear infinite;
-        animation: spin 1s linear infinite;
-    }
-
-    .loading-text {
-        color: #fd7d27;
-        font-size: 1.2rem;
-        margin-top: 1rem;
-        font-family: 'TolyerNo1', sans-serif;
-    }
-
     .error-message {
         text-align: center;
         color: #ff4444;
@@ -141,14 +174,24 @@
         font-size: 1.2rem;
     }
 
-    @@-webkit-keyframes spin {
-        from { -webkit-transform: rotate(0deg); }
-        to { -webkit-transform: rotate(360deg); }
+    @@-webkit-keyframes compare-spin {
+        from {
+            -webkit-transform: rotate(0deg);
+        }
+
+        to {
+            -webkit-transform: rotate(360deg);
+        }
     }
 
-    @@keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+    @@keyframes compare-spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
@@ -163,6 +206,14 @@
     private List<MatchHistory> player2History;
     private bool isLoading;
     private string errorMessage;
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await CompareStats();
+        }
+    }
 
     private async Task CompareStats()
     {
@@ -192,7 +243,7 @@
                 var player2HistoryTask = GetMatchHistory.GetMatchHistoryAsync(player2Id);
 
                 await Task.WhenAll(player1InfoTask, player1StatsTask, player1HistoryTask,
-                                 player2InfoTask, player2StatsTask, player2HistoryTask);
+                player2InfoTask, player2StatsTask, player2HistoryTask);
 
                 player1Info = await player1InfoTask;
                 player1Stats = await player1StatsTask;

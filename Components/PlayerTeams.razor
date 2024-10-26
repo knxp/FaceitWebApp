@@ -1,0 +1,86 @@
+@using faceitApp.Models
+@inject NavigationManager NavigationManager
+
+<div class="player-teams-container">
+    <h4 class="player-teams-header">Teams</h4>
+    <div class="player-teams-grid">
+        @if (Teams != null && Teams.Any())
+        {
+            var uniqueTeams = Teams.DistinctBy(t => t.Name.ToLower()).ToList();
+            foreach (var team in uniqueTeams)
+            {
+                <div class="player-teams-name" @onclick="() => NavigateToTeamStats(team.Name)">@team.Name</div>
+            }
+        }
+        else
+        {
+            <div class="player-teams-empty">No teams found</div>
+        }
+    </div>
+</div>
+
+<style>
+    .player-teams-container {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        width: 400px;
+        height: auto;
+        margin-top: 10px;
+    }
+
+    .player-teams-header {
+        color: #fd7d27;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: 'TolyerNo1', sans-serif;
+        letter-spacing: 0.6px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #fd7d2780;
+    }
+
+    .player-teams-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+        padding: 0 10px;
+    }
+
+    .player-teams-name {
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-family: 'TolyerNo1', sans-serif;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .player-teams-name:hover {
+        text-decoration: underline;
+        color: #fd7d27;
+    }
+
+    .player-teams-empty {
+        color: #757575;
+        font-size: 1.5rem;
+        font-family: 'TolyerNo1', sans-serif;
+        text-align: center;
+        grid-column: span 2;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public List<TeamInfo> Teams { get; set; }
+
+    private void NavigateToTeamStats(string teamName)
+    {
+        NavigationManager.NavigateTo($"/team-stats?team={Uri.EscapeDataString(teamName)}", true);
+    }
+}

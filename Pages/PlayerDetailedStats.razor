@@ -6,184 +6,227 @@
 @inject FullStatsHandler FullStatsHandler
 @inject GetPlayerID GetPlayerID
 
-<div class="header-container">
-    <h3 class="text-center">Detailed Player Stats</h3>
-    <div class="info-icon-container">
-        <span class="info-icon">i</span>
-        <div class="tooltip-content">
-            All statistics shown are averages per match.
-            Percentages and ratios are calculated using the player's actual performance data.
-            Stats are updated after each match is completed.
+<div class="@(isLoading ? "detailed-overlay" : "")">
+    <div class="detailed-header-container">
+        <h3 class="text-center">Detailed Player Stats</h3>
+        <div class="detailed-info-icon-container">
+            <span class="detailed-info-icon">i</span>
+            <div class="detailed-tooltip-content">
+                All statistics shown are averages per match.
+                Percentages and ratios are calculated using the player's actual performance data.
+                *Detailed Stats only availible starting June 16 2024.*
+            </div>
         </div>
     </div>
+
+    <PlayerSearch OnSearchComplete="FetchPlayerStats" />
+
+    @if (playerStats != null)
+    {
+        <div class="detailed-stats-container">
+            <div class="detailed-stats-grid">
+                <!-- Combat Stats -->
+                <div class="detailed-stats-column">
+                    <h5>Combat Stats</h5>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Kills</span>
+                        <span class="detailed-stat-value">@playerStats.Kills.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Deaths</span>
+                        <span class="detailed-stat-value">@playerStats.Deaths.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Assists</span>
+                        <span class="detailed-stat-value">@playerStats.Assists.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">ADR</span>
+                        <span class="detailed-stat-value">@playerStats.ADR.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">HS %</span>
+                        <span class="detailed-stat-value">@playerStats.HeadshotsPercentage.ToString("F2")%</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">K/D Ratio</span>
+                        <span class="detailed-stat-value">@playerStats.KDRatio.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">K/R Ratio</span>
+                        <span class="detailed-stat-value">@playerStats.KRRRatio.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">HS Per Game</span>
+                        <span class="detailed-stat-value">@playerStats.Headshots.ToString("F2")</span>
+                    </div>
+                </div>
+
+                <!-- Entry Stats -->
+                <div class="detailed-stats-column">
+                    <h5>Entry Stats</h5>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Entry Attempts</span>
+                        <span class="detailed-stat-value">@playerStats.EntryCount.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Entry Rate</span>
+                        <span class="detailed-stat-value">@playerStats.MatchEntryRate.ToString("F2")%</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">First Kills</span>
+                        <span class="detailed-stat-value">@playerStats.FirstKills.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Entry Success Rate</span>
+                        <span class="detailed-stat-value">@playerStats.MatchEntrySuccessRate.ToString("F2")%</span>
+                    </div>
+                </div>
+
+                <!-- Clutch Stats -->
+                <div class="detailed-stats-column">
+                    <h5>Clutch Stats</h5>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">1v1 Chances</span>
+                        <span class="detailed-stat-value">@playerStats.OneVOneCount.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">1v1 Wins</span>
+                        <span class="detailed-stat-value">@playerStats.OneVOneWins.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">1v1 Win Rate</span>
+                        <span class="detailed-stat-value">@(playerStats.OneVOneCount > 0 ? (playerStats.OneVOneWins /
+                        playerStats.OneVOneCount * 100).ToString("F2") : "0.00")%</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">1v2 Chances</span>
+                        <span class="detailed-stat-value">@playerStats.OneVTwoCount.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">1v2 Wins</span>
+                        <span class="detailed-stat-value">@playerStats.OneVTwoWins.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">1v2 Win Rate</span>
+                        <span class="detailed-stat-value">@(playerStats.OneVTwoCount > 0 ? (playerStats.OneVTwoWins /
+                        playerStats.OneVTwoCount * 100).ToString("F2") : "0.00")%</span>
+                    </div>
+                </div>
+
+                <!-- Weapon Stats -->
+                <div class="detailed-stats-column">
+                    <h5>Weapon Stats</h5>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Pistol Kills</span>
+                        <span class="detailed-stat-value">@playerStats.PistolKills.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Pistol Kill Rate</span>
+                        <span class="detailed-stat-value">@(playerStats.Kills > 0 ? (playerStats.PistolKills /
+                        playerStats.Kills * 100).ToString("F2") : "0.00")%</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Sniper Kills</span>
+                        <span class="detailed-stat-value">@playerStats.SniperKills.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Sniper Kill Rate</span>
+                        <span class="detailed-stat-value">@(playerStats.Kills > 0 ? (playerStats.SniperKills /
+                        playerStats.Kills * 100).ToString("F2") : "0.00")%</span>
+                    </div>
+                </div>
+
+                <!-- Utility Stats -->
+                <div class="detailed-stats-column">
+                    <h5>Utility Stats</h5>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Flash Thrown</span>
+                        <span class="detailed-stat-value">@playerStats.FlashCount.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Flash Success</span>
+                        <span class="detailed-stat-value">@playerStats.FlashSuccesses.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Enemies Flashed</span>
+                        <span class="detailed-stat-value">@playerStats.EnemiesFlashed.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Flash Success Rate</span>
+                        <span class="detailed-stat-value">@(playerStats.FlashCount > 0 ? (playerStats.FlashSuccesses /
+                        playerStats.FlashCount * 100).ToString("F2") : "0.00")%</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Utility Damage</span>
+                        <span class="detailed-stat-value">@playerStats.UtilityDamage.ToString("F2")</span>
+                    </div>
+                    <div class="detailed-stat-row">
+                        <span class="detailed-stat-label">Utility Success</span>
+                        <span class="detailed-stat-value">@playerStats.UtilitySuccesses.ToString("F2")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="detailed-error-message">@errorMessage</div>
+    }
 </div>
 
-<PlayerSearch OnSearchComplete="FetchPlayerStats" />
-
-@if (playerStats != null)
+@if (isLoading)
 {
-    <div class="detailed-stats-container">
-        <div class="stats-grid">
-            <!-- Rest of the component remains exactly the same -->
-            <!-- Combat Stats -->
-            <div class="stats-column">
-                <h5>Combat Stats</h5>
-                <div class="stat-row">
-                    <span class="stat-label">Kills</span>
-                    <span class="stat-value">@playerStats.Kills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Deaths</span>
-                    <span class="stat-value">@playerStats.Deaths.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Assists</span>
-                    <span class="stat-value">@playerStats.Assists.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">ADR</span>
-                    <span class="stat-value">@playerStats.ADR.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">HS %</span>
-                    <span class="stat-value">@playerStats.HeadshotsPercentage.ToString("F2")%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">K/D Ratio</span>
-                    <span class="stat-value">@playerStats.KDRatio.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">K/R Ratio</span>
-                    <span class="stat-value">@playerStats.KRRRatio.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">HS Per Game</span>
-                    <span class="stat-value">@playerStats.Headshots.ToString("F2")</span>
-                </div>
-            </div>
-
-            <!-- Entry Stats -->
-            <div class="stats-column">
-                <h5>Entry Stats</h5>
-                <div class="stat-row">
-                    <span class="stat-label">Entry Attempts</span>
-                    <span class="stat-value">@playerStats.EntryCount.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Entry Rate</span>
-                    <span class="stat-value">@playerStats.MatchEntryRate.ToString("F2")%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">First Kills</span>
-                    <span class="stat-value">@playerStats.FirstKills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Entry Success Rate</span>
-                    <span class="stat-value">@playerStats.MatchEntrySuccessRate.ToString("F2")%</span>
-                </div>
-            </div>
-
-            <!-- Clutch Stats -->
-            <div class="stats-column">
-                <h5>Clutch Stats</h5>
-                <div class="stat-row">
-                    <span class="stat-label">1v1 Chances</span>
-                    <span class="stat-value">@playerStats.OneVOneCount.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">1v1 Wins</span>
-                    <span class="stat-value">@playerStats.OneVOneWins.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">1v1 Win Rate</span>
-                    <span class="stat-value">@(playerStats.OneVOneCount > 0 ? (playerStats.OneVOneWins /
-                    playerStats.OneVOneCount * 100).ToString("F2") : "0.00")%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">1v2 Chances</span>
-                    <span class="stat-value">@playerStats.OneVTwoCount.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">1v2 Wins</span>
-                    <span class="stat-value">@playerStats.OneVTwoWins.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">1v2 Win Rate</span>
-                    <span class="stat-value">@(playerStats.OneVTwoCount > 0 ? (playerStats.OneVTwoWins /
-                    playerStats.OneVTwoCount * 100).ToString("F2") : "0.00")%</span>
-                </div>
-            </div>
-
-            <!-- Weapon Stats -->
-            <div class="stats-column">
-                <h5>Weapon Stats</h5>
-                <div class="stat-row">
-                    <span class="stat-label">Pistol Kills</span>
-                    <span class="stat-value">@playerStats.PistolKills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Pistol Kill Rate</span>
-                    <span class="stat-value">@(playerStats.Kills > 0 ? (playerStats.PistolKills / playerStats.Kills *
-                    100).ToString("F2") : "0.00")%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Sniper Kills</span>
-                    <span class="stat-value">@playerStats.SniperKills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Sniper Kill Rate</span>
-                    <span class="stat-value">@(playerStats.Kills > 0 ? (playerStats.SniperKills / playerStats.Kills *
-                    100).ToString("F2") : "0.00")%</span>
-                </div>
-            </div>
-
-            <!-- Utility Stats -->
-            <div class="stats-column">
-                <h5>Utility Stats</h5>
-                <div class="stat-row">
-                    <span class="stat-label">Flash Thrown</span>
-                    <span class="stat-value">@playerStats.FlashCount.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Flash Success</span>
-                    <span class="stat-value">@playerStats.FlashSuccesses.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Enemies Flashed</span>
-                    <span class="stat-value">@playerStats.EnemiesFlashed.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Flash Success Rate</span>
-                    <span class="stat-value">@(playerStats.FlashCount > 0 ? (playerStats.FlashSuccesses /
-                    playerStats.FlashCount * 100).ToString("F2") : "0.00")%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Utility Damage</span>
-                    <span class="stat-value">@playerStats.UtilityDamage.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Utility Success</span>
-                    <span class="stat-value">@playerStats.UtilitySuccesses.ToString("F2")</span>
-                </div>
-            </div>
+    <div class="detailed-loading-overlay">
+        <div class="detailed-loading-content">
+            <div class="detailed-spinner"></div>
+            <p class="detailed-loading-text">Loading detailed stats...</p>
         </div>
     </div>
-}
-else if (isLoading)
-{
-    <div class="loading-container">
-        <div class="spinner"></div>
-        <p class="loading-text">Loading detailed stats...</p>
-    </div>
-}
-else if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="error-message">@errorMessage</div>
 }
 
 <style>
-    /* Add new styles for the header and info icon */
-    .header-container {
+    .detailed-overlay {
+        position: relative;
+        filter: blur(
+    @(isLoading
+        ?
+        "2px"
+        :
+        "0")
+            );
+        pointer-events:
+    @(isLoading
+        ?
+        "none"
+        :
+        "auto")
+        ;
+        transition: filter 0.3s ease;
+    }
+
+    .detailed-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .detailed-loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .detailed-header-container {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -191,12 +234,12 @@ else if (!string.IsNullOrEmpty(errorMessage))
         margin-bottom: 20px;
     }
 
-    .info-icon-container {
+    .detailed-info-icon-container {
         position: relative;
         display: inline-block;
     }
 
-    .info-icon {
+    .detailed-info-icon {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -213,16 +256,15 @@ else if (!string.IsNullOrEmpty(errorMessage))
         font-weight: bold;
     }
 
-    .info-icon:hover {
+    .detailed-info-icon:hover {
         background-color: #ff8f44;
     }
 
-    .tooltip-content {
+    .detailed-tooltip-content {
         visibility: hidden;
         position: absolute;
         width: 400px;
         background-color: rgb(83, 83, 83);
-        /* Changed to fully opaque */
         color: #ffffff;
         text-align: center;
         padding: 10px;
@@ -232,109 +274,27 @@ else if (!string.IsNullOrEmpty(errorMessage))
         line-height: 1.4;
         z-index: 1;
         top: 0;
-        /* Changed from bottom: 125% */
         left: 100%;
-        /* Changed from left: 50% */
         margin-left: 10px;
-        /* Add some spacing from the icon */
         transform: none;
-        /* Remove the translateX */
         opacity: 0;
         transition: opacity 0.3s;
-    } 
+    }
 
-    .info-icon-container:hover .tooltip-content {
+    .detailed-info-icon-container:hover .detailed-tooltip-content {
         visibility: visible;
         opacity: 1;
     }
 
-    .tooltip-content::after {
+    .detailed-tooltip-content::after {
         content: "";
         position: absolute;
         top: 50%;
-        /* Center vertically */
         right: 100%;
-        /* Position on the left side */
         margin-top: -5px;
-        /* Center the arrow */
         border-width: 5px;
         border-style: solid;
         border-color: transparent #fd7d27 transparent transparent;
-        /* Point left */
-    }
-
-    /* Existing styles remain the same */
-    .search-container {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin: 20px 0;
-    }
-
-    .search-input {
-        width: 400px;
-        height: 50px;
-        background-color: rgba(30, 30, 30, 0.7);
-        border: 1px solid #fd7d27;
-        border-radius: 8px;
-        color: #ffffff !important;
-        font-size: 1.2rem;
-        padding: 0 20px;
-        transition: all 0.3s ease;
-        text-transform: none;
-        font-family: Arial, sans-serif;
-    }
-
-    .search-input::placeholder {
-        color: #8d8d8d;
-        text-transform: none;
-        font-family: Arial, sans-serif;
-    }
-
-    .search-input:focus {
-        background-color: rgba(30, 30, 30, 0.9);
-        border-color: #ff8f44;
-        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
-        color: #ffffff !important;
-    }
-
-    .search-button {
-        height: 50px;
-        min-width: 120px;
-        background-color: #fd7d27;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-    }
-
-    .search-button:hover {
-        background-color: #ff8f44;
-    }
-
-    .loading-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-
-    .spinner {
-        width: 60px;
-        height: 60px;
-        border: 6px solid rgba(253, 125, 39, 0.1);
-        border-left-color: #fd7d27;
-        border-radius: 50%;
-        -webkit-animation: spin 1s linear infinite;
-        animation: spin 1s linear infinite;
-    }
-
-    .loading-text {
-        color: #fd7d27;
-        font-size: 1.2rem;
-        margin-top: 1rem;
-        font-family: 'TolyerNo1', sans-serif;
     }
 
     .detailed-stats-container {
@@ -349,22 +309,13 @@ else if (!string.IsNullOrEmpty(errorMessage))
         transform: translateX(-50%);
     }
 
-    .detailed-stats-container h4 {
-        color: #ffffff;
-        font-size: 2.5rem;
-        text-align: center;
-        margin-bottom: 30px;
-        font-family: 'TolyerNo1', sans-serif;
-        letter-spacing: 1px;
-    }
-
-    .stats-grid {
+    .detailed-stats-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 30px;
     }
 
-    .stats-column h5 {
+    .detailed-stats-column h5 {
         color: #ffffff;
         font-size: 3rem;
         text-align: center;
@@ -373,7 +324,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         letter-spacing: 1px;
     }
 
-    .stat-row {
+    .detailed-stat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -384,11 +335,11 @@ else if (!string.IsNullOrEmpty(errorMessage))
         border: 0.5px solid #ffffff1a;
     }
 
-    .stat-row:hover {
+    .detailed-stat-row:hover {
         background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .stat-label {
+    .detailed-stat-label {
         color: #ffffff;
         font-size: 1.6rem;
         font-family: 'TolyerNo1', sans-serif;
@@ -397,7 +348,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         text-align: left;
     }
 
-    .stat-value {
+    .detailed-stat-value {
         color: #fd7d27;
         font-size: 1.9rem;
         font-family: 'TolyerNo1', sans-serif;
@@ -407,22 +358,32 @@ else if (!string.IsNullOrEmpty(errorMessage))
         text-align: right;
     }
 
-    .stats-header h4 {
-        color: #fd7d27;
-        font-size: 2.5rem;
-        font-family: 'TolyerNo1', sans-serif;
-        letter-spacing: 1px;
-        margin: 0;
-    }
-
-    .error-message {
+    .detailed-error-message {
         text-align: center;
         color: #ff4444;
         margin-top: 20px;
         font-size: 1.2rem;
     }
 
-    @@-webkit-keyframes spin {
+    .detailed-spinner {
+        align-items: center;
+        width: 80px;
+        height: 80px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        -webkit-animation: detailed-spin 1s linear infinite;
+        animation: detailed-spin 1s linear infinite;
+    }
+
+    .detailed-loading-text {
+        color: #fd7d27;
+        font-size: 2rem;
+        margin-top: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    @@-webkit-keyframes detailed-spin {
         from {
             -webkit-transform: rotate(0deg);
         }
@@ -432,7 +393,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         }
     }
 
-    @@keyframes spin {
+    @@keyframes detailed-spin {
         from {
             transform: rotate(0deg);
         }

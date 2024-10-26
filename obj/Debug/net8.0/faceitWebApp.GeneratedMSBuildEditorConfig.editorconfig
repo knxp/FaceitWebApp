@@ -22,6 +22,10 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/keato/github-projects/faceitWebApp/Components/BasicStats.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xCYXNpY1N0YXRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/keato/github-projects/faceitWebApp/Components/MapStatsCard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNYXBTdGF0c0NhcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -36,6 +40,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/keato/github-projects/faceitWebApp/Components/PlayerSearch.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJTZWFyY2gucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/PlayerTeams.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJUZWFtcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/keato/github-projects/faceitWebApp/Components/StatItem.razor]

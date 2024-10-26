@@ -6,25 +6,18 @@
 @inject TeamStatsHandler TeamStatsHandler
 @inject GetTeamID GetTeamID
 
-<h3 class="text-center">Compare Teams</h3>
+<div class="@(isLoading ? "compare-overlay" : "")">
+    <h3 class="text-center">Compare Teams</h3>
 
-<div class="compare-container">
     <div class="search-section">
-        <input @bind="team1Input" @bind:event="oninput" class="form-control search-input"
+        <input @bind="team1Input" @bind:event="oninput" @onkeypress="HandleKeyPress" class="form-control search-input"
             placeholder="Enter First Team URL or Name" />
-        <input @bind="team2Input" @bind:event="oninput" class="form-control search-input"
+        <input @bind="team2Input" @bind:event="oninput" @onkeypress="HandleKeyPress" class="form-control search-input"
             placeholder="Enter Second Team URL or Name" />
         <button @onclick="CompareStats" class="btn btn-primary search-button">Compare</button>
     </div>
 
-    @if (isLoading)
-    {
-        <div class="loading-container">
-            <div class="spinner"></div>
-            <p class="loading-text">Loading comparison...</p>
-        </div>
-    }
-    else if (!string.IsNullOrEmpty(errorMessage))
+    @if (!string.IsNullOrEmpty(errorMessage))
     {
         <div class="error-message">
             @errorMessage
@@ -41,11 +34,72 @@
     }
 </div>
 
+@if (isLoading)
+{
+    <div class="compare-loading-overlay">
+        <div class="compare-loading-content">
+            <div class="compare-spinner"></div>
+            <p class="compare-loading-text">Loading comparison...</p>
+        </div>
+    </div>
+}
+
 <style>
-    .compare-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
+    .compare-overlay {
+        position: relative;
+        filter: blur(
+    @(isLoading
+        ?
+        "2px"
+        :
+        "0")
+            );
+        pointer-events:
+    @(isLoading
+        ?
+        "none"
+        :
+        "auto")
+        ;
+        transition: filter 0.3s ease;
+    }
+
+    .compare-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .compare-loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .compare-spinner {
+        width: 80px;
+        height: 80px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        -webkit-animation: compare-spin 1s linear infinite;
+        animation: compare-spin 1s linear infinite;
+    }
+
+    .compare-loading-text {
+        color: #fd7d27;
+        font-size: 2rem;
+        margin-top: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
     }
 
     .search-section {
@@ -103,31 +157,6 @@
         margin-top: 30px;
     }
 
-    .loading-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-
-    .spinner {
-        width: 60px;
-        height: 60px;
-        border: 6px solid rgba(253, 125, 39, 0.1);
-        border-left-color: #fd7d27;
-        border-radius: 50%;
-        -webkit-animation: spin 1s linear infinite;
-        animation: spin 1s linear infinite;
-    }
-
-    .loading-text {
-        color: #fd7d27;
-        font-size: 1.2rem;
-        margin-top: 1rem;
-        font-family: 'TolyerNo1', sans-serif;
-    }
-
     .error-message {
         text-align: center;
         color: #ff4444;
@@ -135,7 +164,7 @@
         font-size: 1.2rem;
     }
 
-    @@-webkit-keyframes spin {
+    @@-webkit-keyframes compare-spin {
         from {
             -webkit-transform: rotate(0deg);
         }
@@ -145,7 +174,7 @@
         }
     }
 
-    @@keyframes spin {
+    @@keyframes compare-spin {
         from {
             transform: rotate(0deg);
         }
@@ -167,6 +196,14 @@
     private List<MapStats> team2Maps;
     private bool isLoading;
     private string errorMessage;
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await CompareStats();
+        }
+    }
 
     private async Task CompareStats()
     {

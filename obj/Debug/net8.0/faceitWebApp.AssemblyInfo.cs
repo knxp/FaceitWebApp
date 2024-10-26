@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("faceitWebApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5fc9ce3dfe860129040d544727d0e71ca61cb8d1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42c45b1d92749c1b624ef442dc6eef01e859991f")]
 [assembly: System.Reflection.AssemblyProductAttribute("faceitWebApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("faceitWebApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -8,96 +8,240 @@
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
 
-<h3 class="text-center">Player Stats</h3>
+<div class="@(isLoading ? "player-overlay" : "")">
+    <h3 class="text-center">Basic Stats</h3>
 
-<PlayerSearch OnSearchComplete="FetchPlayerStats" />
-
-@if (playerStats != null && playerInfo != null)
-{
-    <div class="stats-layout">
-        <PlayerCard PlayerInfo="@playerInfo" MatchHistory="@matchHistory" />
-        <div class="stats-list">
-            <div class="stats-column">
-                <div class="stat-row">
-                    <span class="stat-label">Kills</span>
-                    <span class="stat-value">@playerStats.Kills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Deaths</span>
-                    <span class="stat-value">@playerStats.Deaths.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Assists</span>
-                    <span class="stat-value">@playerStats.Assists.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">K/D Ratio</span>
-                    <span class="stat-value">@playerStats.KDRatio.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">K/R Ratio</span>
-                    <span class="stat-value">@playerStats.KRRRatio.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">HS %</span>
-                    <span class="stat-value">@playerStats.HeadshotsPercentage.ToString("F2")%</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">HS Per Game</span>
-                    <span class="stat-value">@playerStats.Headshots.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Triple Kills</span>
-                    <span class="stat-value">@playerStats.TripleKills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Quadro Kills</span>
-                    <span class="stat-value">@playerStats.QuadroKills.ToString("F2")</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Penta Kills</span>
-                    <span class="stat-value">@playerStats.PentaKills.ToString("F2")</span>
-                </div>
+    <div class="player-search-container">
+        <div class="player-search-group">
+            <input @bind="nickname" @bind:event="oninput" @onkeypress="HandleKeyPress" class="player-search-input"
+                placeholder="Enter Player Nickname" />
+            <button @onclick="FetchPlayerStats" class="player-search-button">Search</button>
+            <div class="player-match-limit">
+                <select @bind="matchLimit" class="player-match-select">
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="300">300</option>
+                </select>
             </div>
         </div>
     </div>
-}
-else if (isLoading)
+
+    @if (playerStats != null && playerInfo != null)
+    {
+        <div class="player-stats-layout">
+            <div class="player-stats-left-column">
+                <PlayerCard PlayerInfo="@playerInfo" MatchHistory="@matchHistory" />
+                <PlayerTeams Teams="@playerInfo.Teams" />
+            </div>
+            <div class="player-stats-container">
+                <div class="player-stats-column">
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">Kills</span>
+                        <span class="player-stat-value">@playerStats.Kills.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">Deaths</span>
+                        <span class="player-stat-value">@playerStats.Deaths.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">Assists</span>
+                        <span class="player-stat-value">@playerStats.Assists.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">K/D Ratio</span>
+                        <span class="player-stat-value">@playerStats.KDRatio.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">K/R Ratio</span>
+                        <span class="player-stat-value">@playerStats.KRRRatio.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">HS %</span>
+                        <span class="player-stat-value">@playerStats.HeadshotsPercentage.ToString("F2")%</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">HS Per Game</span>
+                        <span class="player-stat-value">@playerStats.Headshots.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">Triple Kills</span>
+                        <span class="player-stat-value">@playerStats.TripleKills.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">Quadro Kills</span>
+                        <span class="player-stat-value">@playerStats.QuadroKills.ToString("F2")</span>
+                    </div>
+                    <div class="player-stat-row">
+                        <span class="player-stat-label">Penta Kills</span>
+                        <span class="player-stat-value">@playerStats.PentaKills.ToString("F2")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="player-error-message">@errorMessage</div>
+    }
+</div>
+
+@if (isLoading)
 {
-    <div class="loading-container">
-        <div class="spinner"></div>
-        <p class="loading-text">Loading stats...</p>
+    <div class="player-loading-overlay">
+        <div class="player-loading-content">
+            <div class="player-spinner"></div>
+            <p class="player-loading-text">Loading stats...</p>
+        </div>
     </div>
-}
-else if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="error-message">@errorMessage</div>
 }
 
 <style>
-    .stats-layout {
+    .player-overlay {
+        position: relative;
+        filter: blur(
+    @(isLoading
+        ?
+        "2px"
+        :
+        "0")
+            );
+        pointer-events:
+    @(isLoading
+        ?
+        "none"
+        :
+        "auto")
+        ;
+        transition: filter 0.3s ease;
+    }
+
+    .player-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .player-loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .player-search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .player-search-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .player-search-input {
+        width: 300px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #757575 !important;
+        font-size: 1.2rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+    }
+
+    .player-match-limit {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .player-match-select {
+        width: 80px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #757575;
+        font-size: 1.2rem;
+        padding: 0 10px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .player-match-select option {
+        background-color: #1e1e1e;
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .player-search-input:focus,
+    .player-match-select:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        outline: none;
+    }
+
+    .player-search-button {
+        height: 50px;
+        min-width: 120px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        font-family: 'TolyerNo1', sans-serif;
+        color: #ffffff;
+    }
+
+    .player-search-button:hover {
+        background-color: #ff8f44;
+    }
+
+    .player-stats-layout {
         display: flex;
         justify-content: center;
         gap: 20px;
         margin-top: 20px;
     }
 
-    .stats-list {
+    .player-stats-left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .player-stats-container {
         background-color: #ffffff1a;
         border: 1px solid #fd7d27;
         border-radius: 10px;
         padding: 20px;
         width: 600px;
+        height: fit-content;
     }
 
-
-    .stats-column {
+    .player-stats-column {
         display: flex;
         flex-direction: column;
         gap: 12px;
     }
 
-    .stat-row {
+    .player-stat-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -107,11 +251,11 @@ else if (!string.IsNullOrEmpty(errorMessage))
         border: 0.5px solid #ffffff1a;
     }
 
-    .stat-row:hover {
+    .player-stat-row:hover {
         background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .stat-label {
+    .player-stat-label {
         color: #ffffff;
         font-size: 1.8rem;
         font-family: 'TolyerNo1', sans-serif;
@@ -120,7 +264,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         text-align: left;
     }
 
-    .stat-value {
+    .player-stat-value {
         color: #fd7d27;
         font-size: 2.2rem;
         font-family: 'TolyerNo1', sans-serif;
@@ -130,39 +274,31 @@ else if (!string.IsNullOrEmpty(errorMessage))
         text-align: right;
     }
 
-    .loading-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-
-    .spinner {
-        width: 60px;
-        height: 60px;
+    .player-spinner {
+        width: 80px;
+        height: 80px;
         border: 6px solid rgba(253, 125, 39, 0.1);
         border-left-color: #fd7d27;
         border-radius: 50%;
-        -webkit-animation: spin 1s linear infinite;
-        animation: spin 1s linear infinite;
+        -webkit-animation: player-spin 1s linear infinite;
+        animation: player-spin 1s linear infinite;
     }
 
-    .loading-text {
+    .player-loading-text {
         color: #fd7d27;
         font-size: 2rem;
         margin-top: 1rem;
         font-family: 'TolyerNo1', sans-serif;
     }
 
-    .error-message {
+    .player-error-message {
         text-align: center;
         color: #ff4444;
         margin-top: 20px;
         font-size: 1.2rem;
     }
 
-    @@-webkit-keyframes spin {
+    @@-webkit-keyframes player-spin {
         from {
             -webkit-transform: rotate(0deg);
         }
@@ -172,7 +308,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         }
     }
 
-    @@keyframes spin {
+    @@keyframes player-spin {
         from {
             transform: rotate(0deg);
         }
@@ -184,13 +320,23 @@ else if (!string.IsNullOrEmpty(errorMessage))
 </style>
 
 @code {
+    private string nickname;
     private Player playerStats;
     private Player playerInfo;
     private List<MatchHistory> matchHistory;
     private bool isLoading;
     private string errorMessage;
+    private int matchLimit = 100;
 
-    private async Task FetchPlayerStats(string nickname)
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await FetchPlayerStats();
+        }
+    }
+
+    private async Task FetchPlayerStats()
     {
         if (string.IsNullOrWhiteSpace(nickname))
         {
@@ -208,7 +354,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
             if (!playerId.StartsWith("Error") && !playerId.StartsWith("!!CASE SENSITIVE!!"))
             {
                 var playerInfoTask = GetPlayerInfo.GetPlayerInfoAsync(playerId);
-                var playerStatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(playerId);
+                var playerStatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(playerId, matchLimit);
                 var matchHistoryTask = GetMatchHistory.GetMatchHistoryAsync(playerId);
 
                 await Task.WhenAll(playerInfoTask, playerStatsTask, matchHistoryTask);
