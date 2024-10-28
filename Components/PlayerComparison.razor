@@ -1,7 +1,32 @@
 @using faceitApp.Models
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <div class="comparison-box">
     <h4>Detailed Comparison</h4>
+    <div class="share-button-container">
+        <button class="share-button" @onclick="ShareStats">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+            Share
+        </button>
+    </div>
+
+    @if (showNotification)
+    {
+        <div class="notification-overlay">
+            <div class="notification @(showNotification ? "show" : "")">
+                Link copied to clipboard
+            </div>
+        </div>
+    }
+
     <div class="stats-grid">
         <div class="stat-value @GetComparisonClass(Player1?.Kills, Player2?.Kills)">
             @(Player1?.Kills.ToString("F2"))</div>
@@ -72,6 +97,40 @@
 </div>
 
 <style>
+    .notification-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        pointer-events: none;
+    }
+
+    .notification {
+        background-color: rgba(253, 125, 39, 0.9);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 10px;
+        font-family: 'TolyerNo1', sans-serif;
+        font-size: 2.5rem;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .notification.show {
+        opacity: .5;
+        transform: translateY(0);
+    }
+
     .comparison-box {
         background-color: rgba(255, 255, 255, 0.1);
         border: 1px solid #fd7d27;
@@ -82,14 +141,45 @@
         position: relative;
         left: 46%;
         transform: translateX(-50%);
+        margin-top: 40px;
     }
 
     .comparison-box h4 {
         color: #fd7d27;
-        font-size: 2rem;
-        text-align: center;
-        margin-bottom: 20px;
+        font-size: 2.5rem;
         font-family: 'TolyerNo1', sans-serif;
+        text-align: center;
+        margin: 0 0 30px 0;
+    }
+
+    .share-button-container {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+    .share-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #fd7d27;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 1.2rem;
+        font-family: 'TolyerNo1', sans-serif;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .share-button:hover {
+        background-color: #ff8f44;
+    }
+
+    .share-button svg {
+        width: 20px;
+        height: 20px;
     }
 
     .stats-grid {
@@ -97,6 +187,7 @@
         grid-template-columns: 1fr 1.2fr 1fr;
         gap: 15px;
         align-items: center;
+        margin: 0 auto;
     }
 
     .stat-label {
@@ -117,17 +208,14 @@
 
     .better {
         color: #90EE90;
-        /* Light green */
     }
 
     .worse {
         color: #FFB6C1;
-        /* Light red */
     }
 
     .equal {
         color: #7ad5ec;
-        /* Light blue */
     }
 </style>
 
@@ -137,6 +225,28 @@
 
     [Parameter]
     public Player Player2 { get; set; }
+
+    private bool showNotification = false;
+    private System.Threading.Timer notificationTimer;
+
+    private async Task ShareStats()
+    {
+        var currentUri = NavigationManager.Uri;
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", currentUri);
+
+        showNotification = true;
+        StateHasChanged();
+
+        notificationTimer?.Dispose();
+        notificationTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() =>
+    {
+    showNotification = false;
+    StateHasChanged();
+            });
+        }, null, 2000, System.Threading.Timeout.Infinite);
+    }
 
     private string GetComparisonClass(double? value1, double? value2, bool isInverse = false)
     {
@@ -150,5 +260,10 @@
         }
 
         return value1 > value2 ? "better" : "worse";
+    }
+
+    public void Dispose()
+    {
+        notificationTimer?.Dispose();
     }
 }

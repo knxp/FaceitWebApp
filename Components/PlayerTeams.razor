@@ -6,10 +6,21 @@
     <div class="player-teams-grid">
         @if (Teams != null && Teams.Any())
         {
-            var uniqueTeams = Teams.DistinctBy(t => t.Name.ToLower()).ToList();
-            foreach (var team in uniqueTeams)
+            var uniqueTeams = Teams.OrderBy(t => t.Name.ToLower()).ToList();
+            var columns = 2;
+            var itemsPerColumn = (int)Math.Ceiling(uniqueTeams.Count / (double)columns);
+
+            for (int i = 0; i < itemsPerColumn; i++)
             {
-                <div class="player-teams-name" @onclick="() => NavigateToTeamStats(team.Name)">@team.Name</div>
+                for (int j = 0; j < columns; j++)
+                {
+                    var index = j * itemsPerColumn + i;
+                    if (index < uniqueTeams.Count)
+                    {
+                        var team = uniqueTeams[index];
+                        <div class="player-teams-name" @onclick="() => NavigateToTeamStats(team.Name)">@team.Name</div>
+                    }
+                }
             }
         }
         else

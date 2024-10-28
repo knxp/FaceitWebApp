@@ -3,10 +3,12 @@
 @using faceitApp.Utilities
 @using faceitApp.Models
 @using faceitWebApp.Components
+@using Microsoft.AspNetCore.WebUtilities
 @inject BasicStatsHandler BasicStatsHandler
 @inject GetPlayerID GetPlayerID
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
+@inject NavigationManager NavigationManager
 
 <div class="@(isLoading ? "compare-overlay" : "")">
     <h3 class="text-center">Compare Players</h3>
@@ -207,6 +209,19 @@
     private bool isLoading;
     private string errorMessage;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParameters = QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParameters.TryGetValue("player1", out var p1) && queryParameters.TryGetValue("player2", out var p2))
+        {
+            player1Input = p1;
+            player2Input = p2;
+            await CompareStats();
+        }
+    }
+
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -252,6 +267,16 @@
                 player2Info = await player2InfoTask;
                 player2Stats = await player2StatsTask;
                 player2History = await player2HistoryTask;
+
+                // Update URL with player nicknames
+                var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+                var newUri = QueryHelpers.AddQueryString(uri.GetLeftPart(UriPartial.Path),
+                new Dictionary<string, string>
+                    {
+{ "player1", player1Input },
+{ "player2", player2Input }
+                    });
+                NavigationManager.NavigateTo(newUri, false);
             }
             else
             {
