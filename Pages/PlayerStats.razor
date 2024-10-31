@@ -1,4 +1,5 @@
 @page "/player-stats"
+@page "/player-stats/{Nickname}"
 @using faceitApp.Handlers
 @using faceitApp.Utilities
 @using faceitApp.Models
@@ -7,6 +8,7 @@
 @inject GetPlayerID GetPlayerID
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
+@inject NavigationManager NavigationManager
 
 <div class="@(isLoading ? "player-overlay" : "")">
     <h3 class="text-center">Basic Stats</h3>
@@ -159,7 +161,7 @@
         background-color: rgba(30, 30, 30, 0.7);
         border: 1px solid #fd7d27;
         border-radius: 8px;
-        color: #757575 !important;
+        color: #8d8d8d !important;
         font-size: 1.2rem;
         padding: 0 20px;
         transition: all 0.3s ease;
@@ -320,6 +322,9 @@
 </style>
 
 @code {
+    [Parameter]
+    public string Nickname { get; set; }
+
     private string nickname;
     private Player playerStats;
     private Player playerInfo;
@@ -327,7 +332,17 @@
     private bool isLoading;
     private string errorMessage;
     private int matchLimit = 100;
+    private bool initialLoad = true;
 
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Nickname) && initialLoad)
+        {
+            initialLoad = false;
+            nickname = Uri.UnescapeDataString(Nickname);
+            await FetchPlayerStats();
+        }
+    }
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -362,6 +377,11 @@
                 playerInfo = await playerInfoTask;
                 playerStats = await playerStatsTask;
                 matchHistory = await matchHistoryTask;
+
+                if (!string.IsNullOrEmpty(nickname))
+                {
+                    NavigationManager.NavigateTo($"/player-stats/{Uri.EscapeDataString(nickname)}", false);
+                }
             }
             else
             {

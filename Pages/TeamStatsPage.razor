@@ -1,9 +1,9 @@
 @page "/team-stats"
+@page "/team-stats/{TeamName}"
 @using faceitApp.Handlers
 @using faceitApp.Utilities
 @using faceitApp.Models
 @using faceitWebApp.Components
-@using Microsoft.AspNetCore.WebUtilities
 @inject TeamStatsHandler TeamStatsHandler
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
@@ -14,7 +14,7 @@
 
     <div class="team-stats-page-search-container mb-4">
         <input @bind="teamInput" @bind:event="oninput" @onkeypress="HandleKeyPress" class="team-stats-page-search-input"
-            placeholder="Enter Team URL or Name" />
+            placeholder="Enter Team URL or Name (Case Sensitive)" />
         <button @onclick="FetchTeamStats" class="team-stats-page-search-button">Search</button>
     </div>
 
@@ -106,7 +106,7 @@
         border: 1px solid #fd7d27;
         border-radius: 8px;
         color: #ffffff !important;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         padding: 0 20px;
         transition: all 0.3s ease;
         text-transform: none;
@@ -181,8 +181,8 @@
         margin-top: 20px;
         font-size: 1.2rem;
     }
-
-    @@-webkit-keyframes team-stats-page-spin {
+    
+        @@-webkit-keyframes team-stats-page-spin {
         from {
             -webkit-transform: rotate(0deg);
         }
@@ -204,19 +204,23 @@
 </style>
 
 @code {
+    [Parameter]
+    public string TeamName { get; set; }
+
     private string teamInput;
     private TeamInfo currentTeamInfo;
     private TeamStats currentTeamStats;
     private List<MapStats> mapStats;
     private bool isLoading;
     private string errorMessage;
+    private bool initialLoad = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("team", out var team))
+        if (!string.IsNullOrEmpty(TeamName) && initialLoad)
         {
-            teamInput = team;
+            initialLoad = false;
+            teamInput = Uri.UnescapeDataString(TeamName);
             await FetchTeamStats();
         }
     }
@@ -249,6 +253,11 @@
                 currentTeamInfo = info;
                 currentTeamStats = stats;
                 mapStats = maps;
+
+                if (!string.IsNullOrEmpty(teamInput))
+                {
+                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamInput)}", false);
+                }
             }
             else
             {

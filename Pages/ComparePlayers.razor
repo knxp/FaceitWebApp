@@ -16,9 +16,9 @@
     <div class="compare-container">
         <div class="search-section">
             <input @bind="player1Input" @bind:event="oninput" @onkeypress="HandleKeyPress"
-                class="form-control search-input" placeholder="Enter First Player Nickname" />
+                class="form-control search-input" placeholder="Enter Player 1 Nickname" />
             <input @bind="player2Input" @bind:event="oninput" @onkeypress="HandleKeyPress"
-                class="form-control search-input" placeholder="Enter Second Player Nickname" />
+                class="form-control search-input" placeholder="Enter Player 2 Nickname" />
             <button @onclick="CompareStats" class="btn btn-primary search-button">Compare</button>
         </div>
 

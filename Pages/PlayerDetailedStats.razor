@@ -1,10 +1,12 @@
 @page "/player-detailed-stats"
+@page "/player-detailed-stats/{Nickname}"
 @using faceitApp.Handlers
 @using faceitApp.Utilities
 @using faceitApp.Models
 @using faceitWebApp.Components
 @inject FullStatsHandler FullStatsHandler
 @inject GetPlayerID GetPlayerID
+@inject NavigationManager NavigationManager
 
 <div class="@(isLoading ? "detailed-overlay" : "")">
     <div class="detailed-header-container">
@@ -405,9 +407,22 @@
 </style>
 
 @code {
+    [Parameter]
+    public string Nickname { get; set; }
+
     private Player playerStats;
     private bool isLoading;
     private string errorMessage;
+    private bool initialLoad = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Nickname) && initialLoad)
+        {
+            initialLoad = false;
+            await FetchPlayerStats(Uri.UnescapeDataString(Nickname));
+        }
+    }
 
     private async Task FetchPlayerStats(string nickname)
     {
@@ -426,6 +441,10 @@
             if (!playerId.StartsWith("Error") && !playerId.StartsWith("!!CASE SENSITIVE!!"))
             {
                 playerStats = await FullStatsHandler.GetFullStatsAsync(playerId);
+                if (!string.IsNullOrEmpty(nickname))
+                {
+                    NavigationManager.NavigateTo($"/player-detailed-stats/{Uri.EscapeDataString(nickname)}", false);
+                }
             }
             else
             {

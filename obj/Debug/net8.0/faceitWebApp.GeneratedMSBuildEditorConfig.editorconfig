@@ -46,6 +46,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJUZWFtcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/keato/github-projects/faceitWebApp/Components/ShareButton.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZUJ1dHRvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/keato/github-projects/faceitWebApp/Components/StatItem.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdGF0SXRlbS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -60,6 +64,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/keato/github-projects/faceitWebApp/Components/TeamComparison.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZWFtQ29tcGFyaXNvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/TeamPlayerList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZWFtUGxheWVyTGlzdC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/keato/github-projects/faceitWebApp/Pages/ComparePlayers.razor]
