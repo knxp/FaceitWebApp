@@ -16,7 +16,7 @@
     <div class="player-search-container">
         <div class="player-search-group">
             <input @bind="nickname" @bind:event="oninput" @onkeypress="HandleKeyPress" class="player-search-input"
-                placeholder="Enter Player Nickname" />
+                placeholder="Enter Faceit Username" />
             <button @onclick="FetchPlayerStats" class="player-search-button">Search</button>
             <div class="player-match-limit">
                 <select @bind="matchLimit" class="player-match-select">

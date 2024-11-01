@@ -16,7 +16,8 @@
             <span class="player-league-stats-info-icon">i</span>
             <div class="player-league-stats-tooltip-content">
                 All statistics shown are averages per match.
-                Detailed statistics are only available from Season 51 and on, due to Faceit's data tracking.
+                Detailed statistics are only available for Season 51 and newer.
+                *Detailed Stats only available starting June 16 2024.*
             </div>
         </div>
     </div>
@@ -28,57 +29,57 @@
     </div>
 
     @if (leagueStats?.OverallStats != null)
-{
-    <div class="player-league-stats-season-selector">
-        <button class="player-league-stats-season-button @(selectedSeason == null ? "active" : "")"
-            @onclick="() => SelectSeason(null)">
-            Overall
-        </button>
-        @foreach (var season in leagueStats.SeasonStats.OrderByDescending(s => s.Season))
-        {
-            <button class="player-league-stats-season-button @(selectedSeason == season.Season ? "active" : "")"
-                @onclick="() => SelectSeason(season.Season)">
-                @season.Season
+    {
+        <div class="player-league-stats-season-selector">
+            <button class="player-league-stats-season-button @(selectedSeason == null ? "active" : "")"
+                @onclick="() => SelectSeason(null)">
+                Overall
             </button>
-        }
-    </div>
-
-    @{
-        var currentStats = selectedSeason == null
-        ? new
-        {
-            Stats = leagueStats.OverallStats,
-            Season = "Overall",
-            Division = "All Divisions",
-            MatchCount = leagueStats.TotalMatches
-        }
-        : leagueStats.SeasonStats.Where(s => s.Season == selectedSeason)
-        .Select(s => new
-        {
-            Stats = s.Stats,
-            Season = s.Season,
-            Division = s.Division,
-            MatchCount = s.MatchCount
-        })
-        .First();
-
-        var seasonNumber = currentStats.Season.StartsWith("S") ? 
-            int.TryParse(currentStats.Season.Substring(1), out int num) ? num : 0 : 0;
-        var showDetailedStats = seasonNumber >= 51;
-    }
-
-    <div class="@(showDetailedStats ? "player-league-stats-container-detailed" : "player-league-stats-container")">
-        <div class="player-league-stats-season-info">
-            <h4>@currentStats.Season - @currentStats.Division</h4>
-            <p>@currentStats.MatchCount Matches</p>
+            @foreach (var season in leagueStats.SeasonStats.OrderByDescending(s => s.Season))
+            {
+                <button class="player-league-stats-season-button @(selectedSeason == season.Season ? "active" : "")"
+                    @onclick="() => SelectSeason(season.Season)">
+                    @season.Season
+                </button>
+            }
         </div>
 
-        @if (showDetailedStats)
-        {
-            <LeagueDetailedStats Stats="@currentStats.Stats" />
-        }
-        else
-        {
+        
+            var currentStats = selectedSeason == null
+                ? new
+                {
+                    Stats = leagueStats.OverallStats,
+                    Season = "Overall",
+                    Division = "All Divisions",
+                    MatchCount = leagueStats.TotalMatches
+                }
+                : leagueStats.SeasonStats.Where(s => s.Season == selectedSeason)
+                    .Select(s => new
+                    {
+                        Stats = s.Stats,
+                        Season = s.Season,
+                        Division = s.Division,
+                        MatchCount = s.MatchCount
+                    })
+                    .First();
+
+            var seasonNumber = currentStats.Season.StartsWith("S") ? 
+                int.TryParse(currentStats.Season.Substring(1), out int num) ? num : 0 : 0;
+            var showDetailedStats = seasonNumber >= 51;
+        
+
+        <div class="@(showDetailedStats ? "player-league-stats-container-detailed" : "player-league-stats-container")">
+            <div class="player-league-stats-season-info">
+                <h4>@currentStats.Season - @currentStats.Division</h4>
+                <p>@currentStats.MatchCount Matches</p>
+            </div>
+
+            @if (showDetailedStats)
+            {
+                <LeagueDetailedStats Stats="@currentStats.Stats" />
+            }
+            else
+            {
                 <div class="player-league-stats-grid">
                     <!-- Column 1 -->
                     <div class="player-league-stats-column">
@@ -108,8 +109,7 @@
                     <div class="player-league-stats-column">
                         <div class="player-league-stats-row">
                             <span class="player-league-stats-label">HS %</span>
-                            <span
-                                class="player-league-stats-value">@currentStats.Stats.HeadshotsPercentage.ToString("F2")%</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.HeadshotsPercentage.ToString("F2")%</span>
                         </div>
                         <div class="player-league-stats-row">
                             <span class="player-league-stats-label">HS Per Game</span>

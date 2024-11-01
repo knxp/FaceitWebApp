@@ -26,6 +26,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xCYXNpY1N0YXRzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/keato/github-projects/faceitWebApp/Components/LeagueDetailedStats.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMZWFndWVEZXRhaWxlZFN0YXRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/keato/github-projects/faceitWebApp/Components/MapStatsCard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNYXBTdGF0c0NhcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
