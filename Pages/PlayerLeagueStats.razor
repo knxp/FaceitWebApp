@@ -1,4 +1,5 @@
 @page "/player-league-stats"
+@page "/player-league-stats/{Nickname}"
 @using faceitApp.Handlers
 @using faceitApp.Utilities
 @using faceitApp.Models
@@ -9,104 +10,126 @@
 @inject NavigationManager NavigationManager
 
 <div class="player-league-stats-overlay @(isLoading ? "active" : "")">
-    <h3 class="text-center">League Stats</h3>
+    <div class="player-league-stats-header-container">
+        <h3 class="text-center">League Stats</h3>
+        <div class="player-league-stats-info-icon-container">
+            <span class="player-league-stats-info-icon">i</span>
+            <div class="player-league-stats-tooltip-content">
+                All statistics shown are averages per match.
+                Detailed statistics are only available from Season 51 and on, due to Faceit's data tracking.
+            </div>
+        </div>
+    </div>
 
     <div class="player-league-stats-search-container mb-4">
         <input @bind="nickname" @bind:event="oninput" @onkeypress="HandleKeyPress"
-            class="player-league-stats-search-input" placeholder="Enter Player Nickname" />
+            class="player-league-stats-search-input" placeholder="Enter Faceit Username" />
         <button @onclick="FetchPlayerStats" class="player-league-stats-search-button">Search</button>
     </div>
 
     @if (leagueStats?.OverallStats != null)
-    {
-        <div class="player-league-stats-season-selector">
-            <button class="player-league-stats-season-button @(selectedSeason == null ? "active" : "")"
-                @onclick="() => SelectSeason(null)">
-                Overall
+{
+    <div class="player-league-stats-season-selector">
+        <button class="player-league-stats-season-button @(selectedSeason == null ? "active" : "")"
+            @onclick="() => SelectSeason(null)">
+            Overall
+        </button>
+        @foreach (var season in leagueStats.SeasonStats.OrderByDescending(s => s.Season))
+        {
+            <button class="player-league-stats-season-button @(selectedSeason == season.Season ? "active" : "")"
+                @onclick="() => SelectSeason(season.Season)">
+                @season.Season
             </button>
-            @foreach (var season in leagueStats.SeasonStats.OrderByDescending(s => s.Season))
-            {
-                <button class="player-league-stats-season-button @(selectedSeason == season.Season ? "active" : "")"
-                    @onclick="() => SelectSeason(season.Season)">
-                    @season.Season
-                </button>
-            }
+        }
+    </div>
+
+    @{
+        var currentStats = selectedSeason == null
+        ? new
+        {
+            Stats = leagueStats.OverallStats,
+            Season = "Overall",
+            Division = "All Divisions",
+            MatchCount = leagueStats.TotalMatches
+        }
+        : leagueStats.SeasonStats.Where(s => s.Season == selectedSeason)
+        .Select(s => new
+        {
+            Stats = s.Stats,
+            Season = s.Season,
+            Division = s.Division,
+            MatchCount = s.MatchCount
+        })
+        .First();
+
+        var seasonNumber = currentStats.Season.StartsWith("S") ? 
+            int.TryParse(currentStats.Season.Substring(1), out int num) ? num : 0 : 0;
+        var showDetailedStats = seasonNumber >= 51;
+    }
+
+    <div class="@(showDetailedStats ? "player-league-stats-container-detailed" : "player-league-stats-container")">
+        <div class="player-league-stats-season-info">
+            <h4>@currentStats.Season - @currentStats.Division</h4>
+            <p>@currentStats.MatchCount Matches</p>
         </div>
 
-        <div class="player-league-stats-container">
-            @{
-                var currentStats = selectedSeason == null
-                ? new
-                {
-                    Stats = leagueStats.OverallStats,
-                    Season = "Overall",
-                    Division = "All Divisions",
-                    MatchCount = leagueStats.TotalMatches
-                }
-                : leagueStats.SeasonStats.Where(s => s.Season == selectedSeason)
-                .Select(s => new
-                {
-                    Stats = s.Stats,
-                    Season = s.Season,
-                    Division = s.Division,
-                    MatchCount = s.MatchCount
-                })
-                .First();
-            }
-            <div class="player-league-stats-season-info">
-                <h4>@currentStats.Season - @currentStats.Division</h4>
-                <p>@currentStats.MatchCount Matches</p>
-            </div>
-            <div class="player-league-stats-grid">
-                <!-- Column 1 -->
-                <div class="player-league-stats-column">
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">Kills</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.Kills.ToString("F2")</span>
+        @if (showDetailedStats)
+        {
+            <LeagueDetailedStats Stats="@currentStats.Stats" />
+        }
+        else
+        {
+                <div class="player-league-stats-grid">
+                    <!-- Column 1 -->
+                    <div class="player-league-stats-column">
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">Kills</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.Kills.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">Deaths</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.Deaths.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">Assists</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.Assists.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">K/D Ratio</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.KDRatio.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">K/R Ratio</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.KRRRatio.ToString("F2")</span>
+                        </div>
                     </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">Deaths</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.Deaths.ToString("F2")</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">Assists</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.Assists.ToString("F2")</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">K/D Ratio</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.KDRatio.ToString("F2")</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">K/R Ratio</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.KRRRatio.ToString("F2")</span>
-                    </div>
-                </div>
 
-                <!-- Column 2 -->
-                <div class="player-league-stats-column">
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">HS %</span>
-                        <span
-                            class="player-league-stats-value">@currentStats.Stats.HeadshotsPercentage.ToString("F2")%</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">HS Per Game</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.Headshots.ToString("F2")</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">Triple Kills</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.TripleKills.ToString("F2")</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">Quad Kills</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.QuadroKills.ToString("F2")</span>
-                    </div>
-                    <div class="player-league-stats-row">
-                        <span class="player-league-stats-label">Penta Kills</span>
-                        <span class="player-league-stats-value">@currentStats.Stats.PentaKills.ToString("F2")</span>
+                    <!-- Column 2 -->
+                    <div class="player-league-stats-column">
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">HS %</span>
+                            <span
+                                class="player-league-stats-value">@currentStats.Stats.HeadshotsPercentage.ToString("F2")%</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">HS Per Game</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.Headshots.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">Triple Kills</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.TripleKills.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">Quad Kills</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.QuadroKills.ToString("F2")</span>
+                        </div>
+                        <div class="player-league-stats-row">
+                            <span class="player-league-stats-label">Penta Kills</span>
+                            <span class="player-league-stats-value">@currentStats.Stats.PentaKills.ToString("F2")</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     }
     else if (!string.IsNullOrEmpty(errorMessage))
@@ -127,8 +150,96 @@
     </div>
 }
 
-
 <style>
+    .player-league-stats-overlay {
+        position: relative;
+        filter: blur(
+    @(isLoading
+        ?
+        "2px"
+        :
+        "0")
+            );
+        pointer-events:
+    @(isLoading
+        ?
+        "none"
+        :
+        "auto")
+        ;
+        transition: filter 0.3s ease;
+    }
+
+    .player-league-stats-header-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .player-league-stats-info-icon-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .player-league-stats-info-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #fd7d27;
+        color: white;
+        font-size: 15px;
+        cursor: help;
+        transition: background-color 0.3s;
+        font-family: 'Times New Roman', Times, serif;
+        text-transform: lowercase;
+        font-weight: bold;
+    }
+
+    .player-league-stats-info-icon:hover {
+        background-color: #ff8f44;
+    }
+
+    .player-league-stats-tooltip-content {
+        visibility: hidden;
+        position: absolute;
+        width: 400px;
+        background-color: rgb(83, 83, 83);
+        color: #ffffff;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #fd7d27;
+        font-size: 20px;
+        line-height: 1.4;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 10px;
+        transform: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .player-league-stats-info-icon-container:hover .player-league-stats-tooltip-content {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .player-league-stats-tooltip-content::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 100%;
+        margin-top: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent #fd7d27 transparent transparent;
+    }
 
     .player-league-stats-search-container {
         display: flex;
@@ -220,11 +331,20 @@
         margin: 20px auto;
         width: 600px;
         position: relative;
-        left: 30%;
+        left: 50%;
+        transform: translateX(-80%);
+    }
+
+    .player-league-stats-container-detailed {
+        background-color: #ffffff1a;
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px auto;
+        width: 1500px;
+        position: relative;
+        left: 50%;
         transform: translateX(-50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
     }
 
     .player-league-stats-season-info {
@@ -349,17 +469,30 @@
     }
 
     @@-webkit-keyframes player-league-stats-spin {
-        from { -webkit-transform: rotate(0deg); }
-        to { -webkit-transform: rotate(360deg); }
+        from {
+            -webkit-transform: rotate(0deg);
+        }
+
+        to {
+            -webkit-transform: rotate(360deg);
+        }
     }
 
     @@keyframes player-league-stats-spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
     }
 </style>
 
 @code {
+    [Parameter]
+    public string Nickname { get; set; }
+
     private string nickname;
     private LeagueStatsCollection leagueStats;
     private string selectedSeason;
