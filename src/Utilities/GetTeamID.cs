@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
-namespace faceitApp.Utilities
+namespace faceitWebApp.Utilities
 {
     public class GetTeamID
     {

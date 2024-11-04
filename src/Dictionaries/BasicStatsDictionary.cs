@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace faceitApp.Dictionaries
+namespace faceitWebApp.Dictionaries
 {
     public static class BasicStatDictionary
 {

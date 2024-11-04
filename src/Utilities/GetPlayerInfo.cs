@@ -3,10 +3,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-using faceitApp.Models;
+using faceitWebApp.Models;
 using System.Collections.Generic;
 
-namespace faceitApp.Utilities
+namespace faceitWebApp.Utilities
 {
     public class GetPlayerInfo
     {

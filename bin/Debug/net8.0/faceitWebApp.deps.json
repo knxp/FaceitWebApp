@@ -15,8 +15,7 @@
           "Blazorise.Licensing": "1.2.0",
           "Microsoft.Extensions.Configuration": "8.0.0",
           "Microsoft.Extensions.Configuration.Json": "8.0.1",
-          "Newtonsoft.Json": "13.0.3",
-          "faceitApp": "1.0.0"
+          "Newtonsoft.Json": "13.0.3"
         },
         "runtime": {
           "faceitWebApp.dll": {}
@@ -96,17 +95,6 @@
           "lib/netstandard1.3/DeepCloner.dll": {
             "assemblyVersion": "0.10.0.0",
             "fileVersion": "0.10.4.0"
-          }
-        }
-      },
-      "FaceitAPI/1.0.0.1": {
-        "dependencies": {
-          "Newtonsoft.Json": "13.0.3"
-        },
-        "runtime": {
-          "lib/netstandard2.0/FaceitAPI.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
           }
         }
       },
@@ -894,20 +882,6 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
         }
-      },
-      "faceitApp/1.0.0": {
-        "dependencies": {
-          "FaceitAPI": "1.0.0.1",
-          "Microsoft.Extensions.Configuration": "8.0.0",
-          "Microsoft.Extensions.Configuration.Json": "8.0.1",
-          "Newtonsoft.Json": "13.0.3"
-        },
-        "runtime": {
-          "faceitApp.dll": {
-            "assemblyVersion": "1.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
       }
     }
   },
@@ -958,13 +932,6 @@
       "sha512": "sha512-z8ASd9bjXkVjcnIrwUKrxb/bPi/gvG5NX3nv7MHK/5QrlYwbK7N5ZTDNaYXQ5qunaUCMGN0UHdgkNARIEBTEyA==",
       "path": "deepcloner/0.10.4",
       "hashPath": "deepcloner.0.10.4.nupkg.sha512"
-    },
-    "FaceitAPI/1.0.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-cySDOEQukD79j6/zhBrAX2ZbJTojq75CsNDBlSqNa32XQGdsgulQQ5a/wrE4nFHVljWYIQyRzqpLv5gWk1p6gw==",
-      "path": "faceitapi/1.0.0.1",
-      "hashPath": "faceitapi.1.0.0.1.nupkg.sha512"
     },
     "Lambda2Js/3.1.4": {
       "type": "package",
@@ -1630,11 +1597,6 @@
       "sha512": "sha512-5zJ0XDxAIg8iy+t4aMnQAu0MqVbqyvfoUVl1yDV61xdo3Vth45oA2FoY4pPkxYAH5f8ixpmTqXeEIya95x0aCQ==",
       "path": "system.xml.xdocument/4.3.0",
       "hashPath": "system.xml.xdocument.4.3.0.nupkg.sha512"
-    },
-    "faceitApp/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
     }
   }
 }

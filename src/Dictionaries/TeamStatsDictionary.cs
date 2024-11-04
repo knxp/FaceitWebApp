@@ -1,4 +1,4 @@
-namespace faceitApp.Dictionaries
+namespace faceitWebApp.Dictionaries
 {
     public static class TeamStatsDictionary
 {

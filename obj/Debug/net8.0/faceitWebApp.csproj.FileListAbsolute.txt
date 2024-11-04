@@ -1,6 +1,3 @@
-C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitApp.deps.json
-C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitApp.runtimeconfig.json
-C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitApp.exe
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\appsettings.json
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitWebApp.staticwebassets.runtime.json
@@ -15,13 +12,10 @@ C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Charts.dl
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Icons.FontAwesome.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazorise.Licensing.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\DeepCloner.dll
-C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\FaceitAPI.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Lambda2Js.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Newtonsoft.Json.dll
-C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitApp.dll
-C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\faceitApp.pdb
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.csproj.AssemblyReference.cache
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.AssemblyInfoInputs.cache
@@ -45,3 +39,4 @@ C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\refint\faceitWebApp
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.pdb
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\faceitWebApp.genruntimeconfig.cache
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\ref\faceitWebApp.dll
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\staticwebapp.config.json

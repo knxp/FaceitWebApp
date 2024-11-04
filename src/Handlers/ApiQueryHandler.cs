@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace faceitApp.Handlers
+namespace faceitWebApp.Handlers
 {
     public class ApiQueryHandler
     {

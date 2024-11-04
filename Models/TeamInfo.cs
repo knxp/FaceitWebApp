@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace faceitApp.Models
+namespace faceitWebApp.Models
 {
     public class TeamInfo
     {

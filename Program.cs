@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using faceitApp.Handlers;
-using faceitApp.Utilities;
+using faceitWebApp.Handlers;
+using faceitWebApp.Utilities;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;

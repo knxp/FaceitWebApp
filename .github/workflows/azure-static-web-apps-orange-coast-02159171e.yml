@@ -35,23 +35,6 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o published
         
-      - name: Prepare Static Web App
-        run: |
-          mkdir -p published/ClientApp
-          cp -r published/wwwroot/* published/ClientApp/ || true
-          cp Pages/_Host.cshtml published/ClientApp/index.html
-          
-          # Ensure CSS and JS directories exist
-          mkdir -p published/ClientApp/css
-          mkdir -p published/ClientApp/js
-          
-          # Copy static assets if they exist
-          cp -r wwwroot/css/* published/ClientApp/css/ || true
-          cp -r wwwroot/js/* published/ClientApp/js/ || true
-          
-          # Copy favicon if it exists
-          cp wwwroot/favicon.png published/ClientApp/ || true
-        
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -59,7 +42,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_FACEIT_MAX_STATS }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "published/ClientApp"
+          app_location: "published/wwwroot"
           api_location: "api"
           output_location: ""
           skip_app_build: true

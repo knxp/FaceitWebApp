@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
-namespace faceitApp.Utilities
+namespace faceitWebApp.Utilities
 {
     public class GetPlayerID
     {

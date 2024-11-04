@@ -1,4 +1,4 @@
-namespace faceitApp.Models
+namespace faceitWebApp.Models
 {
     public class Player
     {

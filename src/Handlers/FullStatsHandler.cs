@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using faceitApp.Dictionaries;
-using faceitApp.Models;
+using faceitWebApp.Dictionaries;
+using faceitWebApp.Models;
 using System.Linq;
 
-namespace faceitApp.Handlers
+namespace faceitWebApp.Handlers
 {
     public class FullStatsHandler
     {

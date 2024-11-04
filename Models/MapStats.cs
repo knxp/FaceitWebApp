@@ -1,6 +1,6 @@
 using System;
 
-namespace faceitApp.Models
+namespace faceitWebApp.Models
 {
     public class MapStats
     {

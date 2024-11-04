@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Linq;
-using faceitApp.Models;
+using faceitWebApp.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
-namespace faceitApp.Handlers
+namespace faceitWebApp.Handlers
 {
     public class TeamStatsHandler
     {

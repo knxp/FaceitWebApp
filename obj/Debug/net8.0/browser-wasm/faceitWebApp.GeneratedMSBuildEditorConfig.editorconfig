@@ -1,0 +1,135 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = 
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = faceitWebApp
+build_property.RootNamespace = faceitWebApp
+build_property.ProjectDir = C:\Users\keato\github-projects\faceitWebApp\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\keato\github-projects\faceitWebApp
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/keato/github-projects/faceitWebApp/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/BasicStats.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xCYXNpY1N0YXRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/LeagueDetailedStats.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMZWFndWVEZXRhaWxlZFN0YXRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/MapStatsCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xNYXBTdGF0c0NhcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/PlayerCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJDYXJkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/PlayerComparison.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJDb21wYXJpc29uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/PlayerSearch.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJTZWFyY2gucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/PlayerTeams.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQbGF5ZXJUZWFtcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/ShareButton.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZUJ1dHRvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/StatItem.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdGF0SXRlbS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/StatsDisplay.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTdGF0c0Rpc3BsYXkucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/TeamCard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZWFtQ2FyZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/TeamComparison.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZWFtQ29tcGFyaXNvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Components/TeamPlayerList.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xUZWFtUGxheWVyTGlzdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/ComparePlayers.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tcGFyZVBsYXllcnMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/CompareTeams.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tcGFyZVRlYW1zLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/Counter.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/FetchData.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/PlayerDetailedStats.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGxheWVyRGV0YWlsZWRTdGF0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/PlayerLeagueStats.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGxheWVyTGVhZ3VlU3RhdHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/PlayerStats.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGxheWVyU3RhdHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/TeamStatsPage.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVGVhbVN0YXRzUGFnZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Shared/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Shared/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE5hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/keato/github-projects/faceitWebApp/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX0hvc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 

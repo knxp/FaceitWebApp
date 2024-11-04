@@ -115,18 +115,6 @@
           }
         }
       },
-      "FaceitAPI/1.0.0.1": {
-        "type": "package",
-        "dependencies": {
-          "Newtonsoft.Json": "12.0.2"
-        },
-        "compile": {
-          "lib/netstandard2.0/FaceitAPI.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/FaceitAPI.dll": {}
-        }
-      },
       "Lambda2Js/3.1.4": {
         "type": "package",
         "compile": {
@@ -1784,22 +1772,6 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
-      },
-      "faceitApp/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v8.0",
-        "dependencies": {
-          "FaceitAPI": "1.0.0.1",
-          "Microsoft.Extensions.Configuration": "8.0.0",
-          "Microsoft.Extensions.Configuration.Json": "8.0.1",
-          "Newtonsoft.Json": "13.0.3"
-        },
-        "compile": {
-          "bin/placeholder/faceitApp.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/faceitApp.dll": {}
-        }
       }
     }
   },
@@ -1958,19 +1930,6 @@
         "lib/net40/DeepCloner.xml",
         "lib/netstandard1.3/DeepCloner.dll",
         "lib/netstandard1.3/DeepCloner.xml"
-      ]
-    },
-    "FaceitAPI/1.0.0.1": {
-      "sha512": "cySDOEQukD79j6/zhBrAX2ZbJTojq75CsNDBlSqNa32XQGdsgulQQ5a/wrE4nFHVljWYIQyRzqpLv5gWk1p6gw==",
-      "type": "package",
-      "path": "faceitapi/1.0.0.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE.txt",
-        "faceitapi.1.0.0.1.nupkg.sha512",
-        "faceitapi.nuspec",
-        "lib/netstandard2.0/FaceitAPI.dll"
       ]
     },
     "Lambda2Js/3.1.4": {
@@ -5857,11 +5816,6 @@
         "system.xml.xdocument.4.3.0.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
-    },
-    "faceitApp/1.0.0": {
-      "type": "project",
-      "path": "../faceitApp/faceitApp.csproj",
-      "msbuildProject": "../faceitApp/faceitApp.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -5873,8 +5827,7 @@
       "Blazorise.Licensing >= 1.2.0",
       "Microsoft.Extensions.Configuration >= 8.0.0",
       "Microsoft.Extensions.Configuration.Json >= 8.0.1",
-      "Newtonsoft.Json >= 13.0.3",
-      "faceitApp >= 1.0.0"
+      "Newtonsoft.Json >= 13.0.3"
     ]
   },
   "packageFolders": {
@@ -5903,11 +5856,7 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {
-            "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj": {
-              "projectPath": "C:\\Users\\keato\\github-projects\\faceitApp\\faceitApp.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {

@@ -6,9 +6,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-using faceitApp.Models;
+using faceitWebApp.Models;
 
-namespace faceitApp.Handlers
+namespace faceitWebApp.Handlers
 {
     public class PlayerLeagueStatsHandler
     {
