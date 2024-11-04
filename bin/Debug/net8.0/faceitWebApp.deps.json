@@ -13,6 +13,9 @@
           "Blazorise.Charts": "1.3.3",
           "Blazorise.Icons.FontAwesome": "1.3.3",
           "Blazorise.Licensing": "1.2.0",
+          "Microsoft.Extensions.Configuration": "8.0.0",
+          "Microsoft.Extensions.Configuration.Json": "8.0.1",
+          "Newtonsoft.Json": "13.0.3",
           "faceitApp": "1.0.0"
         },
         "runtime": {
