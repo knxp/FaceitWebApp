@@ -1,6 +1,6 @@
 {
     "navigationFallback": {
-        "rewrite": "/_Host",
+        "rewrite": "/index.html",
         "exclude": [
             "/images/*.{png,jpg,gif}",
             "/css/*",
@@ -36,12 +36,12 @@
     ],
     "responseOverrides": {
         "404": {
-            "rewrite": "/_Host",
+            "rewrite": "/index.html",
             "statusCode": 200
         }
     },
     "globalHeaders": {
-        "content-security-policy": "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://api.faceit.com; img-src 'self' data: https:; font-src 'self' data: https:;"
+        "content-security-policy": "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://api.faceit.com; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://api.faceit.com wss://*:*;"
     },
     "mimeTypes": {
         ".json": "text/json",
