@@ -1,12 +1,32 @@
 {
   "Files": [
     {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\obj\\Debug\\net8.0\\compressed\\y88g6520k8.gz",
+      "PackagePath": "staticwebassets\\_framework\\blazor.webassembly.js.gz"
+    },
+    {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\AveragePlayerStats.json",
       "PackagePath": "staticwebassets\\AveragePlayerStats.json"
     },
     {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\appsettings.Development.json",
+      "PackagePath": "staticwebassets\\appsettings.Development.json"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\appsettings.json",
+      "PackagePath": "staticwebassets\\appsettings.json"
+    },
+    {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\chart.js",
       "PackagePath": "staticwebassets\\chart.js"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
     },
     {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
@@ -63,6 +83,10 @@
     {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\images\\defaultPic.webp",
       "PackagePath": "staticwebassets\\images\\defaultPic.webp"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.faceitWebApp.props",

@@ -1,17 +1,19 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using faceitWebApp.Handlers;
 using faceitWebApp.Utilities;
+using faceitWebApp.Services;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.Net.Http.Json;
+using faceitWebApp;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add<App>("#app");
 
 // Add Blazorise
 builder.Services
@@ -19,74 +21,35 @@ builder.Services
     .AddBootstrapProviders()
     .AddFontAwesomeIcons();
 
-// Configure HttpClient for GetMatchHistory with proper base address
-builder.Services.AddHttpClient<GetMatchHistory>(client =>
+// Configure base HttpClient
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+// Configure HttpClient for FACEIT API
+void ConfigureHttpClient(HttpClient client)
 {
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-
-// Other service registrations...
-builder.Services.AddHttpClient<BasicStatsHandler>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<BasicStatsHandler>();
-
-builder.Services.AddHttpClient<FullStatsHandler>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<FullStatsHandler>();
-
-builder.Services.AddHttpClient<PlayerLeagueStatsHandler>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<PlayerLeagueStatsHandler>();
-
-builder.Services.AddHttpClient<TeamStatsHandler>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<TeamStatsHandler>();
-
-builder.Services.AddHttpClient<GetPlayerID>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<GetPlayerID>();
-
-builder.Services.AddHttpClient<GetPlayerInfo>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<GetPlayerInfo>();
-
-builder.Services.AddHttpClient<GetTeamID>(client =>
-{
-    client.BaseAddress = new Uri("https://open.faceit.com/");
-});
-builder.Services.AddTransient<GetTeamID>();
-
-// Change GetMatchHistory to Transient for better consistency
-builder.Services.AddTransient<GetMatchHistory>();
-
-builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    client.BaseAddress = new Uri("https://open.faceit.com/data/v4/");
+    client.DefaultRequestHeaders.Add("accept", "application/json");
+    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {builder.Configuration["Faceit:ApiKey"]}");
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
+// Register HTTP clients with proper configuration
+builder.Services.AddHttpClient<GetMatchHistory>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<BasicStatsHandler>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<FullStatsHandler>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<PlayerLeagueStatsHandler>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<TeamStatsHandler>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<GetPlayerID>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<GetPlayerInfo>(client => ConfigureHttpClient(client));
+builder.Services.AddHttpClient<GetTeamID>(client => ConfigureHttpClient(client));
 
-app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
+// Register services as transient
+builder.Services.AddTransient<GetMatchHistory>();
+builder.Services.AddTransient<BasicStatsHandler>();
+builder.Services.AddTransient<FullStatsHandler>();
+builder.Services.AddTransient<PlayerLeagueStatsHandler>();
+builder.Services.AddTransient<TeamStatsHandler>();
+builder.Services.AddTransient<GetPlayerID>();
+builder.Services.AddTransient<GetPlayerInfo>();
+builder.Services.AddTransient<GetTeamID>();
 
-app.Run();
+await builder.Build().RunAsync();

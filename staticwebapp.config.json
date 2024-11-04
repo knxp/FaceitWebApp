@@ -1,58 +1,45 @@
 {
     "navigationFallback": {
-        "rewrite": "/"
+        "rewrite": "/index.html"
     },
     "routes": [
         {
             "route": "/api/*",
             "methods": [
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE"
+                "GET"
             ],
             "allowedRoles": [
                 "anonymous"
             ]
         },
         {
-            "route": "/_blazor/*",
-            "headers": {
-                "cache-control": "no-cache",
-                "Sec-WebSocket-Protocol": "blazorserver"
-            }
-        },
-        {
             "route": "/_framework/*",
             "headers": {
-                "cache-control": "must-revalidate, max-age=86400"
+                "Cache-Control": "must-revalidate, max-age=86400"
             }
         },
         {
             "route": "/css/*",
             "headers": {
-                "cache-control": "must-revalidate, max-age=86400"
+                "Cache-Control": "must-revalidate, max-age=86400"
             }
         },
         {
             "route": "/js/*",
             "headers": {
-                "cache-control": "must-revalidate, max-age=86400"
+                "Cache-Control": "must-revalidate, max-age=86400"
             }
         }
     ],
     "responseOverrides": {
         "404": {
-            "rewrite": "/"
+            "rewrite": "/index.html"
         }
     },
     "globalHeaders": {
-        "content-security-policy": "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://api.faceit.com https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https: https://fonts.gstatic.com https://use.fontawesome.com; connect-src 'self' https://api.faceit.com wss://*:* https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://use.fontawesome.com;",
-        "X-Content-Type-Options": "nosniff"
-    },
-    "mimeTypes": {
-        ".json": "text/json",
-        ".woff": "application/font-woff",
-        ".woff2": "application/font-woff2"
+        "content-security-policy": "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://open.faceit.com https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https: https://fonts.gstatic.com https://use.fontawesome.com; connect-src 'self' https://open.faceit.com https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://use.fontawesome.com;",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
     }
 }
