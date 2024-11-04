@@ -38,7 +38,9 @@ jobs:
       - name: Rename _Host.cshtml to index.html
         run: |
           cd published/wwwroot
-          cp _Host.cshtml index.html
+          mkdir -p Pages
+          cp ../Pages/_Host.cshtml Pages/index.html
+          cp Pages/index.html index.html
         
       - name: Build And Deploy
         id: builddeploy
