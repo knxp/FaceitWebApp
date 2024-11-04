@@ -92,6 +92,6 @@
 
     private void NavigateToTeamStats(string teamName)
     {
-        NavigationManager.NavigateTo($"/team-stats?team={Uri.EscapeDataString(teamName)}", true);
+        NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamName)}", true);
     }
 }
