@@ -35,12 +35,11 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o published
         
-      - name: Rename _Host.cshtml to index.html
+      - name: Copy Host File
         run: |
-          cd published/wwwroot
-          mkdir -p Pages
-          cp ../Pages/_Host.cshtml Pages/index.html
-          cp Pages/index.html index.html
+          mkdir -p published/wwwroot/Pages
+          cp Pages/_Host.cshtml published/wwwroot/Pages/
+          cp Pages/_Host.cshtml published/wwwroot/index.html
         
       - name: Build And Deploy
         id: builddeploy
