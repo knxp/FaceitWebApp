@@ -38,19 +38,20 @@ jobs:
       - name: Prepare Static Web App
         run: |
           mkdir -p published/ClientApp
-          cp -r published/wwwroot/* published/ClientApp/ || true
-          cp Pages/_Host.cshtml published/ClientApp/index.html
+          cp -r published/wwwroot/* published/ClientApp/
           
           # Ensure CSS and JS directories exist
           mkdir -p published/ClientApp/css
           mkdir -p published/ClientApp/js
           
-          # Copy static assets if they exist
+          # Copy static assets
           cp -r wwwroot/css/* published/ClientApp/css/ || true
           cp -r wwwroot/js/* published/ClientApp/js/ || true
           
-          # Copy favicon if it exists
+          # Copy favicon and other assets
           cp wwwroot/favicon.png published/ClientApp/ || true
+          cp wwwroot/index.html published/ClientApp/
+          cp wwwroot/appsettings.json published/ClientApp/
         
       - name: Build And Deploy
         id: builddeploy
