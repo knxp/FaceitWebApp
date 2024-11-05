@@ -14,7 +14,7 @@ namespace faceitWebApp.Handlers
     {
         private readonly HttpClient _httpClient;
         private readonly string _faceitApiKey;
-        private const int MaxMatchLimit = 300;
+        private const int MaxMatchLimit = 200;
 
         public BasicStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {

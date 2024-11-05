@@ -8,6 +8,8 @@ namespace faceitWebApp.Models
         public string Avatar { get; set; }
         public int? Elo { get; set; }
         public int? Level { get; set; }
+        public string Region { get; set; }
+        public int? regionRank { get; set; }
         public List<TeamInfo> Teams { get; set; } = new List<TeamInfo>();
         
         // Core Combat Stats

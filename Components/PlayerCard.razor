@@ -34,6 +34,11 @@
                 </svg>
                 <span class="elo-number">@PlayerInfo?.Elo</span>
             </div>
+
+            <div class="region">
+                <span class="region-rank">@PlayerInfo?.Region #@PlayerInfo?.regionRank</span>
+            </div>
+
             <div class="match-history">
                 @if (MatchHistory != null && MatchHistory.Any())
                 {
@@ -107,13 +112,28 @@
         color: #ffffff;
     }
 
+    .region{
+        margin-top: -10px;
+        display: flex;
+        color: #ffce46;
+    }
+
+    .region-rank{
+        letter-spacing: 2px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
     .match-history {
         display: flex;
-        gap: 8px;
+        gap: 10px;
     }
 
     .match-history span {
-        font-size: 1.5rem;
+        margin-top: -4px;
+        letter-spacing: 3px;
+        font-size: 1.6rem;
         font-weight: bold;
         font-family: 'TolyerNo1', sans-serif;
     }

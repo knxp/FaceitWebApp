@@ -46,6 +46,19 @@ namespace faceitWebApp.Utilities
                 {
                     player.Level = games["skill_level"]?.Value<int>();
                     player.Elo = games["faceit_elo"]?.Value<int>();
+                    player.Region = games["region"]?.ToString();
+
+                    // Get region rank if region is available
+                    if (!string.IsNullOrEmpty(player.Region))
+                    {
+                        var rankResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/rankings/games/cs2/regions/{player.Region}/players/{playerId}");
+                        if (rankResponse.IsSuccessStatusCode)
+                        {
+                            var rankContent = await rankResponse.Content.ReadAsStringAsync();
+                            var rankJson = JObject.Parse(rankContent);
+                            player.regionRank = rankJson["position"]?.Value<int>();
+                        }
+                    }
                 }
 
                 // Get teams
