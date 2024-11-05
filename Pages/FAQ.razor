@@ -1,0 +1,199 @@
+@page "/faq"
+
+<div class="faq-container">
+    <h1 class="faq-title">Frequently Asked Questions</h1>
+
+    <div class="faq-section">
+        <h2>What is Max Faceit Stats?</h2>
+        <div class="faq-answer">
+            <p>Max Faceit Stats is a comprehensive analytics tool designed to provide detailed insights into CS2
+                player and team performance on the FACEIT platform.</p>
+            <ul>
+                <li>Detailed player performance metrics and averages</li>
+                <li>Team analysis and comparison tools</li>
+                <li>Historical match data</li>
+                <li>League statistics tracking</li>
+                <li>Head-to-head player and team comparisons</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2>How is this different from FACEIT.com statistics?</h2>
+        <div class="faq-answer">
+            <p>While FACEIT.com provides basic statistics, this platform offers several advantages:</p>
+            <div class="comparison-table">
+                <div class="comparison-row header">
+                    <div class="feature">Feature</div>
+                    <div class="faceit">FACEIT.com</div>
+                    <div class="tracker">Max Faceit Stats</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="feature">Stats Depth</div>
+                    <div class="faceit">stats for last 20 matches</div>
+                    <div class="tracker">Basic stats allow for up to 300 matches searched<br>
+                    </div>
+                </div>
+                <div class="comparison-row">
+                    <div class="feature">Detailed Stats</div>
+                    <div class="faceit">Restricted to 12 stats</div>
+                    <div class="tracker">Detailed statistics with 28 separate data points</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="feature">Analysis Tools</div>
+                    <div class="faceit">Limited to individual stats</div>
+                    <div class="tracker">Advanced comparison tools for player and team analytics</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="feature">League Stats</div>
+                    <div class="faceit">No comprehensive league stats</div>
+                    <div class="tracker">Detailed season-by-season analysis for ESEA players</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2>Common Questions</h2>  
+
+        <div class="faq-item">
+            <h3>Why can't i see detailed stats for every league season?</h3>
+            <p>Detailed statistics are only available for matches played after June 16, 2024. This is when
+                faceit started recording these extra statistics.
+            </p>
+        </div>
+
+        <div class="faq-item">
+            <h3>How often are statistics updated?</h3>
+            <p>Statistics are updated in real-time as matches are completed on the FACEIT platform. When you search for
+                a player or team, you'll always see their most current statistics.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>Can i see individual gun statistics?</h3>
+            <p>Unfortunately faceit does not record kills for each gun. Only pistol and sniper kills. Whenever Faceit
+                makes api updates, I will include any additional stats.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .faq-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .faq-title {
+        color: #fd7d27;
+        font-size: 4rem;
+        text-align: center;
+        margin-bottom: 3rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .faq-section {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        
+    }
+
+    .faq-section h2 {
+        color: #fd7d27;
+        font-size: 2.8rem;
+        margin-bottom: 1.5rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .faq-answer {
+        color: #ffffff;
+        font-size: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .faq-answer ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 1rem;
+    }
+
+    .faq-answer ul li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .faq-answer ul li:before {
+        content: "•";
+        color: #fd7d27;
+        position: absolute;
+        left: 0;
+    }
+
+    .comparison-table {
+        margin-top: 1.5rem;
+        border: 1px solid rgba(253, 125, 39, 0.3);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .comparison-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 2fr;
+        border-bottom: 1px solid rgba(253, 125, 39, 0.3);
+    }
+
+    .comparison-row:last-child {
+        border-bottom: none;
+    }
+
+    .comparison-row.header {
+        background-color: rgba(253, 125, 39, 0.2);
+        font-weight: bold;
+        color: #ffffff;
+    }
+
+    .comparison-row>div {
+        padding: 1rem;
+        border-right: 1px solid rgba(253, 125, 39, 0.3);
+    }
+
+    .comparison-row>div:last-child {
+        border-right: none;
+    }
+
+    .feature {
+        letter-spacing: 1px;
+    }
+
+    .tracker {
+        color: #90EE90;
+        letter-spacing: 1px;
+    }
+
+    .faceit {
+        color: #fa7b7b;
+        letter-spacing: 1px;
+    }
+
+    .faq-item {
+        margin-top: 2rem;
+    }
+
+    .faq-item h3 {
+        color: #fd7d27;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .faq-item p {
+        color: #ffffff;
+        font-size: 1.5rem;
+        line-height: 1.6;
+    }
+</style>
