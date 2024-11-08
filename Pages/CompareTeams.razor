@@ -1,9 +1,9 @@
 @page "/compare-teams"
+@page "/compare-teams/{Team1Name}/{Team2Name}"
 @using faceitWebApp.Handlers
 @using faceitWebApp.Utilities
 @using faceitWebApp.Models
 @using faceitWebApp.Components
-@using Microsoft.AspNetCore.WebUtilities
 @inject TeamStatsHandler TeamStatsHandler
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
@@ -17,7 +17,16 @@
                 class="form-control search-input" placeholder="Enter Team 1 Name" />
             <input @bind="team2Input" @bind:event="oninput" @onkeypress="HandleKeyPress"
                 class="form-control search-input" placeholder="Enter Team 2 Name" />
-            <button @onclick="CompareStats" class="btn btn-primary search-button">Compare</button>
+            <button @onclick="CompareStats" class="btn btn-primary search-button" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                }
+                else
+                {
+                    <span>Compare</span>
+                }
+            </button>
         </div>
 
         @if (team1Info != null && team2Info != null)
@@ -47,7 +56,6 @@
         </div>
     </div>
 }
-
 <style>
     .compare-overlay {
         position: relative;
@@ -196,6 +204,12 @@
 </style>
 
 @code {
+    [Parameter]
+    public string Team1Name { get; set; }
+
+    [Parameter]
+    public string Team2Name { get; set; }
+
     private string team1Input;
     private string team2Input;
     private TeamInfo team1Info;
@@ -207,16 +221,13 @@
     private bool isLoading;
     private string errorMessage;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        var queryParameters = QueryHelpers.ParseQuery(uri.Query);
-
-        if (queryParameters.TryGetValue("team1", out var t1) && queryParameters.TryGetValue("team2", out var t2))
+        if (!string.IsNullOrEmpty(Team1Name) && !string.IsNullOrEmpty(Team2Name))
         {
-            team1Input = t1;
-            team2Input = t2;
-            await CompareStats();
+            team1Input = Uri.UnescapeDataString(Team1Name);
+            team2Input = Uri.UnescapeDataString(Team2Name);
+            CompareStatsFromUrl();
         }
     }
 
@@ -225,6 +236,52 @@
         if (e.Key == "Enter")
         {
             await CompareStats();
+        }
+    }
+
+    private async Task CompareStatsFromUrl()
+    {
+        if (string.IsNullOrWhiteSpace(team1Input) || string.IsNullOrWhiteSpace(team2Input)) return;
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var (team1Id, error1) = await GetTeamID.GetTeamIDFromUrlAsync(team1Input);
+            var (team2Id, error2) = await GetTeamID.GetTeamIDFromUrlAsync(team2Input);
+
+            if (!string.IsNullOrEmpty(team1Id) && !string.IsNullOrEmpty(team2Id))
+            {
+                var (info1, stats1, maps1) = await TeamStatsHandler.GetTeamStatsAsync(team1Id, "cs2");
+                var (info2, stats2, maps2) = await TeamStatsHandler.GetTeamStatsAsync(team2Id, "cs2");
+
+                team1Info = info1;
+                team1Stats = stats1;
+                team1Maps = maps1;
+                team2Info = info2;
+                team2Stats = stats2;
+                team2Maps = maps2;
+                errorMessage = null;
+            }
+            else
+            {
+                var errors = new List<string>();
+                if (!string.IsNullOrEmpty(error1)) errors.Add($"Team 1: {error1}");
+                if (!string.IsNullOrEmpty(error2)) errors.Add($"Team 2: {error2}");
+                errorMessage = string.Join(Environment.NewLine, errors);
+                ResetTeamData();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            ResetTeamData();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -241,18 +298,13 @@
 
         try
         {
-            var team1Id = await GetTeamID.GetTeamIDFromUrlAsync(team1Input);
-            var team2Id = await GetTeamID.GetTeamIDFromUrlAsync(team2Input);
+            var (team1Id, error1) = await GetTeamID.GetTeamIDFromUrlAsync(team1Input);
+            var (team2Id, error2) = await GetTeamID.GetTeamIDFromUrlAsync(team2Input);
 
-            if (!team1Id.StartsWith("Failed") && !team2Id.StartsWith("Failed"))
+            if (!string.IsNullOrEmpty(team1Id) && !string.IsNullOrEmpty(team2Id))
             {
-                var team1Task = TeamStatsHandler.GetTeamStatsAsync(team1Id, "cs2");
-                var team2Task = TeamStatsHandler.GetTeamStatsAsync(team2Id, "cs2");
-
-                await Task.WhenAll(team1Task, team2Task);
-
-                var (info1, stats1, maps1) = await team1Task;
-                var (info2, stats2, maps2) = await team2Task;
+                var (info1, stats1, maps1) = await TeamStatsHandler.GetTeamStatsAsync(team1Id, "cs2");
+                var (info2, stats2, maps2) = await TeamStatsHandler.GetTeamStatsAsync(team2Id, "cs2");
 
                 team1Info = info1;
                 team1Stats = stats1;
@@ -260,20 +312,22 @@
                 team2Info = info2;
                 team2Stats = stats2;
                 team2Maps = maps2;
+                errorMessage = null;
 
-                // Update URL with team names
-                var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-                var newUri = QueryHelpers.AddQueryString(uri.GetLeftPart(UriPartial.Path),
-                new Dictionary<string, string>
-                    {
-{ "team1", team1Input },
-{ "team2", team2Input }
-                    });
-                NavigationManager.NavigateTo(newUri, false);
+                var currentUri = new Uri(NavigationManager.Uri);
+                var newUri = $"/compare-teams/{Uri.EscapeDataString(info1.Name)}/{Uri.EscapeDataString(info2.Name)}";
+
+                if (currentUri.AbsolutePath != newUri)
+                {
+                    NavigationManager.NavigateTo(newUri, false);
+                }
             }
             else
             {
-                errorMessage = "Failed to fetch team information. Please check the names and try again.";
+                var errors = new List<string>();
+                if (!string.IsNullOrEmpty(error1)) errors.Add($"Team 1: {error1}");
+                if (!string.IsNullOrEmpty(error2)) errors.Add($"Team 2: {error2}");
+                errorMessage = string.Join(Environment.NewLine, errors);
                 ResetTeamData();
             }
         }

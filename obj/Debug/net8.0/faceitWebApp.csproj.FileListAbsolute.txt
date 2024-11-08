@@ -1098,3 +1098,4 @@ C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\compressed\qwz98w0m
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\compressed\pm1ige6jms.gz
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\compressed\9iy0c41xtf.gz
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\compressed\fveyapdap7.gz
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\web.config

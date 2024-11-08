@@ -288,8 +288,9 @@
 
         try
         {
-            string teamId = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
-            if (!string.IsNullOrEmpty(teamId) && !teamId.StartsWith("Failed"))
+            var (teamId, error) = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
+
+            if (!string.IsNullOrEmpty(teamId))
             {
                 var (info, stats, maps) = await TeamStatsHandler.GetTeamStatsAsync(teamId, "cs2");
                 currentTeamInfo = info;
@@ -300,12 +301,12 @@
                 var currentTeamName = Uri.UnescapeDataString(TeamName ?? "");
                 if (teamInput != currentTeamName)
                 {
-                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamInput)}", false);
+                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(currentTeamName)}", false);
                 }
             }
             else
             {
-                errorMessage = "Failed to fetch team information. Please check the URL or name and try again.";
+                errorMessage = $"Failed to fetch team information: {error}";
                 ResetTeamData();
             }
         }

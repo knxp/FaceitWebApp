@@ -167,7 +167,7 @@ namespace faceitWebApp.Handlers
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching team stats: {ex.Message}");
+                throw new Exception($"Error fetching team stats: Try using the Faceit Team Url");
             }
         }
     }
