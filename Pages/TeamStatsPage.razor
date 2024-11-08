@@ -4,18 +4,30 @@
 @using faceitWebApp.Utilities
 @using faceitWebApp.Models
 @using faceitWebApp.Components
+@using Microsoft.AspNetCore.WebUtilities
 @inject TeamStatsHandler TeamStatsHandler
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
 @inject GetPlayerInfo GetPlayerInfo
+
+<PageTitle>Team Stats - @(currentTeamInfo?.Name ?? "Search")</PageTitle>
 
 <div class="@(isLoading ? "team-stats-page-overlay" : "")">
     <h3 class="text-center">Team Stats</h3>
 
     <div class="team-stats-page-search-container mb-4">
         <input @bind="teamInput" @bind:event="oninput" @onkeypress="HandleKeyPress" class="team-stats-page-search-input"
-            placeholder="Enter Team URL or Name (Case Sensitive)" />
-        <button @onclick="FetchTeamStats" class="team-stats-page-search-button">Search</button>
+            placeholder="Enter Team URL or Name (Case Sensitive)" disabled="@isLoading" />
+        <button @onclick="FetchTeamStats" class="team-stats-page-search-button" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span>Search</span>
+            }
+        </button>
     </div>
 
     @if (currentTeamInfo != null && currentTeamStats != null)
@@ -213,13 +225,40 @@
     private List<MapStats> mapStats;
     private bool isLoading;
     private string errorMessage;
-    private bool initialLoad = true;
+    private bool shouldFetch;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryString = uri.Query;
+        var queryParams = QueryHelpers.ParseQuery(queryString);
+
+        if (!string.IsNullOrEmpty(TeamName))
+        {
+            teamInput = Uri.UnescapeDataString(TeamName);
+            shouldFetch = true;
+        }
+        else if (queryParams.TryGetValue("team", out var team))
+        {
+            teamInput = team;
+            shouldFetch = true;
+            NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(team)}", false);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && shouldFetch)
+        {
+            shouldFetch = false;
+            await FetchTeamStats();
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrEmpty(TeamName) && initialLoad)
+        if (!string.IsNullOrEmpty(TeamName) && TeamName != teamInput && !isLoading)
         {
-            initialLoad = false;
             teamInput = Uri.UnescapeDataString(TeamName);
             await FetchTeamStats();
         }
@@ -227,7 +266,7 @@
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        if (e.Key == "Enter" && !isLoading)
         {
             await FetchTeamStats();
         }
@@ -241,8 +280,11 @@
             return;
         }
 
+        if (isLoading) return;
+
         isLoading = true;
         errorMessage = null;
+        StateHasChanged();
 
         try
         {
@@ -253,8 +295,10 @@
                 currentTeamInfo = info;
                 currentTeamStats = stats;
                 mapStats = maps;
+                errorMessage = null;
 
-                if (!string.IsNullOrEmpty(teamInput))
+                var currentTeamName = Uri.UnescapeDataString(TeamName ?? "");
+                if (teamInput != currentTeamName)
                 {
                     NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamInput)}", false);
                 }
@@ -262,21 +306,25 @@
             else
             {
                 errorMessage = "Failed to fetch team information. Please check the URL or name and try again.";
-                currentTeamInfo = null;
-                currentTeamStats = null;
-                mapStats = null;
+                ResetTeamData();
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
-            currentTeamInfo = null;
-            currentTeamStats = null;
-            mapStats = null;
+            ResetTeamData();
         }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    private void ResetTeamData()
+    {
+        currentTeamInfo = null;
+        currentTeamStats = null;
+        mapStats = null;
     }
 }

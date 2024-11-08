@@ -118,6 +118,6 @@
 
     private void NavigateToPlayerStats(string nickname)
     {
-        NavigationManager.NavigateTo($"/player-league-stats?player={Uri.EscapeDataString(nickname)}");
+        NavigationManager.NavigateTo($"/player-league-stats/{Uri.EscapeDataString(nickname)}");
     }
 }

@@ -23,7 +23,7 @@
     </div>
 
     <div class="player-league-stats-search-container mb-4">
-        <input @bind="nickname" @bind:event="oninput" @onkeypress="HandleKeyPress"
+        <input @bind="searchNickname" @bind:event="oninput" @onkeypress="HandleKeyPress"
             class="player-league-stats-search-input" placeholder="Enter Faceit Username" />
         <button @onclick="FetchPlayerStats" class="player-league-stats-search-button">Search</button>
     </div>
@@ -44,7 +44,7 @@
             }
         </div>
 
-        
+       
             var currentStats = selectedSeason == null
                 ? new
                 {
@@ -81,7 +81,6 @@
             else
             {
                 <div class="player-league-stats-grid">
-                    <!-- Column 1 -->
                     <div class="player-league-stats-column">
                         <div class="player-league-stats-row">
                             <span class="player-league-stats-label">Kills</span>
@@ -105,7 +104,6 @@
                         </div>
                     </div>
 
-                    <!-- Column 2 -->
                     <div class="player-league-stats-column">
                         <div class="player-league-stats-row">
                             <span class="player-league-stats-label">HS %</span>
@@ -144,8 +142,7 @@
         <div class="player-league-stats-loading-content">
             <div class="player-league-stats-spinner"></div>
             <p class="player-league-stats-loading-text">Loading league stats...</p>
-            <p class="player-league-stats-loading-subtext">This search may take longer than others due to processing league
-                matches.</p>
+            <p class="player-league-stats-loading-subtext">This search may take longer than others due to processing league matches.</p>
         </div>
     </div>
 }
@@ -493,18 +490,25 @@
     [Parameter]
     public string Nickname { get; set; }
 
-    private string nickname;
+    private string searchNickname;
     private LeagueStatsCollection leagueStats;
     private string selectedSeason;
     private bool isLoading;
     private string errorMessage;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("player", out var player))
+        if (!string.IsNullOrEmpty(Nickname))
         {
-            nickname = player;
+            searchNickname = Uri.UnescapeDataString(Nickname);
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Nickname) && (leagueStats == null || searchNickname != Uri.UnescapeDataString(Nickname)))
+        {
+            searchNickname = Uri.UnescapeDataString(Nickname);
             await FetchPlayerStats();
         }
     }
@@ -519,7 +523,7 @@
 
     private async Task FetchPlayerStats()
     {
-        if (string.IsNullOrWhiteSpace(nickname))
+        if (string.IsNullOrWhiteSpace(searchNickname))
         {
             errorMessage = "Please enter a player nickname";
             return;
@@ -529,17 +533,20 @@
         errorMessage = null;
         leagueStats = null;
         selectedSeason = null;
+        StateHasChanged();
 
         try
         {
-            var playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(nickname);
+            var playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(searchNickname);
             if (!playerId.StartsWith("Error") && !playerId.StartsWith("!!CASE SENSITIVE!!"))
             {
                 leagueStats = await PlayerLeagueStatsHandler.GetLeagueStatsAsync(playerId);
 
-                var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-                var newUri = QueryHelpers.AddQueryString(uri.GetLeftPart(UriPartial.Path), "player", nickname);
-                NavigationManager.NavigateTo(newUri, false);
+                var currentNickname = Uri.UnescapeDataString(Nickname ?? "");
+                if (searchNickname != currentNickname)
+                {
+                    NavigationManager.NavigateTo($"/player-league-stats/{Uri.EscapeDataString(searchNickname)}", false);
+                }
             }
             else
             {
@@ -553,6 +560,7 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 
