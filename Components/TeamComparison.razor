@@ -1,41 +1,64 @@
 @using faceitWebApp.Models
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <div class="comparison-box">
     <h4>Map Comparison</h4>
-    <div class="stats-grid">
-        <div class="header-row">
-            <div class="stat-header">Win Rate</div>
-            <div class="stat-header">Matches</div>
-            <div class="stat-header map-header">Map</div>
-            <div class="stat-header">Matches</div>
-            <div class="stat-header">Win Rate</div>
-        </div>
-        @{
-            var defaultMaps = new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Dust2" };
 
-            var team1Maps = Team1Maps?.Where(s => !s.Map.Contains("wingman", StringComparison.OrdinalIgnoreCase)
-            && !s.Map.Equals("Overpass", StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(s => s.Map, s => s) ?? new Dictionary<string, MapStats>();
+    @if (Team1Maps != null && Team2Maps != null)
+    {
+        var validMaps = new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Dust2" };
 
-            var team2Maps = Team2Maps?.Where(s => !s.Map.Contains("wingman", StringComparison.OrdinalIgnoreCase)
-            && !s.Map.Equals("Overpass", StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(s => s.Map, s => s) ?? new Dictionary<string, MapStats>();
+        var team1MapDict = Team1Maps
+        .Where(m => validMaps.Contains(m.Map, StringComparer.OrdinalIgnoreCase))
+        .GroupBy(m => m.Map, StringComparer.OrdinalIgnoreCase)
+        .ToDictionary(
+        g => g.Key,
+        g => g.First(),
+        StringComparer.OrdinalIgnoreCase
+        );
 
-            foreach (var mapName in defaultMaps)
+        var team2MapDict = Team2Maps
+        .Where(m => validMaps.Contains(m.Map, StringComparer.OrdinalIgnoreCase))
+        .GroupBy(m => m.Map, StringComparer.OrdinalIgnoreCase)
+        .ToDictionary(
+        g => g.Key,
+        g => g.First(),
+        StringComparer.OrdinalIgnoreCase
+        );
+
+        <div class="maps-grid">
+            <div class="header-row">
+                <div class="stat-header">Win Rate</div>
+                <div class="stat-header">Matches</div>
+                <div class="stat-header map-header">Map</div>
+                <div class="stat-header">Matches</div>
+                <div class="stat-header">Win Rate</div>
+            </div>
+
+            @foreach (var mapName in validMaps)
             {
-                var map1 = team1Maps.GetValueOrDefault(mapName, new MapStats { Map = mapName, TotalMatches = 0, Wins = 0 });
-                var map2 = team2Maps.GetValueOrDefault(mapName, new MapStats { Map = mapName, TotalMatches = 0, Wins = 0 });
+                var team1Map = team1MapDict.GetValueOrDefault(mapName);
+                var team2Map = team2MapDict.GetValueOrDefault(mapName);
 
-                <div class="stat-value @GetComparisonClass(map1.WinRate, map2.WinRate)">
-                    @($"{map1.WinRate:F1}%")</div>
-                <div class="stat-value">@map1.TotalMatches</div>
-                <div class="map-name">@mapName</div>
-                <div class="stat-value">@map2.TotalMatches</div>
-                <div class="stat-value @GetComparisonClass(map2.WinRate, map1.WinRate)">
-                    @($"{map2.WinRate:F1}%")</div>
+                <div class="map-comparison">
+                    <div class="stat-value @GetComparisonClass(team1Map?.WinRate ?? 0, team2Map?.WinRate ?? 0)">
+                        @((team1Map?.WinRate ?? 0).ToString("F1"))%
+                    </div>
+                    <div class="stat-value">@(team1Map?.TotalMatches ?? 0)</div>
+                    <div class="map-name">@mapName</div>
+                    <div class="stat-value">@(team2Map?.TotalMatches ?? 0)</div>
+                    <div class="stat-value @GetComparisonClass(team2Map?.WinRate ?? 0, team1Map?.WinRate ?? 0)">
+                        @((team2Map?.WinRate ?? 0).ToString("F1"))%
+                    </div>
+                </div>
             }
-        }
-    </div>
+        </div>
+    }
+    else
+    {
+        <div class="no-data-message">No map data available for comparison</div>
+    }
 </div>
 
 <style>
@@ -59,9 +82,9 @@
         font-family: 'TolyerNo1', sans-serif;
     }
 
-    .stats-grid {
+    .maps-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr;
+        grid-template-columns: repeat(5, 1fr);
         gap: 15px;
         align-items: center;
     }
@@ -82,8 +105,13 @@
         margin-bottom: 15px;
     }
 
-    .map-header {
-        text-align: center;
+    .map-comparison {
+        display: contents;
+    }
+
+    .team1-stats,
+    .team2-stats {
+        display: contents;
     }
 
     .map-name {
@@ -92,6 +120,7 @@
         text-align: center;
         font-family: 'TolyerNo1', sans-serif;
         letter-spacing: 1px;
+        grid-column: 3;
     }
 
     .stat-value {
@@ -104,17 +133,22 @@
 
     .better {
         color: #90EE90;
-        /* Light green */
     }
 
     .worse {
         color: #FFB6C1;
-        /* Light red */
     }
 
     .equal {
         color: #7ad5ec;
-        /* Light blue */
+    }
+
+    .no-data-message {
+        text-align: center;
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-family: 'TolyerNo1', sans-serif;
+        margin: 2rem 0;
     }
 </style>
 
@@ -125,9 +159,20 @@
     [Parameter]
     public List<MapStats> Team2Maps { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("import", "/css/team-comparison.css");
+    }
+
     private string GetComparisonClass(double value1, double value2)
     {
         if (Math.Abs(value1 - value2) < 0.01) return "equal";
         return value1 > value2 ? "better" : "worse";
+    }
+
+    protected override void OnParametersSet()
+    {
+        Team1Maps ??= new List<MapStats>();
+        Team2Maps ??= new List<MapStats>();
     }
 }
