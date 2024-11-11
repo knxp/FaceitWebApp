@@ -31,6 +31,22 @@
     </a>
 </div>
 
+<div class="support-section">
+    <h2 class="support-title">Help a brother out</h2>
+    <p class="support-text">
+        Max Faceit Stats is a solo project created to help the Faceit community track and analyze their performance.
+        If you find this tool helpful and want to support its continued development and server costs,
+        send me a skin! Your support helps keep this service free for everyone!
+    </p>
+    <div class="support-buttons">
+        <a href="https://steamcommunity.com/tradeoffer/new/?partner=332826790&token=Jo25mVP7" target="_blank"
+            rel="noopener noreferrer" class="support-button steam-button">
+            <i class="fab fa-steam"></i>
+            Trade Link
+        </a>
+    </div>
+</div>
+
 <style>
     .hero-section {
         text-align: center;
@@ -51,7 +67,7 @@
         font-size: 1.3rem;
         color: #e9e9e9;
         font-weight: bold;
-        text-transtext-transform: uppercase;
+        text-transform: uppercase;
         font-family: 'Trebuchet MS', sans-serif;
     }
 
@@ -60,6 +76,7 @@
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 2rem;
         padding: 1rem;
+        margin-bottom: 3rem;
     }
 
     .feature-card {
@@ -100,5 +117,79 @@
         font-weight: bold;
         text-transform: uppercase;
         font-family: 'Trebuchet MS', sans-serif;
+    }
+
+    .support-section {
+        background-color: rgba(253, 125, 39, 0.1);
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .support-title {
+        font-family: 'TolyerNo1', sans-serif;
+        font-size: 2.5rem;
+        color: #fd7d27;
+        margin-bottom: 1.5rem;
+    }
+
+    .support-text {
+        color: #e9e9e9;
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto 2rem auto;
+        line-height: 1.6;
+        font-family: 'Trebuchet MS', sans-serif;
+        font-weight: bold;
+    }
+
+    .support-buttons {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .support-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+
+    .paypal-button {
+        background-color: #0070ba;
+        color: white;
+    }
+
+    .paypal-button:hover {
+        background-color: #005ea6;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .steam-button {
+        background-color: #171a21;
+        color: white;
+    }
+
+    .steam-button:hover {
+        background-color: #2a475e;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .support-button i {
+        font-size: 1.4rem;
     }
 </style>
