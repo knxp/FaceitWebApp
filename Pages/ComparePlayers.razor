@@ -1,4 +1,5 @@
 @page "/compare-players"
+@page "/compare-players/{Player1}/{Player2}"
 @using faceitWebApp.Handlers
 @using faceitWebApp.Utilities
 @using faceitWebApp.Models
@@ -198,6 +199,12 @@
 </style>
 
 @code {
+    [Parameter]
+    public string Player1 { get; set; }
+
+    [Parameter]
+    public string Player2 { get; set; }
+
     private string player1Input;
     private string player2Input;
     private Player player1Info;
@@ -208,23 +215,58 @@
     private List<MatchHistory> player2History;
     private bool isLoading;
     private string errorMessage;
+    private bool shouldFetch;
 
     protected override async Task OnInitializedAsync()
     {
-        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        var queryParameters = QueryHelpers.ParseQuery(uri.Query);
-
-        if (queryParameters.TryGetValue("player1", out var p1) && queryParameters.TryGetValue("player2", out var p2))
+        if (!string.IsNullOrEmpty(Player1) && !string.IsNullOrEmpty(Player2))
         {
-            player1Input = p1;
-            player2Input = p2;
+            player1Input = Uri.UnescapeDataString(Player1);
+            player2Input = Uri.UnescapeDataString(Player2);
+            shouldFetch = true;
+        }
+        else
+        {
+            var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+            var queryParameters = QueryHelpers.ParseQuery(uri.Query);
+
+            if (queryParameters.TryGetValue("player1", out var p1))
+            {
+                player1Input = p1;
+            }
+
+            if (queryParameters.TryGetValue("player2", out var p2))
+            {
+                player2Input = p2;
+                shouldFetch = true;
+                NavigationManager.NavigateTo($"/compare-players/{Uri.EscapeDataString(p1)}/{Uri.EscapeDataString(p2)}", false);
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && shouldFetch)
+        {
+            shouldFetch = false;
+            await CompareStats();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Player1) && !string.IsNullOrEmpty(Player2) &&
+        (Player1 != player1Input || Player2 != player2Input) && !isLoading)
+        {
+            player1Input = Uri.UnescapeDataString(Player1);
+            player2Input = Uri.UnescapeDataString(Player2);
             await CompareStats();
         }
     }
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        if (e.Key == "Enter" && !isLoading)
         {
             await CompareStats();
         }
@@ -238,8 +280,11 @@
             return;
         }
 
+        if (isLoading) return;
+
         isLoading = true;
         errorMessage = null;
+        StateHasChanged();
 
         try
         {
@@ -268,19 +313,21 @@
                 player2Stats = await player2StatsTask;
                 player2History = await player2HistoryTask;
 
-                // Update URL with player nicknames
-                var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-                var newUri = QueryHelpers.AddQueryString(uri.GetLeftPart(UriPartial.Path),
-                new Dictionary<string, string>
-                    {
-{ "player1", player1Input },
-{ "player2", player2Input }
-                    });
-                NavigationManager.NavigateTo(newUri, false);
+                var currentUri = NavigationManager.Uri;
+                var newUri =
+                $"/compare-players/{Uri.EscapeDataString(player1Info.Nickname)}/{Uri.EscapeDataString(player2Info.Nickname)}";
+
+                if (!currentUri.EndsWith(newUri))
+                {
+                    NavigationManager.NavigateTo(newUri, false);
+                }
             }
             else
             {
-                errorMessage = "Failed to fetch player information. Please check the nicknames and try again.";
+                var errors = new List<string>();
+                if (player1Id.StartsWith("Error")) errors.Add($"Player 1: {player1Id}");
+                if (player2Id.StartsWith("Error")) errors.Add($"Player 2: {player2Id}");
+                errorMessage = string.Join(Environment.NewLine, errors);
                 ResetPlayerData();
             }
         }
@@ -292,6 +339,7 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 
