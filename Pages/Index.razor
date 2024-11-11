@@ -1,4 +1,6 @@
 ﻿@page "/"
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 <div class="hero-section">
     <h1 class="hero-title">Welcome to Max Faceit Stats</h1>
@@ -31,7 +33,11 @@
     </a>
 </div>
 
-<div class="support-section">
+<div class="scroll-indicator" @onclick="ScrollToSupport">
+    <i class="fas fa-chevron-down"></i>
+</div>
+
+<div class="support-section" @ref="supportSection">
     <h2 class="support-title">Help a brother out</h2>
     <p class="support-text">
         Max Faceit Stats is a solo project created to help the Faceit community track and analyze their performance.
@@ -53,7 +59,7 @@
         padding: 4rem 2rem;
         background-color: rgba(253, 125, 39, 0.1);
         border-radius: 10px;
-        margin-bottom: 3rem;
+        margin-bottom: 1rem;
     }
 
     .hero-title {
@@ -76,7 +82,7 @@
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 2rem;
         padding: 1rem;
-        margin-bottom: 3rem;
+        margin-bottom: 1rem;
     }
 
     .feature-card {
@@ -119,6 +125,39 @@
         font-family: 'Trebuchet MS', sans-serif;
     }
 
+    .scroll-indicator {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fd7d27;
+        font-size: 2rem;
+        opacity: 0.8;
+        animation: float 2s ease-in-out infinite;
+        z-index: 100;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+
+    .scroll-indicator:hover {
+        opacity: 1;
+    }
+
+    @@keyframes
+    float {
+        0% {
+            transform: translate(-50%, 0);
+        }
+
+        50% {
+            transform: translate(-50%, 10px);
+        }
+
+        100% {
+            transform: translate(-50%, 0);
+        }
+    }
+
     .support-section {
         background-color: rgba(253, 125, 39, 0.1);
         border-radius: 10px;
@@ -126,11 +165,12 @@
         text-align: center;
         margin-top: 2rem;
         margin-bottom: 2rem;
+        scroll-margin-top: 2rem;
     }
 
     .support-title {
         font-family: 'TolyerNo1', sans-serif;
-        font-size: 2.5rem;
+        font-size: 3rem;
         color: #fd7d27;
         margin-bottom: 1.5rem;
     }
@@ -193,3 +233,36 @@
         font-size: 1.4rem;
     }
 </style>
+
+@code {
+    private ElementReference supportSection;
+
+    private async Task ScrollToSupport()
+    {
+        await supportSection.FocusAsync();
+        await JS.InvokeVoidAsync("scrollIntoView", supportSection, new { behavior = "smooth" });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Hide scroll indicator when near bottom
+            await JS.InvokeVoidAsync("eval", @"
+window.addEventListener('scroll', function() {
+const scrollIndicator = document.querySelector('.scroll-indicator');
+if (!scrollIndicator) return;
+
+const scrollPosition = window.scrollY + window.innerHeight;
+const documentHeight = document.documentElement.scrollHeight;
+
+if (scrollPosition > documentHeight - 100) {
+scrollIndicator.style.opacity = '0';
+} else {
+scrollIndicator.style.opacity = '0.8';
+}
+});
+");
+        }
+    }
+}
