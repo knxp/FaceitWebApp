@@ -1,0 +1,138 @@
+@using faceitWebApp.Models
+
+<div class="matchstats-team-stats">
+    <h4 class="matchstats-team-header">@Team.Name</h4>
+    <div class="matchstats-stats-table">
+        <table>
+            <thead>
+                <tr>
+                    <th title="Player Name">Player</th>
+                    <th title="Total Damage">DMG</th>
+                    <th title="Kills">K</th>
+                    <th title="Deaths">D</th>
+                    <th title="Assists">A</th>
+                    <th title="Average Damage per Round">ADR</th>
+                    <th title="Kill/Death Ratio">K/D</th>
+                    <th title="Headshot Percentage">HS%</th>
+                    <th title="Entry Wins/Entry Count">Entry</th>
+                    <th title="Entry Success Rate">ES%</th>
+                    <th title="Utility Damage">UD</th>
+                    <th title="Flash Count">FC</th>
+                    <th title="Pistol Kills">PK</th>
+                    <th title="Sniper Kills">SK</th>
+                    
+                    <th title="Double Kills">2K</th>
+                    <th title="1v1 Clutches Won">1v1</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var player in Team.Players.OrderByDescending(p => p.Damage))
+                {
+                    <tr>
+                        <td class="matchstats-player-cell">
+                            <span class="matchstats-player-name">@player.Nickname</span>
+                        </td>
+                        <td class="damage">@player.Damage</td>
+                        <td>@player.Kills</td>
+                        <td>@player.Deaths</td>
+                        <td>@player.Assists</td>
+                        <td>@player.ADR.ToString("F1")</td>
+                        <td>@(player.KDRatio % 1 == 0 ? player.KDRatio.ToString("F0") : player.KDRatio.ToString("F2"))</td>
+                        <td>@player.HeadshotPercentage.ToString("F1")%</td>
+                        <td>@player.EntryWins/@player.EntryCount</td>
+                        <td>@player.EntrySuccessRate.ToString("F0")%</td>
+                        <td>@player.UtilityDamage.ToString("F0")</td>
+                        <td>@player.FlashCount</td>
+                        <td>@player.PistolKills</td>
+                        <td>@player.SniperKills</td>
+                        <td>@player.DoubleKills</td>
+                        <td>@player.OneVOneWins</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .matchstats-team-stats {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 30px;
+        width: 1400px;
+        margin: 0 auto 30px;
+        position: relative;
+        left: 50%;
+        transform: translateX(-60%);
+    }
+
+    .matchstats-team-header {
+        color: #fd7d27;
+        font-size: 3rem;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .matchstats-stats-table {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .matchstats-stats-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .matchstats-stats-table th {
+        background-color: rgba(253, 125, 39, 0.2);
+        color: #fd7d27;
+        padding: 12px 8px;
+        text-align: center;
+        font-size: 1.6rem;
+        white-space: nowrap;
+        font-weight: 600;
+        letter-spacing: 2px;
+        cursor: help;
+        position: relative;
+    }
+
+
+    .matchstats-stats-table td {
+        padding: 12px 8px;
+        text-align: center;
+        color: #ffffff;
+        border-bottom: 1px solid rgba(253, 125, 39, 0.2);
+        white-space: nowrap;
+        font-size: 1.5rem;
+    }
+
+    .matchstats-stats-table td.damage {
+        color: #ffffff;
+        font-size: 1.5rem;
+    }
+
+    .matchstats-player-cell {
+        padding-left: 10px;
+        min-width: 100px;
+        max-width: 100px;
+        text-align: left;
+    }
+
+    .matchstats-player-name {
+        color: #ffffff;
+        font-weight: 500;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 1.5rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public MatchTeam Team { get; set; }
+}

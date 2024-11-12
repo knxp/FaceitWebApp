@@ -1,0 +1,201 @@
+@page "/match-stats"
+@page "/match-stats/{MatchId}"
+@using faceitWebApp.Models
+@using faceitWebApp.Components
+@inject MatchStatsHandler MatchStatsHandler
+@inject NavigationManager NavigationManager
+
+<PageTitle>Match Stats - Faceit Stats Tracker</PageTitle>
+
+<div class="matchstats-container">
+    <h2 class="text-center mb-4">Match Statistics</h2>
+
+    <div class="matchstats-search-container">
+        <input @bind="matchId" @bind:event="oninput" @onkeypress="HandleKeyPress" class="matchstats-search-input"
+            placeholder="Enter Match ID" disabled="@isLoading" />
+        <button @onclick="FetchMatchStats" class="matchstats-search-button" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span>Search</span>
+            }
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3" role="alert">
+            @errorMessage
+        </div>
+    }
+
+    @if (currentMatch != null)
+    {
+        <div class="matchstats-overview-container">
+            <div class="matchstats-overview">
+                <div class="matchstats-score-display">
+                    <span class="matchstats-team-name">@currentMatch.Team1.Name</span>
+                    <span class="matchstats-score">@currentMatch.Team1.Score - @currentMatch.Team2.Score</span>
+                    <span class="matchstats-team-name">@currentMatch.Team2.Name</span>
+                </div>
+                <h3 class="matchstats-map-name">@currentMatch.Map</h3>
+            </div>
+        </div>
+
+        <div class="matchstats-teams-container">
+            <MatchTeamStats Team="@currentMatch.Team1" />
+            <MatchTeamStats Team="@currentMatch.Team2" />
+        </div>
+    }
+</div>
+
+<style>
+    .matchstats-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+        justify-content: center;
+    }
+
+    .matchstats-search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .matchstats-search-input {
+        width: 400px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 1.2rem;
+        padding: 0 20px;
+    }
+
+    .matchstats-search-button {
+        height: 50px;
+        min-width: 100px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .matchstats-overview-container {
+        width: 700px;
+        margin: 0 auto 30px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 30px;
+        justify-content: center;
+    }
+
+    .matchstats-overview {
+        text-align: center;
+    }
+
+    .matchstats-score-display {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+
+    .matchstats-team-name {
+        color: #ffffff;
+        font-weight: bold;
+        letter-spacing: 2px;
+        font-size: 2.5rem;
+    }
+
+    .matchstats-score {
+        color: #fd7d27;
+        font-size: 2.5rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+
+    .matchstats-map-name {
+        color: #ffffff;
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: bold;
+        letter-spacing: 2px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .matchstats-teams-container {
+        display: flex;
+        width: 1200px;
+        margin: 0 auto;
+        justify-content: center;
+        gap: 20px;
+        flex-direction: column;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string MatchId { get; set; }
+
+    private string matchId;
+    private Match currentMatch;
+    private bool isLoading;
+    private string errorMessage;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(MatchId))
+        {
+            matchId = MatchId;
+            await FetchMatchStats();
+        }
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await FetchMatchStats();
+        }
+    }
+
+    private async Task FetchMatchStats()
+    {
+        if (string.IsNullOrWhiteSpace(matchId))
+        {
+            errorMessage = "Please enter a match ID";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            currentMatch = await MatchStatsHandler.GetMatchStatsAsync(matchId);
+
+            if (MatchId != matchId)
+            {
+                NavigationManager.NavigateTo($"/match-stats/{matchId}", false);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            currentMatch = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
