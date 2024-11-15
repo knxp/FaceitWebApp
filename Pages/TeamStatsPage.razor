@@ -231,8 +231,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
-
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         var queryString = uri.Query;
         var queryParams = QueryHelpers.ParseQuery(queryString);
@@ -313,12 +311,12 @@
                 mapStats = maps;
                 errorMessage = null;
 
-                var currentTeamName = Uri.UnescapeDataString(TeamName ?? "");
-                if (teamInput != currentTeamName)
+                // Navigate using the team name instead of ID
+                if (currentTeamInfo != null && teamInput != currentTeamInfo.Name)
                 {
-                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamId)}", false);
-                    await Analytics.TrackPageView($"/team-stats/{teamInput}", $"Team Stats - {teamInput}");
-                    await Analytics.TrackEvent("Team", "Search", teamInput);
+                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(currentTeamInfo.Name)}", false);
+                    await Analytics.TrackPageView($"/team-stats/{currentTeamInfo.Name}", $"Team Stats - {currentTeamInfo.Name}");
+                    await Analytics.TrackEvent("Team", "Search", currentTeamInfo.Name);
                 }
 
                 await Analytics.TrackEvent("Team", "StatsLoaded", currentTeamInfo.Name);
