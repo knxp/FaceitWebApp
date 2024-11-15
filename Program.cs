@@ -21,6 +21,9 @@ builder.Services
     .AddBootstrapProviders()
     .AddFontAwesomeIcons();
 
+// Add Google Analytics Service
+builder.Services.AddScoped<IGoogleAnalyticsService, GoogleAnalyticsService>();
+
 // Configure base HttpClient
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

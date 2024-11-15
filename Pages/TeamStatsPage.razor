@@ -9,6 +9,7 @@
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
 @inject GetPlayerInfo GetPlayerInfo
+@inject IGoogleAnalyticsService Analytics
 
 <PageTitle>Team Stats - @(currentTeamInfo?.Name ?? "Search")</PageTitle>
 
@@ -226,9 +227,12 @@
     private bool isLoading;
     private string errorMessage;
     private bool shouldFetch;
+    private bool initialLoad = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        
+
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         var queryString = uri.Query;
         var queryParams = QueryHelpers.ParseQuery(queryString);
@@ -237,12 +241,20 @@
         {
             teamInput = Uri.UnescapeDataString(TeamName);
             shouldFetch = true;
+            if (initialLoad)
+            {
+                initialLoad = false;
+                await Analytics.TrackPageView($"/team-stats/{TeamName}", $"Team Stats - {teamInput}");
+                await Analytics.TrackEvent("Team", "Search", teamInput);
+            }
         }
         else if (queryParams.TryGetValue("team", out var team))
         {
             teamInput = team;
             shouldFetch = true;
             NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(team)}", false);
+            await Analytics.TrackPageView($"/team-stats/{team}", $"Team Stats - {team}");
+            await Analytics.TrackEvent("Team", "Search", team);
         }
     }
 
@@ -260,6 +272,8 @@
         if (!string.IsNullOrEmpty(TeamName) && TeamName != teamInput && !isLoading)
         {
             teamInput = Uri.UnescapeDataString(TeamName);
+            await Analytics.TrackPageView($"/team-stats/{TeamName}", $"Team Stats - {teamInput}");
+            await Analytics.TrackEvent("Team", "Search", teamInput);
             await FetchTeamStats();
         }
     }
@@ -277,6 +291,7 @@
         if (string.IsNullOrWhiteSpace(teamInput))
         {
             errorMessage = "Please enter a team URL or name";
+            await Analytics.TrackEvent("Team", "SearchError", "Empty Team Input");
             return;
         }
 
@@ -288,32 +303,36 @@
 
         try
         {
-            var (teamId, error) = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
+            var teamIdResponse = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
 
-            if (!string.IsNullOrEmpty(teamId))
+            if (!string.IsNullOrEmpty(teamIdResponse.TeamId) && !teamIdResponse.TeamId.StartsWith("Failed"))
             {
-                var (info, stats, maps) = await TeamStatsHandler.GetTeamStatsAsync(teamId, "cs2");
-                currentTeamInfo = info;
-                currentTeamStats = stats;
-                mapStats = maps;
+                var teamStats = await TeamStatsHandler.GetTeamStatsAsync(teamIdResponse.TeamId, "cs2");
+                currentTeamInfo = teamStats.Item1;
+                currentTeamStats = teamStats.Item2;
+                mapStats = teamStats.Item3;
                 errorMessage = null;
 
                 var currentTeamName = Uri.UnescapeDataString(TeamName ?? "");
                 if (teamInput != currentTeamName)
                 {
-                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(currentTeamName)}", false);
+                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamInput)}", false);
                 }
+
+                await Analytics.TrackEvent("Team", "StatsLoaded", currentTeamInfo.Name);
             }
             else
             {
-                errorMessage = $"Failed to fetch team information: {error}";
+                errorMessage = $"Failed to fetch team information: {teamIdResponse.TeamId}";
                 ResetTeamData();
+                await Analytics.TrackEvent("Team", "SearchError", teamIdResponse.TeamId);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
             ResetTeamData();
+            await Analytics.TrackEvent("Team", "StatsError", ex.Message);
         }
         finally
         {

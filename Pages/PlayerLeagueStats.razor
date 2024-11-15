@@ -8,6 +8,8 @@
 @inject PlayerLeagueStatsHandler PlayerLeagueStatsHandler
 @inject GetPlayerID GetPlayerID
 @inject NavigationManager NavigationManager
+@inject IGoogleAnalyticsService Analytics
+
 
 <div class="player-league-stats-overlay @(isLoading ? "active" : "")">
     <div class="player-league-stats-header-container">
@@ -495,6 +497,7 @@
     private string selectedSeason;
     private bool isLoading;
     private string errorMessage;
+    private bool initialLoad = true;
 
     protected override void OnInitialized()
     {
@@ -509,6 +512,12 @@
         if (!string.IsNullOrEmpty(Nickname) && (leagueStats == null || searchNickname != Uri.UnescapeDataString(Nickname)))
         {
             searchNickname = Uri.UnescapeDataString(Nickname);
+            if (initialLoad)
+            {
+                initialLoad = false;
+                await Analytics.TrackPageView($"/player-league-stats/{Nickname}", $"League Stats - {searchNickname}");
+                await Analytics.TrackEvent("Player", "LeagueStatsView", searchNickname);
+            }
             await FetchPlayerStats();
         }
     }
@@ -526,6 +535,7 @@
         if (string.IsNullOrWhiteSpace(searchNickname))
         {
             errorMessage = "Please enter a player nickname";
+            await Analytics.TrackEvent("Player", "LeagueStatsError", "Empty Nickname");
             return;
         }
 
@@ -547,15 +557,19 @@
                 {
                     NavigationManager.NavigateTo($"/player-league-stats/{Uri.EscapeDataString(searchNickname)}", false);
                 }
+
+                await Analytics.TrackEvent("Player", "LeagueStatsLoaded", searchNickname);
             }
             else
             {
                 errorMessage = playerId;
+                await Analytics.TrackEvent("Player", "LeagueStatsError", playerId);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
+            await Analytics.TrackEvent("Player", "LeagueStatsError", ex.Message);
         }
         finally
         {
@@ -564,8 +578,9 @@
         }
     }
 
-    private void SelectSeason(string season)
+    private async Task SelectSeason(string season)
     {
         selectedSeason = season;
+        await Analytics.TrackEvent("Player", "SeasonSelected", $"{searchNickname} - {season}");
     }
 }

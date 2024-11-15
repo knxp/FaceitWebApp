@@ -1,4 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
+@inject IGoogleAnalyticsService Analytics
+@inject NavigationManager NavigationManager
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
@@ -8,8 +10,32 @@
     <NotFound>
         <PageTitle>Not found</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <h1 class="error-title">404</h1>
+                        <p class="error-message">The page you're looking for doesn't exist.</p>
+                        <a href="/" class="btn btn-primary btn-lg">Return Home</a>
+                    </div>
+                </div>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>
 
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private async void HandleLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        await Analytics.TrackPageView(new Uri(e.Location).PathAndQuery, "Page View");
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}

@@ -7,6 +7,8 @@
 @inject FullStatsHandler FullStatsHandler
 @inject GetPlayerID GetPlayerID
 @inject NavigationManager NavigationManager
+@inject IGoogleAnalyticsService Analytics
+
 
 <div class="@(isLoading ? "detailed-overlay" : "")">
     <div class="detailed-header-container">
@@ -420,7 +422,10 @@
         if (!string.IsNullOrEmpty(Nickname) && initialLoad)
         {
             initialLoad = false;
-            await FetchPlayerStats(Uri.UnescapeDataString(Nickname));
+            var decodedNickname = Uri.UnescapeDataString(Nickname);
+            await Analytics.TrackPageView($"/player-detailed-stats/{Nickname}", $"Detailed Stats - {decodedNickname}");
+            await Analytics.TrackEvent("Player", "DetailedStatsView", decodedNickname);
+            await FetchPlayerStats(decodedNickname);
         }
     }
 
@@ -429,6 +434,7 @@
         if (string.IsNullOrWhiteSpace(nickname))
         {
             errorMessage = "Please enter a player nickname";
+            await Analytics.TrackEvent("Player", "DetailedStatsError", "Empty Nickname");
             return;
         }
 
@@ -445,21 +451,24 @@
                 {
                     NavigationManager.NavigateTo($"/player-detailed-stats/{Uri.EscapeDataString(nickname)}", false);
                 }
+                await Analytics.TrackEvent("Player", "DetailedStatsLoaded", nickname);
             }
             else
             {
                 errorMessage = playerId;
                 playerStats = null;
+                await Analytics.TrackEvent("Player", "DetailedStatsError", playerId);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
             playerStats = null;
+            await Analytics.TrackEvent("Player", "DetailedStatsError", ex.Message);
         }
         finally
         {
             isLoading = false;
         }
-    } 
+    }
 }

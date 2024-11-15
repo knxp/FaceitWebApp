@@ -4,6 +4,7 @@
 @using faceitWebApp.Components
 @inject MatchStatsHandler MatchStatsHandler
 @inject NavigationManager NavigationManager
+@inject IGoogleAnalyticsService Analytics
 
 <PageTitle>Match Stats - Faceit Stats Tracker</PageTitle>
 
@@ -151,12 +152,16 @@
     private Match currentMatch;
     private bool isLoading;
     private string errorMessage;
+    private bool initialLoad = true;
 
     protected override async Task OnParametersSetAsync()
     {
-        if (!string.IsNullOrEmpty(MatchId))
+        if (!string.IsNullOrEmpty(MatchId) && initialLoad)
         {
+            initialLoad = false;
             matchId = MatchId;
+            await Analytics.TrackPageView($"/match-stats/{MatchId}", $"Match Stats - {MatchId}");
+            await Analytics.TrackEvent("Match", "View", MatchId);
             await FetchMatchStats();
         }
     }
@@ -174,6 +179,7 @@
         if (string.IsNullOrWhiteSpace(matchId))
         {
             errorMessage = "Please enter a match ID";
+            await Analytics.TrackEvent("Match", "SearchError", "Empty Match ID");
             return;
         }
 
@@ -186,12 +192,17 @@
             if (MatchId != matchId)
             {
                 NavigationManager.NavigateTo($"/match-stats/{matchId}", false);
+                await Analytics.TrackPageView($"/match-stats/{matchId}", $"Match Stats - {matchId}");
+                await Analytics.TrackEvent("Match", "View", matchId);
             }
+
+            await Analytics.TrackEvent("Match", "StatsLoaded", $"{matchId} - {currentMatch.Team1.Name} vs {currentMatch.Team2.Name}");
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
             currentMatch = null;
+            await Analytics.TrackEvent("Match", "StatsError", $"{matchId} - {ex.Message}");
         }
         finally
         {

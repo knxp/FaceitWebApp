@@ -7,6 +7,7 @@
 @inject TeamStatsHandler TeamStatsHandler
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
+@inject IGoogleAnalyticsService Analytics
 
 <div class="@(isLoading ? "compare-overlay" : "")">
     <h3 class="text-center">Compare Teams</h3>
@@ -220,14 +221,21 @@
     private List<MapStats> team2Maps;
     private bool isLoading;
     private string errorMessage;
+    private bool initialLoad = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(Team1Name) && !string.IsNullOrEmpty(Team2Name))
         {
             team1Input = Uri.UnescapeDataString(Team1Name);
             team2Input = Uri.UnescapeDataString(Team2Name);
-            CompareStatsFromUrl();
+            if (initialLoad)
+            {
+                initialLoad = false;
+                await Analytics.TrackPageView($"/compare-teams/{Team1Name}/{Team2Name}", $"Compare Teams - {team1Input} vs {team2Input}");
+                await Analytics.TrackEvent("Teams", "CompareView", $"{team1Input} vs {team2Input}");
+            }
+            await CompareStatsFromUrl();
         }
     }
 
@@ -241,7 +249,11 @@
 
     private async Task CompareStatsFromUrl()
     {
-        if (string.IsNullOrWhiteSpace(team1Input) || string.IsNullOrWhiteSpace(team2Input)) return;
+        if (string.IsNullOrWhiteSpace(team1Input) || string.IsNullOrWhiteSpace(team2Input))
+        {
+            await Analytics.TrackEvent("Teams", "CompareError", "Empty Team Names");
+            return;
+        }
 
         isLoading = true;
         errorMessage = null;
@@ -263,6 +275,8 @@
                 team2Stats = stats2;
                 team2Maps = maps2;
                 errorMessage = null;
+
+                await Analytics.TrackEvent("Teams", "CompareSuccess", $"{info1.Name} vs {info2.Name}");
             }
             else
             {
@@ -271,12 +285,14 @@
                 if (!string.IsNullOrEmpty(error2)) errors.Add($"Team 2: {error2}");
                 errorMessage = string.Join(Environment.NewLine, errors);
                 ResetTeamData();
+                await Analytics.TrackEvent("Teams", "CompareError", errorMessage);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
             ResetTeamData();
+            await Analytics.TrackEvent("Teams", "CompareError", ex.Message);
         }
         finally
         {
@@ -290,6 +306,7 @@
         if (string.IsNullOrWhiteSpace(team1Input) || string.IsNullOrWhiteSpace(team2Input))
         {
             errorMessage = "Please enter both team names";
+            await Analytics.TrackEvent("Teams", "CompareError", "Empty Team Names");
             return;
         }
 
@@ -321,6 +338,9 @@
                 {
                     NavigationManager.NavigateTo(newUri, false);
                 }
+
+                await Analytics.TrackPageView(newUri, $"Compare Teams - {info1.Name} vs {info2.Name}");
+                await Analytics.TrackEvent("Teams", "CompareSuccess", $"{info1.Name} vs {info2.Name}");
             }
             else
             {
@@ -329,16 +349,19 @@
                 if (!string.IsNullOrEmpty(error2)) errors.Add($"Team 2: {error2}");
                 errorMessage = string.Join(Environment.NewLine, errors);
                 ResetTeamData();
+                await Analytics.TrackEvent("Teams", "CompareError", errorMessage);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
             ResetTeamData();
+            await Analytics.TrackEvent("Teams", "CompareError", ex.Message);
         }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 

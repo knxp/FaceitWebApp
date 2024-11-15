@@ -9,6 +9,7 @@
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
 @inject NavigationManager NavigationManager
+@inject IGoogleAnalyticsService Analytics
 
 <div class="@(isLoading ? "player-overlay" : "")">
     <h3 class="text-center">Basic Stats</h3>
@@ -340,9 +341,35 @@
         {
             initialLoad = false;
             nickname = Uri.UnescapeDataString(Nickname);
+            await Analytics.TrackPageView($"/player-stats/{Nickname}", $"Player Stats - {nickname}");
+            await Analytics.TrackEvent("Player", "Search", nickname);
             await FetchPlayerStats();
         }
     }
+
+    private async Task HandleSearch(string searchNickname)
+    {
+        if (string.IsNullOrWhiteSpace(searchNickname))
+        {
+            errorMessage = "Please enter a nickname";
+            await Analytics.TrackEvent("Player", "SearchError", "Empty Nickname");
+            return;
+        }
+
+        try
+        {
+            nickname = searchNickname;
+            await Analytics.TrackEvent("Player", "Search", nickname);
+            NavigationManager.NavigateTo($"/player-stats/{Uri.EscapeDataString(nickname)}", false);
+            await FetchPlayerStats();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            await Analytics.TrackEvent("Player", "SearchError", ex.Message);
+        }
+    }
+
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
@@ -356,14 +383,16 @@
         if (string.IsNullOrWhiteSpace(nickname))
         {
             errorMessage = "Please enter a player nickname";
+            await Analytics.TrackEvent("Player", "SearchError", "Empty Nickname");
             return;
         }
 
-        isLoading = true;
-        errorMessage = null;
-
         try
         {
+            isLoading = true;
+            errorMessage = null;
+            StateHasChanged();
+
             var playerId = await GetPlayerID.GetPlayerIDFromNicknameAsync(nickname);
 
             if (!playerId.StartsWith("Error") && !playerId.StartsWith("!!CASE SENSITIVE!!"))
@@ -382,6 +411,8 @@
                 {
                     NavigationManager.NavigateTo($"/player-stats/{Uri.EscapeDataString(nickname)}", false);
                 }
+
+                await Analytics.TrackEvent("Player", "StatsLoaded", nickname);
             }
             else
             {
@@ -389,6 +420,7 @@
                 playerInfo = null;
                 playerStats = null;
                 matchHistory = null;
+                await Analytics.TrackEvent("Player", "SearchError", playerId);
             }
         }
         catch (Exception ex)
@@ -397,10 +429,12 @@
             playerInfo = null;
             playerStats = null;
             matchHistory = null;
+            await Analytics.TrackEvent("Player", "StatsError", ex.Message);
         }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 }

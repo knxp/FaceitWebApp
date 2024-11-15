@@ -10,6 +10,7 @@
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
 @inject NavigationManager NavigationManager
+@inject IGoogleAnalyticsService Analytics
 
 <div class="@(isLoading ? "compare-overlay" : "")">
     <h3 class="text-center">Compare Players</h3>
@@ -216,6 +217,7 @@
     private bool isLoading;
     private string errorMessage;
     private bool shouldFetch;
+    private bool initialLoad = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -224,6 +226,12 @@
             player1Input = Uri.UnescapeDataString(Player1);
             player2Input = Uri.UnescapeDataString(Player2);
             shouldFetch = true;
+            if (initialLoad)
+            {
+                initialLoad = false;
+                await Analytics.TrackPageView($"/compare-players/{Player1}/{Player2}", $"Compare Players - {player1Input} vs {player2Input}");
+                await Analytics.TrackEvent("Players", "CompareView", $"{player1Input} vs {player2Input}");
+            }
         }
         else
         {
@@ -239,6 +247,8 @@
             {
                 player2Input = p2;
                 shouldFetch = true;
+                await Analytics.TrackPageView($"/compare-players/{p1}/{p2}", $"Compare Players - {p1} vs {p2}");
+                await Analytics.TrackEvent("Players", "CompareView", $"{p1} vs {p2}");
                 NavigationManager.NavigateTo($"/compare-players/{Uri.EscapeDataString(p1)}/{Uri.EscapeDataString(p2)}", false);
             }
         }
@@ -256,10 +266,12 @@
     protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(Player1) && !string.IsNullOrEmpty(Player2) &&
-        (Player1 != player1Input || Player2 != player2Input) && !isLoading)
+            (Player1 != player1Input || Player2 != player2Input) && !isLoading)
         {
             player1Input = Uri.UnescapeDataString(Player1);
             player2Input = Uri.UnescapeDataString(Player2);
+            await Analytics.TrackPageView($"/compare-players/{Player1}/{Player2}", $"Compare Players - {player1Input} vs {player2Input}");
+            await Analytics.TrackEvent("Players", "CompareView", $"{player1Input} vs {player2Input}");
             await CompareStats();
         }
     }
@@ -277,6 +289,7 @@
         if (string.IsNullOrWhiteSpace(player1Input) || string.IsNullOrWhiteSpace(player2Input))
         {
             errorMessage = "Please enter both player nicknames";
+            await Analytics.TrackEvent("Players", "CompareError", "Empty Player Names");
             return;
         }
 
@@ -303,7 +316,7 @@
                 var player2HistoryTask = GetMatchHistory.GetMatchHistoryAsync(player2Id);
 
                 await Task.WhenAll(player1InfoTask, player1StatsTask, player1HistoryTask,
-                player2InfoTask, player2StatsTask, player2HistoryTask);
+                    player2InfoTask, player2StatsTask, player2HistoryTask);
 
                 player1Info = await player1InfoTask;
                 player1Stats = await player1StatsTask;
@@ -314,13 +327,14 @@
                 player2History = await player2HistoryTask;
 
                 var currentUri = NavigationManager.Uri;
-                var newUri =
-                $"/compare-players/{Uri.EscapeDataString(player1Info.Nickname)}/{Uri.EscapeDataString(player2Info.Nickname)}";
+                var newUri = $"/compare-players/{Uri.EscapeDataString(player1Info.Nickname)}/{Uri.EscapeDataString(player2Info.Nickname)}";
 
                 if (!currentUri.EndsWith(newUri))
                 {
                     NavigationManager.NavigateTo(newUri, false);
                 }
+
+                await Analytics.TrackEvent("Players", "CompareSuccess", $"{player1Info.Nickname} vs {player2Info.Nickname}");
             }
             else
             {
@@ -329,12 +343,14 @@
                 if (player2Id.StartsWith("Error")) errors.Add($"Player 2: {player2Id}");
                 errorMessage = string.Join(Environment.NewLine, errors);
                 ResetPlayerData();
+                await Analytics.TrackEvent("Players", "CompareError", errorMessage);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
             ResetPlayerData();
+            await Analytics.TrackEvent("Players", "CompareError", ex.Message);
         }
         finally
         {
