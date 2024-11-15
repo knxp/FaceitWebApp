@@ -29,6 +29,14 @@
       "PackagePath": "staticwebassets\\css\\app.css"
     },
     {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\blazorise.bootstrap.css",
+      "PackagePath": "staticwebassets\\css\\blazorise.bootstrap.css"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\blazorise.css",
+      "PackagePath": "staticwebassets\\css\\blazorise.css"
+    },
+    {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
       "PackagePath": "staticwebassets\\css\\open-iconic"
     },
@@ -87,6 +95,14 @@
     {
       "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\index.html",
       "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\js\\blazorise.bootstrap.js",
+      "PackagePath": "staticwebassets\\js\\blazorise.bootstrap.js"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\js\\blazorise.js",
+      "PackagePath": "staticwebassets\\js\\blazorise.js"
     },
     {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.faceitWebApp.props",

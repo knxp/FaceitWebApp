@@ -16,7 +16,7 @@
         gtag('js', new Date());
         gtag('config', 'G-1R66FSQHBY', {
             page_path: window.location.pathname,
-            send_page_view: false // Disable automatic page views
+            send_page_view: false
         });
     </script>
 
@@ -28,8 +28,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
         integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
-    <link href="_content/Blazorise/blazorise.css" rel="stylesheet" />
-    <link href="_content/Blazorise.Bootstrap/blazorise.bootstrap.css" rel="stylesheet" />
+    <link href="css/blazorise.css" rel="stylesheet" />
+    <link href="css/blazorise.bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/site.css" />
     <link rel="stylesheet" href="css/player-stats.css" />
 
@@ -70,26 +70,9 @@
         crossorigin="anonymous"></script>
 
     <!-- Blazorise -->
-    <script src="_content/Blazorise/blazorise.js"></script>
-    <script src="_content/Blazorise.Bootstrap/blazorise.bootstrap.js"></script>
+    <script src="js/blazorise.js"></script>
+    <script src="js/blazorise.bootstrap.js"></script>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <script src="_content/Blazorise.Charts/blazorise.charts.js"></script>
-
-    <!-- Custom Scripts -->
-    <script src="js/site.js"></script>
-
-    <!-- SPA Routing Fix -->
-    <script>
-        window.addEventListener('popstate', function () {
-            setTimeout(function () {
-                if (!document.querySelector('.blazor-error-boundary')) {
-                    window.location.reload();
-                }
-            }, 100);
-        });
-    </script>
 </body>
 
 </html>
