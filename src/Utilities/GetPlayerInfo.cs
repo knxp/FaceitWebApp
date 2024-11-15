@@ -73,11 +73,13 @@ namespace faceitWebApp.Utilities
                     {
                         foreach (var team in teams)
                         {
-                            player.Teams.Add(new TeamInfo
-                            {
-                                Name = team["name"]?.ToString(),
-                                Avatar = team["avatar"]?.ToString()
-                            });
+                            if(team["game"]?.ToString() == "cs2"){
+                                player.Teams.Add(new TeamInfo
+                                {
+                                    Name = team["name"]?.ToString(),
+                                    Avatar = team["avatar"]?.ToString()
+                                });
+                            }
                         }
                     }
                 }
