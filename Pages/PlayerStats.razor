@@ -397,7 +397,7 @@
 
             if (!playerId.StartsWith("Error") && !playerId.StartsWith("!!CASE SENSITIVE!!"))
             {
-                var playerInfoTask = GetPlayerInfo.GetPlayerInfoAsync(playerId);
+                var playerInfoTask = GetPlayerInfo.GetPlayerInfoAsync(playerId, nickname);
                 var playerStatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(playerId, matchLimit);
                 var matchHistoryTask = GetMatchHistory.GetMatchHistoryAsync(playerId);
 

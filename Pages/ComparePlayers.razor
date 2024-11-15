@@ -307,11 +307,11 @@
             if (!player1Id.StartsWith("Error") && !player2Id.StartsWith("Error"))
             {
                 // Get all data in parallel for better performance
-                var player1InfoTask = GetPlayerInfo.GetPlayerInfoAsync(player1Id);
+                var player1InfoTask = GetPlayerInfo.GetPlayerInfoAsync(player1Id, player1Input);
                 var player1StatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(player1Id);
                 var player1HistoryTask = GetMatchHistory.GetMatchHistoryAsync(player1Id);
 
-                var player2InfoTask = GetPlayerInfo.GetPlayerInfoAsync(player2Id);
+                var player2InfoTask = GetPlayerInfo.GetPlayerInfoAsync(player2Id, player2Input);
                 var player2StatsTask = BasicStatsHandler.GetAverageBasicStatsAsync(player2Id);
                 var player2HistoryTask = GetMatchHistory.GetMatchHistoryAsync(player2Id);
 

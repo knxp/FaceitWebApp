@@ -19,7 +19,7 @@ namespace faceitWebApp.Utilities
             _faceitApiKey = configuration["Faceit:ApiKey"];
         }
 
-        public async Task<Player> GetPlayerInfoAsync(string playerId)
+        public async Task<Player> GetPlayerInfoAsync(string playerId, string input)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace faceitWebApp.Utilities
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching player info: {ex.Message}");
+                throw new Exception($"Error fetching player info. Check spelling for: {input}");
             }
         }
     }
