@@ -303,29 +303,31 @@
 
         try
         {
-            var teamIdResponse = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
+            var (teamId, error) = await GetTeamID.GetTeamIDFromUrlAsync(teamInput);
 
-            if (!string.IsNullOrEmpty(teamIdResponse.TeamId) && !teamIdResponse.TeamId.StartsWith("Failed"))
+            if (!string.IsNullOrEmpty(teamId))
             {
-                var teamStats = await TeamStatsHandler.GetTeamStatsAsync(teamIdResponse.TeamId, "cs2");
-                currentTeamInfo = teamStats.Item1;
-                currentTeamStats = teamStats.Item2;
-                mapStats = teamStats.Item3;
+                var (info, stats, maps) = await TeamStatsHandler.GetTeamStatsAsync(teamId, "cs2");
+                currentTeamInfo = info;
+                currentTeamStats = stats;
+                mapStats = maps;
                 errorMessage = null;
 
                 var currentTeamName = Uri.UnescapeDataString(TeamName ?? "");
                 if (teamInput != currentTeamName)
                 {
-                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamInput)}", false);
+                    NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(teamId)}", false);
+                    await Analytics.TrackPageView($"/team-stats/{teamInput}", $"Team Stats - {teamInput}");
+                    await Analytics.TrackEvent("Team", "Search", teamInput);
                 }
 
                 await Analytics.TrackEvent("Team", "StatsLoaded", currentTeamInfo.Name);
             }
             else
             {
-                errorMessage = $"Failed to fetch team information: {teamIdResponse.TeamId}";
+                errorMessage = $"Failed to fetch team information: {error}";
                 ResetTeamData();
-                await Analytics.TrackEvent("Team", "SearchError", teamIdResponse.TeamId);
+                await Analytics.TrackEvent("Team", "SearchError", error);
             }
         }
         catch (Exception ex)

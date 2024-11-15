@@ -12,7 +12,7 @@ namespace faceitWebApp.Utilities
     {
         private readonly HttpClient _httpClient;
         private readonly string _faceitApiKey;
-        private readonly Regex _teamIdPattern = new Regex(@"teams/([a-fA-F0-9-]{36})", RegexOptions.IgnoreCase);
+        private readonly Regex _teamIdPattern = new Regex(@"teams/([a-fA-F0-9-]+)", RegexOptions.IgnoreCase);
 
         public GetTeamID(HttpClient httpClient, IConfiguration configuration)
         {
@@ -32,94 +32,92 @@ namespace faceitWebApp.Utilities
                 // Decode URL if it's encoded
                 input = Uri.UnescapeDataString(input);
 
-                string teamId = null;
-
                 // Check if input is a URL containing a team ID
-                if (input.Contains("faceit.com/"))
+                if (input.Contains("faceit.com/") || input.Contains("teams/"))
                 {
                     var match = _teamIdPattern.Match(input);
                     if (match.Success)
                     {
-                        teamId = match.Groups[1].Value;
+                        var teamId = match.Groups[1].Value;
+                        return await ValidateTeamId(teamId);
                     }
                 }
                 // If input looks like a team ID itself
-                else if (Regex.IsMatch(input, @"^[a-fA-F0-9-]{36}$"))
+                else if (Regex.IsMatch(input, @"^[a-fA-F0-9-]+$"))
                 {
-                    teamId = input;
+                    return await ValidateTeamId(input);
                 }
 
-                // If we found a team ID, validate it plays CS2
-                if (!string.IsNullOrEmpty(teamId))
-                {
-                    var validationResult = await ValidateTeamId(teamId);
-                    if (!string.IsNullOrEmpty(validationResult.TeamId))
-                    {
-                        return validationResult;
-                    }
-                }
-
-                // If no team ID found or validation failed, try searching by nickname
-                if (teamId == null)
-                {
-                    return await SearchTeamByNickname(input);
-                }
-
-                return (null, "Team not found or does not play CS2");
+                // If no team ID found, try searching by nickname
+                return await SearchTeamByNickname(input);
             }
             catch (Exception ex)
             {
-                return (null, ex.Message);
+                return (null, $"Error processing input: {ex.Message}");
             }
         }
 
         private async Task<(string TeamId, string ErrorMessage)> ValidateTeamId(string teamId)
         {
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
-
-            var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var json = JObject.Parse(content);
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
 
-                if (json["game"]?.ToString().Equals("cs2", StringComparison.OrdinalIgnoreCase) == true)
+                var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
+
+                if (response.IsSuccessStatusCode)
                 {
-                    return (teamId, null);
+                    var content = await response.Content.ReadAsStringAsync();
+                    var json = JObject.Parse(content);
+
+                    if (json["game"]?.ToString().Equals("cs2", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        return (teamId, null);
+                    }
+                    return (null, "Team does not play CS2");
                 }
-                return (null, "Team does not play CS2");
+                return (null, "Team not found");
             }
-            return (null, "Team not found");
+            catch (Exception ex)
+            {
+                return (null, $"Error validating team: {ex.Message}");
+            }
         }
 
         private async Task<(string TeamId, string ErrorMessage)> SearchTeamByNickname(string nickname)
         {
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
-
-            var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/search/teams?nickname={Uri.EscapeDataString(nickname)}&game=cs2&offset=0&limit=1");
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var json = JObject.Parse(content);
-                var items = json["items"] as JArray;
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
 
-                if (items != null && items.Count > 0)
+                var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/search/teams?nickname={Uri.EscapeDataString(nickname)}&game=cs2&offset=0&limit=1");
+
+                if (response.IsSuccessStatusCode)
                 {
-                    var team = items[0];
-                    var teamId = team["team_id"]?.ToString();
+                    var content = await response.Content.ReadAsStringAsync();
+                    var json = JObject.Parse(content);
+                    var items = json["items"] as JArray;
 
-                    if (!string.IsNullOrEmpty(teamId))
+                    if (items != null && items.Count > 0)
                     {
-                        return await ValidateTeamId(teamId);
+                        var team = items[0];
+                        var teamId = team["team_id"]?.ToString();
+
+                        if (!string.IsNullOrEmpty(teamId))
+                        {
+                            return await ValidateTeamId(teamId);
+                        }
                     }
                 }
-            }
 
-            return (null, "Team not found");
+                return (null, "Team not found");
+            }
+            catch (Exception ex)
+            {
+                return (null, $"Error searching team: {ex.Message}");
+            }
         }
     }
 }
