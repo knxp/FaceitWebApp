@@ -15,14 +15,14 @@ using faceitWebApp;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
+// Add Google Analytics Service
+builder.Services.AddScoped<IGoogleAnalyticsService, GoogleAnalyticsService>();
+
 // Add Blazorise
 builder.Services
     .AddBlazorise()
     .AddBootstrapProviders()
     .AddFontAwesomeIcons();
-
-// Add Google Analytics Service
-builder.Services.AddScoped<IGoogleAnalyticsService, GoogleAnalyticsService>();
 
 // Configure base HttpClient
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });

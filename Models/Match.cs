@@ -11,7 +11,9 @@ namespace faceitWebApp.Models
     public class MatchTeam
     {
         public string Name { get; set; }
+        public string TeamId { get; set; }
         public int Score { get; set; }
+        public string Avatar { get; set; }
         public List<MatchPlayer> Players { get; set; } = new List<MatchPlayer>();
     }
 
@@ -29,6 +31,9 @@ namespace faceitWebApp.Models
 
         // Special kills
         public int DoubleKills { get; set; }
+        public int TripleKills { get; set; }
+        public int QuadKills { get; set; }
+        public int Aces { get; set; }
         public int PistolKills { get; set; }
         public int SniperKills { get; set; }
 
@@ -40,13 +45,17 @@ namespace faceitWebApp.Models
         // Utility and flash stats
         public double UtilityDamage { get; set; }
         public int FlashCount { get; set; }
+        public int FlashSuccesses { get; set; }
 
         // Headshot stats
         public int Headshots { get; set; }
         public double HeadshotPercentage { get; set; }
 
         // Clutch stats
+        public int OneVOneCount { get; set; }
         public int OneVOneWins { get; set; }
+        public int OneVTwoCount { get; set; }
+        public int OneVTwoWins { get; set; }
 
         // Damage stats
         public int Damage { get; set; }

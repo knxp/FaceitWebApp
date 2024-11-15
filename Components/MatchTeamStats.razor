@@ -1,4 +1,5 @@
 @using faceitWebApp.Models
+@inject NavigationManager NavigationManager
 
 <div class="matchstats-team-stats">
     <h4 class="matchstats-team-header">@Team.Name</h4>
@@ -7,32 +8,35 @@
             <thead>
                 <tr>
                     <th title="Player Name">Player</th>
-                    <th title="Total Damage">DMG</th>
                     <th title="Kills">K</th>
                     <th title="Deaths">D</th>
                     <th title="Assists">A</th>
                     <th title="Average Damage per Round">ADR</th>
                     <th title="Kill/Death Ratio">K/D</th>
                     <th title="Headshot Percentage">HS%</th>
-                    <th title="Entry Wins/Entry Count">Entry</th>
-                    <th title="Entry Success Rate">ES%</th>
+                    <th title="Entry Success/Entry Count">Entry</th>
+                    <th title="Flash Successs/Flash Count">FS</th>
                     <th title="Utility Damage">UD</th>
-                    <th title="Flash Count">FC</th>
                     <th title="Pistol Kills">PK</th>
                     <th title="Sniper Kills">SK</th>
-                    
                     <th title="Double Kills">2K</th>
-                    <th title="1v1 Clutches Won">1v1</th>
+                    <th title="Triple Kills">3K</th>
+                    <th title="Quad Kills">4K</th>
+                    <th title="Aces">5K</th>
+                    <th title="1v1 Wins/1v1 Count">1v1</th>
+                    <th title="1v2 Wins/1v2 Count">1v2</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var player in Team.Players.OrderByDescending(p => p.Damage))
+                @foreach (var player in Team.Players.OrderByDescending(p => p.ADR))
                 {
-                    <tr>
+                    <tr class="matchstats-table-row">
                         <td class="matchstats-player-cell">
-                            <span class="matchstats-player-name">@player.Nickname</span>
+                            <span class="matchstats-player-name" @onclick="() => NavigateToPlayerStats(player.Nickname)"
+                            @onclick:stopPropagation>
+                                @player.Nickname
+                            </span>
                         </td>
-                        <td class="damage">@player.Damage</td>
                         <td>@player.Kills</td>
                         <td>@player.Deaths</td>
                         <td>@player.Assists</td>
@@ -40,13 +44,16 @@
                         <td>@(player.KDRatio % 1 == 0 ? player.KDRatio.ToString("F0") : player.KDRatio.ToString("F2"))</td>
                         <td>@player.HeadshotPercentage.ToString("F1")%</td>
                         <td>@player.EntryWins/@player.EntryCount</td>
-                        <td>@player.EntrySuccessRate.ToString("F0")%</td>
+                        <td>@player.FlashSuccesses/@player.FlashCount</td>
                         <td>@player.UtilityDamage.ToString("F0")</td>
-                        <td>@player.FlashCount</td>
                         <td>@player.PistolKills</td>
                         <td>@player.SniperKills</td>
                         <td>@player.DoubleKills</td>
-                        <td>@player.OneVOneWins</td>
+                        <td>@player.TripleKills</td>
+                        <td>@player.QuadKills</td>
+                        <td>@player.Aces</td>
+                        <td>@player.OneVOneWins/@player.OneVOneCount</td>
+                        <td>@player.OneVTwoWins/@player.OneVTwoCount</td>
                     </tr>
                 }
             </tbody>
@@ -99,7 +106,6 @@
         position: relative;
     }
 
-
     .matchstats-stats-table td {
         padding: 12px 8px;
         text-align: center;
@@ -107,11 +113,20 @@
         border-bottom: 1px solid rgba(253, 125, 39, 0.2);
         white-space: nowrap;
         font-size: 1.5rem;
+        transition: background-color 0.2s ease;
     }
 
-    .matchstats-stats-table td.damage {
-        color: #ffffff;
-        font-size: 1.5rem;
+    .matchstats-table-row {
+        transition: background-color 0.2s ease;
+    }
+
+    .matchstats-table-row:hover {
+        background-color: rgba(77, 77, 77, 0.1);
+        
+    }
+
+    .matchstats-table-row:hover td {
+        color: #27c0fd;
     }
 
     .matchstats-player-cell {
@@ -129,10 +144,31 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         font-size: 1.5rem;
+        transition: color 0.2s ease;
+    }
+
+    .matchstats-player-name:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    
+    
+    .matchstats-table-row:hover .matchstats-player-name {
+        color: #27c0fd;
+        font-weight: bold;
+        letter-spacing: 2px;
     }
 </style>
 
 @code {
     [Parameter]
     public MatchTeam Team { get; set; }
+
+    private void NavigateToPlayerStats(string nickname)
+    {
+        if (!string.IsNullOrEmpty(nickname))
+        {
+            NavigationManager.NavigateTo($"/player-league-stats/{Uri.EscapeDataString(nickname)}");
+        }
+    }
 }
