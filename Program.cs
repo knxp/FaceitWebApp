@@ -16,13 +16,15 @@ using faceitWebApp;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
+// Fetch Google Analytics Tracking ID from appsettings.json
+var googleAnalyticsTrackingId = builder.Configuration["GoogleAnalytics:TrackingId"];
+
 // Add Google Analytics Service
 builder.Services.AddScoped<IGoogleAnalyticsService>(sp =>
     new GoogleAnalyticsService(
         sp.GetRequiredService<IJSRuntime>(),
-        "G-1R66FSQHBY" // Replace with your actual tracking ID or fetch from config
+        googleAnalyticsTrackingId
     ));
-
 
 // Add Blazorise
 builder.Services
@@ -64,4 +66,3 @@ builder.Services.AddTransient<GetTeamID>();
 builder.Services.AddTransient<MatchStatsHandler>();
 
 await builder.Build().RunAsync();
-
