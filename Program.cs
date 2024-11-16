@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using faceitWebApp.Handlers;
 using faceitWebApp.Utilities;
 using faceitWebApp.Services;
@@ -16,7 +17,12 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
 // Add Google Analytics Service
-builder.Services.AddScoped<IGoogleAnalyticsService, GoogleAnalyticsService>();
+builder.Services.AddScoped<IGoogleAnalyticsService>(sp =>
+    new GoogleAnalyticsService(
+        sp.GetRequiredService<IJSRuntime>(),
+        "G-1R66FSQHBY" // Replace with your actual tracking ID or fetch from config
+    ));
+
 
 // Add Blazorise
 builder.Services
@@ -58,3 +64,4 @@ builder.Services.AddTransient<GetTeamID>();
 builder.Services.AddTransient<MatchStatsHandler>();
 
 await builder.Build().RunAsync();
+

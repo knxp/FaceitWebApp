@@ -9,16 +9,22 @@
     <base href="/" />
 
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1R66FSQHBY"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-1R66FSQHBY', {
-            page_path: window.location.pathname,
-            send_page_view: false
-        });
-    </script>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Your App Title</title>
+        <link rel="stylesheet" href="css/app.css" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-1R66FSQHBY"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', 'G-1R66FSQHBY');
+        </script>
+    </head>
+
 
     <!-- Google Adsense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4427946300459408"
