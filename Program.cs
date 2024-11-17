@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using faceitWebApp.Handlers;
 using faceitWebApp.Utilities;
 using faceitWebApp.Services;
+using Blazor.GoogleTagManager;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
@@ -25,6 +26,12 @@ builder.Services.AddScoped<IGoogleAnalyticsService>(sp =>
         sp.GetRequiredService<IJSRuntime>(),
         googleAnalyticsTrackingId
     ));
+
+// Add Google Tag Manager Service
+builder.Services.AddGoogleTagManager(options =>
+{
+    options.GtmId = builder.Configuration["GoogleAnalytics:TrackingId"]; // You can set it from appsettings.json
+});
 
 // Add Blazorise
 builder.Services
