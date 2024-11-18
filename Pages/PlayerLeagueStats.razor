@@ -8,7 +8,7 @@
 @inject PlayerLeagueStatsHandler PlayerLeagueStatsHandler
 @inject GetPlayerID GetPlayerID
 @inject NavigationManager NavigationManager
-@inject IGoogleAnalyticsService Analytics
+@inject Blazor.Analytics.IAnalytics Analytics
 
 
 <div class="player-league-stats-overlay @(isLoading ? "active" : "")">
@@ -515,7 +515,7 @@
             if (initialLoad)
             {
                 initialLoad = false;
-                await Analytics.TrackPageView($"/player-league-stats/{Nickname}", $"League Stats - {searchNickname}");
+                await Analytics.TrackNavigation($"/player-league-stats/{Nickname}");
                 await Analytics.TrackEvent("Player", "LeagueStatsView", searchNickname);
             }
             await FetchPlayerStats();

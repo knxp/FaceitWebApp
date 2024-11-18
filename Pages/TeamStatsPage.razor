@@ -9,7 +9,7 @@
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
 @inject GetPlayerInfo GetPlayerInfo
-@inject IGoogleAnalyticsService Analytics
+@inject Blazor.Analytics.IAnalytics Analytics
 
 <PageTitle>Team Stats - @(currentTeamInfo?.Name ?? "Search")</PageTitle>
 
@@ -242,7 +242,7 @@
             if (initialLoad)
             {
                 initialLoad = false;
-                await Analytics.TrackPageView($"/team-stats/{TeamName}", $"Team Stats - {teamInput}");
+                await Analytics.TrackNavigation($"/team-stats/{TeamName}");
                 await Analytics.TrackEvent("Team", "Search", teamInput);
             }
         }
@@ -251,7 +251,7 @@
             teamInput = team;
             shouldFetch = true;
             NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(team)}", false);
-            await Analytics.TrackPageView($"/team-stats/{team}", $"Team Stats - {team}");
+            await Analytics.TrackNavigation($"/team-stats/{TeamName}");
             await Analytics.TrackEvent("Team", "Search", team);
         }
     }
@@ -270,7 +270,7 @@
         if (!string.IsNullOrEmpty(TeamName) && TeamName != teamInput && !isLoading)
         {
             teamInput = Uri.UnescapeDataString(TeamName);
-            await Analytics.TrackPageView($"/team-stats/{TeamName}", $"Team Stats - {teamInput}");
+            await Analytics.TrackNavigation($"/team-stats/{TeamName}");
             await Analytics.TrackEvent("Team", "Search", teamInput);
             await FetchTeamStats();
         }
@@ -315,7 +315,7 @@
                 if (currentTeamInfo != null && teamInput != currentTeamInfo.Name)
                 {
                     NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(currentTeamInfo.Name)}", false);
-                    await Analytics.TrackPageView($"/team-stats/{currentTeamInfo.Name}", $"Team Stats - {currentTeamInfo.Name}");
+                    await Analytics.TrackNavigation($"/team-stats/{currentTeamInfo.Name}");
                     await Analytics.TrackEvent("Team", "Search", currentTeamInfo.Name);
                 }
 

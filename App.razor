@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Routing
-@inject IGoogleAnalyticsService Analytics
-@inject NavigationManager NavigationManager
+@using Blazor.Analytics
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
@@ -23,19 +22,6 @@
     </NotFound>
 </Router>
 
-@code {
-    protected override void OnInitialized()
-    {
-        NavigationManager.LocationChanged += HandleLocationChanged;
-    }
+<GoogleAnalytics />
+<NavigationTracker />
 
-    private async void HandleLocationChanged(object sender, LocationChangedEventArgs e)
-    {
-        await Analytics.TrackPageView(new Uri(e.Location).PathAndQuery, "Page View");
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= HandleLocationChanged;
-    }
-}

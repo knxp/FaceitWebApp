@@ -7,7 +7,7 @@
 @inject FullStatsHandler FullStatsHandler
 @inject GetPlayerID GetPlayerID
 @inject NavigationManager NavigationManager
-@inject IGoogleAnalyticsService Analytics
+@inject Blazor.Analytics.IAnalytics Analytics
 
 
 <div class="@(isLoading ? "detailed-overlay" : "")">
@@ -423,7 +423,7 @@
         {
             initialLoad = false;
             var decodedNickname = Uri.UnescapeDataString(Nickname);
-            await Analytics.TrackPageView($"/player-detailed-stats/{Nickname}", $"Detailed Stats - {decodedNickname}");
+            await Analytics.TrackNavigation($"/player-detailed-stats/{Nickname}");
             await Analytics.TrackEvent("Player", "DetailedStatsView", decodedNickname);
             await FetchPlayerStats(decodedNickname);
         }

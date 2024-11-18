@@ -9,7 +9,7 @@
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
 @inject NavigationManager NavigationManager
-@inject IGoogleAnalyticsService Analytics
+@inject Blazor.Analytics.IAnalytics Analytics
 
 <div class="@(isLoading ? "player-overlay" : "")">
     <h3 class="text-center">Basic Stats</h3>
@@ -341,7 +341,7 @@
         {
             initialLoad = false;
             nickname = Uri.UnescapeDataString(Nickname);
-            await Analytics.TrackPageView($"/player-stats/{Nickname}", $"Player Stats - {nickname}");
+            await Analytics.TrackNavigation($"/player-stats/{Uri.EscapeDataString(nickname)}");
             await Analytics.TrackEvent("Player", "Search", nickname);
             await FetchPlayerStats();
         }

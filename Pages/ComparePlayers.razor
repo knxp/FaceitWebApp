@@ -10,7 +10,7 @@
 @inject GetPlayerInfo GetPlayerInfo
 @inject GetMatchHistory GetMatchHistory
 @inject NavigationManager NavigationManager
-@inject IGoogleAnalyticsService Analytics
+@inject Blazor.Analytics.IAnalytics Analytics
 
 <div class="@(isLoading ? "compare-overlay" : "")">
     <h3 class="text-center">Compare Players</h3>
@@ -229,7 +229,7 @@
             if (initialLoad)
             {
                 initialLoad = false;
-                await Analytics.TrackPageView($"/compare-players/{Player1}/{Player2}", $"Compare Players - {player1Input} vs {player2Input}");
+                await Analytics.TrackNavigation($"/compare-players/{Player1}/{Player2}");
                 await Analytics.TrackEvent("Players", "CompareView", $"{player1Input} vs {player2Input}");
             }
         }
@@ -247,7 +247,7 @@
             {
                 player2Input = p2;
                 shouldFetch = true;
-                await Analytics.TrackPageView($"/compare-players/{p1}/{p2}", $"Compare Players - {p1} vs {p2}");
+                await Analytics.TrackNavigation($"/compare-players/{p1}/{p2}");
                 await Analytics.TrackEvent("Players", "CompareView", $"{p1} vs {p2}");
                 NavigationManager.NavigateTo($"/compare-players/{Uri.EscapeDataString(p1)}/{Uri.EscapeDataString(p2)}", false);
             }
@@ -270,7 +270,7 @@
         {
             player1Input = Uri.UnescapeDataString(Player1);
             player2Input = Uri.UnescapeDataString(Player2);
-            await Analytics.TrackPageView($"/compare-players/{Player1}/{Player2}", $"Compare Players - {player1Input} vs {player2Input}");
+            await Analytics.TrackNavigation($"/compare-players/{player1Input}/{player2Input}");
             await Analytics.TrackEvent("Players", "CompareView", $"{player1Input} vs {player2Input}");
             await CompareStats();
         }

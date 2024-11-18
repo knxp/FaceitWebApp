@@ -1104,3 +1104,8 @@ C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\wwwroot\_framework\
 C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazor.GoogleTagManager.dll
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\webcil\Blazor.GoogleTagManager.wasm
 C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\compressed\3b6v3fgjqg.gz
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\wwwroot\_framework\Blazor-Analytics.wasm
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\wwwroot\_framework\Blazor-Analytics.wasm.gz
+C:\Users\keato\github-projects\faceitWebApp\bin\Debug\net8.0\Blazor-Analytics.dll
+C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\webcil\Blazor-Analytics.wasm
+C:\Users\keato\github-projects\faceitWebApp\obj\Debug\net8.0\compressed\qav4dki8nc.gz

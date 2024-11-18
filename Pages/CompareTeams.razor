@@ -7,7 +7,7 @@
 @inject TeamStatsHandler TeamStatsHandler
 @inject GetTeamID GetTeamID
 @inject NavigationManager NavigationManager
-@inject IGoogleAnalyticsService Analytics
+@inject Blazor.Analytics.IAnalytics Analytics
 
 <div class="@(isLoading ? "compare-overlay" : "")">
     <h3 class="text-center">Compare Teams</h3>
@@ -232,7 +232,7 @@
             if (initialLoad)
             {
                 initialLoad = false;
-                await Analytics.TrackPageView($"/compare-teams/{Team1Name}/{Team2Name}", $"Compare Teams - {team1Input} vs {team2Input}");
+                await Analytics.TrackNavigation($"/compare-teams/{Team1Name}/{Team2Name}");
                 await Analytics.TrackEvent("Teams", "CompareView", $"{team1Input} vs {team2Input}");
             }
             await CompareStatsFromUrl();
@@ -339,7 +339,7 @@
                     NavigationManager.NavigateTo(newUri, false);
                 }
 
-                await Analytics.TrackPageView(newUri, $"Compare Teams - {info1.Name} vs {info2.Name}");
+                await Analytics.TrackNavigation($"/compare-teams/{info1.Name}/{info2.Name}");
                 await Analytics.TrackEvent("Teams", "CompareSuccess", $"{info1.Name} vs {info2.Name}");
             }
             else

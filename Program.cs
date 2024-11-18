@@ -3,7 +3,6 @@ using Microsoft.JSInterop;
 using faceitWebApp.Handlers;
 using faceitWebApp.Utilities;
 using faceitWebApp.Services;
-using Blazor.GoogleTagManager;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
@@ -13,25 +12,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
 using faceitWebApp;
+using Blazor.Analytics;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 
-// Fetch Google Analytics Tracking ID from appsettings.json
+// Configure Google Analytics
 var googleAnalyticsTrackingId = builder.Configuration["GoogleAnalytics:TrackingId"];
-
-// Add Google Analytics Service
-builder.Services.AddScoped<IGoogleAnalyticsService>(sp =>
-    new GoogleAnalyticsService(
-        sp.GetRequiredService<IJSRuntime>(),
-        googleAnalyticsTrackingId
-    ));
-
-// Add Google Tag Manager Service
-builder.Services.AddGoogleTagManager(options =>
-{
-    options.GtmId = builder.Configuration["GoogleAnalytics:TrackingId"]; // You can set it from appsettings.json
-});
+builder.Services.AddGoogleAnalytics(googleAnalyticsTrackingId);
 
 // Add Blazorise
 builder.Services
