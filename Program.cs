@@ -21,6 +21,7 @@ builder.RootComponents.Add<App>("#app");
 var googleAnalyticsTrackingId = builder.Configuration["GoogleAnalytics:TrackingId"];
 builder.Services.AddGoogleAnalytics(googleAnalyticsTrackingId);
 
+
 // Add Blazorise
 builder.Services
     .AddBlazorise()
@@ -48,6 +49,7 @@ builder.Services.AddHttpClient<TeamStatsHandler>(client => ConfigureFaceitHttpCl
 builder.Services.AddHttpClient<GetPlayerID>(client => ConfigureFaceitHttpClient(client));
 builder.Services.AddHttpClient<GetPlayerInfo>(client => ConfigureFaceitHttpClient(client));
 builder.Services.AddHttpClient<GetTeamID>(client => ConfigureFaceitHttpClient(client));
+builder.Services.AddHttpClient<ActivePlayersHandler>(client => ConfigureFaceitHttpClient(client));
 
 // Register services as transient
 builder.Services.AddTransient<GetMatchHistory>();
@@ -59,5 +61,6 @@ builder.Services.AddTransient<GetPlayerID>();
 builder.Services.AddTransient<GetPlayerInfo>();
 builder.Services.AddTransient<GetTeamID>();
 builder.Services.AddTransient<MatchStatsHandler>();
+builder.Services.AddTransient<ActivePlayersHandler>();
 
 await builder.Build().RunAsync();

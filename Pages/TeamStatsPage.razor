@@ -38,7 +38,8 @@
                 <TeamCard TeamInfo="@currentTeamInfo" TeamStats="@currentTeamStats" />
                 @if (currentTeamInfo.Players != null && currentTeamInfo.Players.Any())
                 {
-                    <TeamPlayerList Players="@currentTeamInfo.Players" />
+                    <TeamPlayerList Players="@currentTeamInfo.Players" TeamId="@currentTeamId"
+                        TeamName="@currentTeamInfo.Name" />
                 }
             </div>
             <div class="team-stats-page-right-column">
@@ -228,6 +229,7 @@
     private string errorMessage;
     private bool shouldFetch;
     private bool initialLoad = true;
+    private string currentTeamId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -305,13 +307,13 @@
 
             if (!string.IsNullOrEmpty(teamId))
             {
-                var (info, stats, maps) = await TeamStatsHandler.GetTeamStatsAsync(teamId, "cs2");
-                currentTeamInfo = info;
-                currentTeamStats = stats;
-                mapStats = maps;
+                currentTeamId = teamId;
+                var teamStats = await TeamStatsHandler.GetTeamStatsAsync(teamId, "cs2");
+                currentTeamInfo = teamStats.Item1;
+                currentTeamStats = teamStats.Item2;
+                mapStats = teamStats.Item3;
                 errorMessage = null;
 
-                // Navigate using the team name instead of ID
                 if (currentTeamInfo != null && teamInput != currentTeamInfo.Name)
                 {
                     NavigationManager.NavigateTo($"/team-stats/{Uri.EscapeDataString(currentTeamInfo.Name)}", false);
@@ -346,5 +348,6 @@
         currentTeamInfo = null;
         currentTeamStats = null;
         mapStats = null;
+        currentTeamId = null;
     }
 }

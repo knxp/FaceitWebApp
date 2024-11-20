@@ -1,11 +1,16 @@
 @using faceitWebApp.Models
 @inject NavigationManager NavigationManager
+@inject ActivePlayersHandler ActivePlayersHandler
 
 <div class="team-player-list-container">
     <h4 class="team-player-list-header">Players</h4>
     <div class="team-player-list">
-        @{
-            var sortedPlayers = Players.OrderByDescending(p => p.Elo).ToList();
+        @if (Players != null && Players.Any())
+        {
+            var sortedPlayers = Players
+            .OrderByDescending(p => processedPlayers?.FirstOrDefault(pp => pp.PlayerId == p.PlayerId)?.MatchesWithTeam ?? 0)
+            .ThenByDescending(p => p.Elo)
+            .ToList();
             var columns = 2;
             var itemsPerColumn = (int)Math.Ceiling(sortedPlayers.Count / (double)columns);
 
@@ -17,23 +22,52 @@
                     if (index < sortedPlayers.Count)
                     {
                         var player = sortedPlayers[index];
+                        var processedPlayer = processedPlayers?.FirstOrDefault(p => p.PlayerId == player.PlayerId);
+                        var isLoading = isProcessing && processedPlayer == null;
+
                         <div class="team-player-list-item" @onclick="() => NavigateToPlayerStats(player.Nickname)">
-                            <span class="player-name">@player.Nickname</span>
-                            <div class="elo-container">
-                                <svg viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="elo-icon">
+                            <div class="team-player-list-player-info">
+                                <span class="team-player-list-player-name">@player.Nickname</span>
+                                @if (isLoading)
+                                {
+                                    <span class="team-player-list-matches-count loading">Loading...</span>
+                                }
+                                else
+                                {
+                                    <span class="team-player-list-matches-count @(processedPlayer?.MatchesWithTeam == 0 ? "inactive" : "")">
+                                        @(processedPlayer?.MatchesWithTeam > 0
+                                            ? $"{processedPlayer.MatchesWithTeam} matches this season"
+                                            : "Non active player")
+                                    </span>
+                                }
+                            </div>
+                            <div class="team-player-list-elo-container">
+                                @if (!isLoading)
+                                {
+                                    <span
+                                        class="team-player-list-status-indicator @(processedPlayer?.MatchesWithTeam > 0 ? "active" : "inactive")"
+                                        title="@(processedPlayer?.MatchesWithTeam > 0 ? "Active" : "Inactive") this season"></span>
+                                }
+                                <svg viewBox="0 0 24 12" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                    class="team-player-list-elo-icon">
                                     <path
                                         d="M12 3c0 .463-.105.902-.292 1.293l1.998 2A2.97 2.97 0 0115 6a2.99 2.99 0 011.454.375l1.921-1.921a3 3 0 111.5 1.328l-2.093 2.093a3 3 0 11-5.49-.168l-1.999-2a2.992 2.992 0 01-2.418.074L5.782 7.876a3 3 0 11-1.328-1.5l1.921-1.921A3 3 0 1112 3z"
                                         fill="#ffffff"></path>
                                 </svg>
-                                <span class="elo-number">@player.Elo</span>
+                                <span class="team-player-list-elo-number">@player.Elo</span>
                             </div>
                         </div>
                     }
                 }
             }
         }
+        else
+        {
+            <div class="team-player-list-empty">No players found</div>
+        }
     </div>
 </div>
+
 
 <style>
     .team-player-list-container {
@@ -72,19 +106,32 @@
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
+        position: relative;
     }
 
     .team-player-list-item:hover {
         background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .team-player-list-item:hover .player-name {
+    .team-player-list-item:hover .team-player-list-player-name {
         text-decoration: underline;
         text-underline-offset: 4px;
         color: #fd7d27;
     }
 
-    .player-name {
+    .team-player-list-matches-count {
+        font-size: 0.8rem;
+        color: #aaaaaa;
+        letter-spacing: 0.4px;
+    }
+
+    .team-player-list-player-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .team-player-list-player-name {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -93,28 +140,94 @@
         letter-spacing: 0.6px;
     }
 
-    .elo-container {
+    .team-player-list-elo-container {
         display: flex;
         align-items: center;
         gap: 5px;
         flex-shrink: 0;
     }
 
-    .elo-icon {
+    .team-player-list-elo-icon {
         width: 24px;
         height: 24px;
     }
 
-    .elo-number {
+    .team-player-list-elo-number {
         color: #ffffff;
         font-size: 1.5rem;
         letter-spacing: 0.6px;
+    }
+
+    .team-player-list-matches-count.inactive {
+        color: #aaaaaa;
+    }
+
+    .team-player-list-matches-count.loading {
+        color: #ffffff;
+        font-style: italic;
+    }
+
+    .team-player-list-status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .team-player-list-status-indicator.active {
+        background-color: #4CAF50;
+    }
+
+    .team-player-list-status-indicator.inactive {
+        background-color: #ff4444;
+    }
+
+    .team-player-list-empty {
+        text-align: center;
+        color: #ffffff;
+        font-size: 1.2rem;
+        padding: 20px;
+        grid-column: span 2;
     }
 </style>
 
 @code {
     [Parameter]
     public List<TeamPlayer> Players { get; set; }
+
+    [Parameter]
+    public string TeamId { get; set; }
+
+    [Parameter]
+    public string TeamName { get; set; }
+
+    private List<ActivePlayer> processedPlayers;
+    private bool isProcessing;
+    private string previousTeamId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Players != null && Players.Any() &&
+        !string.IsNullOrEmpty(TeamId) &&
+        !string.IsNullOrEmpty(TeamName) &&
+        TeamId != previousTeamId)
+        {
+            try
+            {
+                isProcessing = true;
+                processedPlayers = null;
+                StateHasChanged();
+
+                processedPlayers = await ActivePlayersHandler.GetActivePlayersAsync(TeamId, TeamName, Players);
+                previousTeamId = TeamId;
+            }
+            finally
+            {
+                isProcessing = false;
+                StateHasChanged();
+            }
+        }
+    }
 
     private void NavigateToPlayerStats(string nickname)
     {
