@@ -43,7 +43,9 @@
                 }
             </div>
             <div class="team-stats-page-right-column">
-                <MapStatsCard MapStats="@mapStats" />
+                <MapStatsCard MapStats="@mapStats" TeamId="@currentTeamId" TeamName="@currentTeamInfo?.Name"
+                    Players="@currentTeamInfo?.Players" />
+
             </div>
         </div>
     }

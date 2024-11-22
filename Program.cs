@@ -50,6 +50,7 @@ builder.Services.AddHttpClient<GetPlayerID>(client => ConfigureFaceitHttpClient(
 builder.Services.AddHttpClient<GetPlayerInfo>(client => ConfigureFaceitHttpClient(client));
 builder.Services.AddHttpClient<GetTeamID>(client => ConfigureFaceitHttpClient(client));
 builder.Services.AddHttpClient<ActivePlayersHandler>(client => ConfigureFaceitHttpClient(client));
+builder.Services.AddHttpClient<SeasonStatsHandler>(client => ConfigureFaceitHttpClient(client));
 
 // Register services as transient
 builder.Services.AddTransient<GetMatchHistory>();
@@ -62,5 +63,6 @@ builder.Services.AddTransient<GetPlayerInfo>();
 builder.Services.AddTransient<GetTeamID>();
 builder.Services.AddTransient<MatchStatsHandler>();
 builder.Services.AddTransient<ActivePlayersHandler>();
+builder.Services.AddTransient<SeasonStatsHandler>();
 
 await builder.Build().RunAsync();

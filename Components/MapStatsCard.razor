@@ -1,4 +1,14 @@
 @using faceitWebApp.Models
+@inject SeasonStatsHandler SeasonStatsHandler
+
+<div class="season-selector">
+    <button class="season-button @(selectedSeason == "overall" ? "active" : "")"
+        @onclick="@(() => SwitchSeason("overall"))">Overall</button>
+    <button class="season-button @(selectedSeason == "season51" ? "active" : "")"
+        @onclick="@(() => SwitchSeason("season51"))">
+        Season 51
+    </button>
+</div>
 
 <div class="map-stats-box">
     <div class="map-header">
@@ -7,20 +17,40 @@
         <div class="map-header-cell">Win Rate</div>
     </div>
     <div class="map-stats-grid">
-        @{
+        @if (selectedSeason == "season51" && isLoadingSeasonStats)
+        {
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading season statistics...</p>
+            </div>
+        }
+        else
+        {
             var defaultMaps = new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Dust2" };
-            var existingMaps = MapStats?.Where(s => !s.Map.Contains("wingman", StringComparison.OrdinalIgnoreCase)
-                && !s.Map.Equals("Overpass", StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(s => s.Map, s => s) ?? new Dictionary<string, MapStats>();
+            var displayStats = selectedSeason == "overall" ? MapStats : SeasonMapStats;
+
+            // Create dictionary with normalized map names (remove "de_" prefix)
+            var existingMaps = displayStats?
+            .Where(s => !s.Map.Contains("wingman", StringComparison.OrdinalIgnoreCase)
+            && !s.Map.Equals("Overpass", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(
+            s => s.Map.Replace("de_", "", StringComparison.OrdinalIgnoreCase),
+            s => s,
+            StringComparer.OrdinalIgnoreCase
+            ) ?? new Dictionary<string, MapStats>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var mapName in defaultMaps)
             {
-                var mapStats = existingMaps.GetValueOrDefault(mapName, new MapStats { Map = mapName, TotalMatches = 0, Wins = 0 });
+                // Try to find the map with or without "de_" prefix
+                var normalizedMapName = mapName.Replace("de_", "", StringComparison.OrdinalIgnoreCase);
+                var mapStats = existingMaps.GetValueOrDefault(normalizedMapName, new MapStats { Map = mapName });
 
                 <div class="map-stat-row">
-                    <span class="map-stat-label">@mapStats.Map</span>
+                    <span class="map-stat-label">@mapName</span>
                     <span class="stat-value matches">@mapStats.TotalMatches</span>
-                    <span class="map-stat-value">@($"{mapStats.WinRate:F1}%")</span>
+                    <span class="map-stat-value">
+                        @(mapStats.TotalMatches > 0 ? $"{mapStats.WinRate:F1}%" : "No Matches")
+                    </span>
                 </div>
             }
         }
@@ -28,6 +58,77 @@
 </div>
 
 <style>
+    .season-selector {
+        display: flex;
+        justify-content: right;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .season-button {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        color: #ffffff;
+        height: 50px;
+        min-width: 120px;
+        padding: 5px 20px;
+        border-radius: 5px;
+        font-size: 1.4rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: 'TolyerNo1', sans-serif;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .season-button:hover {
+        background-color: rgba(253, 125, 39, 0.2);
+    }
+
+    .season-button.active {
+        background-color: #fd7d27;
+        color: white;
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        color: #ffffff;
+        font-family: 'TolyerNo1', sans-serif;
+        font-size: 2rem;
+    }
+
+    .loading-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(253, 125, 39, 0.3);
+        border-top-color: #fd7d27;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 30px;
+    }
+
+    @@keyframes
+    spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
     .map-stats-box {
         background-color: #ffffff1a;
         border: 1px solid #fd7d27;
@@ -49,12 +150,12 @@
     }
 
     .header-cell {
-    color: #ffffff;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-family: 'TolyerNo1', sans-serif;
-    text-align: center;
-    letter-spacing: 1px;
+        color: #ffffff;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-family: 'TolyerNo1', sans-serif;
+        text-align: center;
+        letter-spacing: 1px;
     }
 
     .header-map {
@@ -66,17 +167,18 @@
         display: flex;
         flex-direction: column;
         gap: 12px;
+        min-height: 300px;
     }
 
     .map-stat-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    align-items: center;
-    padding: 8px 5px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    border: 0.5px solid #ffffff1a;
-}
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        align-items: center;
+        padding: 8px 5px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        border: 0.5px solid #ffffff1a;
+    }
 
     .map-stat-row:hover {
         background-color: rgba(255, 255, 255, 0.05);
@@ -109,4 +211,72 @@
 @code {
     [Parameter]
     public List<MapStats> MapStats { get; set; }
+
+    [Parameter]
+    public string TeamId { get; set; }
+
+    [Parameter]
+    public string TeamName { get; set; }
+
+    [Parameter]
+    public List<TeamPlayer> Players { get; set; }
+
+    private string selectedSeason = "overall";
+    private List<MapStats> SeasonMapStats;
+    private bool isLoadingSeasonStats;
+    private string previousTeamId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // If TeamId changes, reset season stats
+        if (TeamId != previousTeamId)
+        {
+            previousTeamId = TeamId;
+            SeasonMapStats = null;
+
+            // If we're currently on the season view, reload the stats
+            if (selectedSeason == "season51" && !string.IsNullOrEmpty(TeamId))
+            {
+                await LoadSeasonStats();
+            }
+        }
+    }
+
+    private async Task LoadSeasonStats()
+    {
+        isLoadingSeasonStats = true;
+        StateHasChanged();
+
+        try
+        {
+            SeasonMapStats = await SeasonStatsHandler.GetSeasonMapStatsAsync(TeamId, TeamName, Players);
+            Console.WriteLine($"Loaded season stats: {SeasonMapStats?.Count ?? 0} maps");
+            if (SeasonMapStats != null)
+            {
+                foreach (var stat in SeasonMapStats)
+                {
+                    Console.WriteLine($"Map: {stat.Map}, Matches: {stat.TotalMatches}, Wins: {stat.Wins}, WinRate: {stat.WinRate:F1}%");
+                }
+            }
+        }
+        finally
+        {
+            isLoadingSeasonStats = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SwitchSeason(string season)
+    {
+        if (selectedSeason == season) return;
+
+        selectedSeason = season;
+
+        if (season == "season51" && SeasonMapStats == null && !string.IsNullOrEmpty(TeamId))
+        {
+            await LoadSeasonStats();
+        }
+
+        StateHasChanged();
+    }
 }
