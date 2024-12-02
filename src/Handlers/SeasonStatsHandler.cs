@@ -164,27 +164,34 @@ namespace faceitWebApp.Handlers
                         return;
                     }
 
-                    var mapName = rounds[0]["round_stats"]?["Map"]?.ToString();
-                    if (string.IsNullOrEmpty(mapName))
+                    // Process each round/map in the match
+                    foreach (var round in rounds)
                     {
-                        Console.WriteLine($"No map name found for match {matchId}");
-                        return;
-                    }
-
-                    lock (mapStats)
-                    {
-                        if (!mapStats.ContainsKey(mapName))
+                        var mapName = round["round_stats"]?["Map"]?.ToString();
+                        if (string.IsNullOrEmpty(mapName))
                         {
-                            mapStats[mapName] = new MapStats { Map = mapName };
+                            Console.WriteLine($"No map name found for match {matchId}");
+                            continue;
                         }
 
-                        mapStats[mapName].TotalMatches++;
-                        if (match["results"]?["winner"]?.ToString() == teamFaction)
+                        lock (mapStats)
                         {
-                            mapStats[mapName].Wins++;
-                        }
+                            if (!mapStats.ContainsKey(mapName))
+                            {
+                                mapStats[mapName] = new MapStats { Map = mapName };
+                            }
 
-                        Console.WriteLine($"Updated stats for {mapName}: Matches={mapStats[mapName].TotalMatches}, Wins={mapStats[mapName].Wins}");
+                            mapStats[mapName].TotalMatches++;
+                            
+                            // Check the winner for this specific round
+                            var roundWinner = round["round_stats"]?["Winner"]?.ToString();
+                            if (roundWinner == teamFaction)
+                            {
+                                mapStats[mapName].Wins++;
+                            }
+
+                            Console.WriteLine($"Updated stats for {mapName}: Matches={mapStats[mapName].TotalMatches}, Wins={mapStats[mapName].Wins}");
+                        }
                     }
                 }
                 finally

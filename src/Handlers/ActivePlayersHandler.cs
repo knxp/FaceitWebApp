@@ -77,9 +77,9 @@ namespace faceitWebApp.Handlers
 
                     if (!teamMatches.Any()) return null;
 
-                    var matchTasks = teamMatches.Select(match => GetMatchDetailsAsync(match, player.PlayerId));
+                    var matchTasks = teamMatches.Select(match => ProcessMatchDetailsAsync(match, player.PlayerId));
                     var matchResults = await Task.WhenAll(matchTasks);
-                    var matchesPlayed = matchResults.Count(played => played);
+                    var totalMatchesPlayed = matchResults.Sum();
 
                     var lastMatch = teamMatches.First();
                     var lastMatchDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(lastMatch["started_at"].ToString())).UtcDateTime;
@@ -91,8 +91,8 @@ namespace faceitWebApp.Handlers
                         Avatar = player.Avatar,
                         Elo = player.Elo,
                         LastMatchDate = lastMatchDate,
-                        MatchesWithTeam = matchesPlayed,
-                        IsActive = matchesPlayed >= MIN_MATCHES_THRESHOLD
+                        MatchesWithTeam = totalMatchesPlayed,
+                        IsActive = totalMatchesPlayed >= MIN_MATCHES_THRESHOLD
                     };
                 }
                 finally
@@ -107,41 +107,53 @@ namespace faceitWebApp.Handlers
             }
         }
 
-        private async Task<bool> GetMatchDetailsAsync(JToken match, string playerId)
+        private async Task<int> ProcessMatchDetailsAsync(JToken match, string playerId)
         {
             try
             {
-                var matchId = match["match_id"]?.ToString();
-                if (string.IsNullOrEmpty(matchId)) return false;
-
+                var matchId = match["match_id"].ToString();
                 var matchResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/matches/{matchId}/stats");
-                if (!matchResponse.IsSuccessStatusCode) return false;
+                if (!matchResponse.IsSuccessStatusCode) return 0;
 
                 var matchContent = await matchResponse.Content.ReadAsStringAsync();
                 var matchJson = JObject.Parse(matchContent);
                 var rounds = matchJson["rounds"] as JArray;
 
-                if (rounds == null || !rounds.Any()) return false;
+                if (rounds == null || !rounds.Any()) return 0;
 
-                var firstRound = rounds[0];
-                var teams = firstRound["teams"] as JArray;
+                var roundsPlayed = 0;
+                var bestOf = rounds[0]["best_of"]?.ToString();
 
-                if (teams == null) return false;
-
-                foreach (var team in teams)
+                foreach (var round in rounds)
                 {
-                    var players = team["players"] as JArray;
-                    if (players != null && players.Any(p => p["player_id"]?.ToString() == playerId))
+                    var teams = round["teams"] as JArray;
+                    if (teams == null) continue;
+
+                    // Check if player participated in this round
+                    var playerParticipated = false;
+                    foreach (var team in teams)
                     {
-                        return true;
+                        var players = team["players"] as JArray;
+                        if (players != null && players.Any(p => p["player_id"]?.ToString() == playerId))
+                        {
+                            playerParticipated = true;
+                            break;
+                        }
+                    }
+
+                    if (playerParticipated)
+                    {
+                        roundsPlayed++;
+                        Console.WriteLine($"Player {playerId} participated in round {round["match_round"]} of match {matchId} (Best of: {bestOf})");
                     }
                 }
 
-                return false;
+                return roundsPlayed;
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                Console.WriteLine($"Error processing match details: {ex.Message}");
+                return 0;
             }
         }
     }
