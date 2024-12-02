@@ -29,15 +29,15 @@
                     <div class="tracker">Max Faceit Stats</div>
                 </div>
                 <div class="comparison-row">
-                    <div class="feature">Stats Depth</div>
-                    <div class="faceit">stats for last 20 matches</div>
-                    <div class="tracker">Basic stats allow for up to 300 matches searched<br>
+                    <div class="feature">player Stats Overview</div>
+                    <div class="faceit">Limited to individual stats</div>
+                    <div class="tracker">search for any player<br>
                     </div>
                 </div>
                 <div class="comparison-row">
-                    <div class="feature">Detailed Stats</div>
-                    <div class="faceit">Restricted to 12 stats</div>
-                    <div class="tracker">Detailed statistics with 28 separate data points</div>
+                    <div class="feature">Team Stats</div>
+                    <div class="faceit">minimal team statistics</div>
+                    <div class="tracker">Detailed map statistics for any team</div>
                 </div>
                 <div class="comparison-row">
                     <div class="feature">Analysis Tools</div>
@@ -46,8 +46,8 @@
                 </div>
                 <div class="comparison-row">
                     <div class="feature">League Stats</div>
-                    <div class="faceit">No comprehensive league stats</div>
-                    <div class="tracker">Detailed season-by-season analysis for ESEA players</div>
+                    <div class="faceit">league statistics Limited to individuals</div>
+                    <div class="tracker">Detailed season-by-season analysis for all ESEA players</div>
                 </div>
             </div>
         </div>
@@ -195,5 +195,96 @@
         color: #ffffff;
         font-size: 1.5rem;
         line-height: 1.6;
+    }
+
+    @@media (max-width: 768px) {
+        .faq-container {
+            padding: 1rem;
+        }
+
+        .faq-title {
+            font-size: 2.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .faq-section {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-section h2 {
+            font-size: 2.8rem;
+            color: #fd7d27;
+            font-family: 'TolyerNo1', sans-serif;
+            margin-bottom: 2rem;
+            letter-spacing: 0.6px;
+            border-bottom: 3px solid #fd7d2780;
+            padding-bottom: 10px;
+        }
+
+        .faq-section h3 {
+            font-size: 1.8rem;
+            color: #fd7d27;
+            font-family: 'TolyerNo1', sans-serif;
+            margin-bottom: 1.2rem;
+        }
+
+        .faq-answer {
+            font-size: 1.2rem;
+        }
+
+        .faq-answer h2 {
+            font-size: 2.8rem;
+            color: #fd7d27;
+            font-family: 'TolyerNo1', sans-serif;
+            margin-bottom: 2rem;
+            letter-spacing: 0.6px;
+            border-bottom: 3px solid #fd7d2780;
+            padding-bottom: 10px;
+        }
+
+        .comparison-row {
+            grid-template-columns: 1fr;
+        }
+
+        .comparison-row > div {
+            border-right: none;
+            border-bottom: 1px solid rgba(253, 125, 39, 0.3);
+        }
+
+        .comparison-row > div:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-row.header {
+            display: none; /* Hide header on mobile for better space usage */
+        }
+
+        /* Add labels for mobile view */
+        .feature::before {
+            content: "Feature: ";
+            color: #fd7d27;
+            font-weight: bold;
+        }
+
+        .faceit::before {
+            content: "FACEIT.com: ";
+            color: #fd7d27;
+            font-weight: bold;
+        }
+
+        .tracker::before {
+            content: "Max Faceit Stats: ";
+            color: #fd7d27;
+            font-weight: bold;
+        }
+
+        .faq-item h3 {
+            font-size: 1.5rem;
+        }
+
+        .faq-item p {
+            font-size: 1.2rem;
+        }
     }
 </style>

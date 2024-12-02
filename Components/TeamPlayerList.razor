@@ -189,6 +189,35 @@
         padding: 20px;
         grid-column: span 2;
     }
+
+    @@media (max-width: 768px) {
+        .team-player-list-container {
+            width: 95%;
+            padding: 15px;
+            margin: 10px auto;
+        }
+
+        .team-player-list {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .team-player-list-header {
+            font-size: 2rem;
+        }
+
+        .team-player-list-player-name {
+            font-size: 1.3rem;
+        }
+
+        .team-player-list-elo-number {
+            font-size: 1.3rem;
+        }
+
+        .team-player-list-matches-count {
+            font-size: 0.7rem;
+        }
+    }
 </style>
 
 @code {

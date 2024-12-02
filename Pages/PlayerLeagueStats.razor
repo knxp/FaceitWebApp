@@ -486,6 +486,124 @@
             transform: rotate(360deg);
         }
     }
+
+    @@media (max-width: 768px) {
+        .player-league-stats-container {
+            width: 95%;
+            padding: 15px;
+            margin: 10px auto;
+            transform: translateX(0);
+            left: 0;
+        }
+
+        .player-league-stats-container-detailed {
+            width: 95%;
+            padding: 15px;
+            margin: 10px auto;
+            transform: translateX(0);
+            left: 0;
+        }
+
+        .player-league-stats-search-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .player-league-stats-search-input {
+            width: 95%;
+        }
+
+        .player-league-stats-search-button {
+            width: 95%;
+        }
+
+        .player-league-stats-season-selector {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .player-league-stats-season-button {
+            font-size: 1.2rem;
+            padding: 8px 15px;
+        }
+
+        .player-league-stats-season-info h4 {
+            font-size: 2.2rem;
+        }
+
+        .player-league-stats-season-info p {
+            font-size: 1.5rem;
+        }
+
+        .player-league-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .player-league-stats-label {
+            font-size: 1.5rem;
+        }
+
+        .player-league-stats-value {
+            font-size: 1.8rem;
+        }
+
+        .player-league-stats-loading-text {
+            font-size: 1.5rem;
+        }
+
+        .player-league-stats-loading-subtext {
+            font-size: 1.5rem;
+            padding: 0 15px;
+        }
+
+        .player-league-stats-tooltip-content {
+            width: 250px;
+            font-size: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            margin-left: 0;
+            margin-top: 10px;
+        }
+
+        .player-league-stats-tooltip-content::after {
+            right: auto;
+            left: 50%;
+            top: -10px;
+            margin-top: 0;
+            margin-left: -5px;
+            border-color: transparent transparent #fd7d27 transparent;
+        }
+    }
+
+    @@media (min-width: 769px) and (max-width: 1200px) {
+        .player-league-stats-container {
+            width: 90%;
+            transform: translateX(-55%);
+        }
+
+        .player-league-stats-container-detailed {
+            width: 90%;
+        }
+
+        .player-league-stats-search-input {
+            width: 350px;
+        }
+
+        .player-league-stats-season-button {
+            font-size: 1.4rem;
+        }
+
+        .player-league-stats-label {
+            font-size: 1.6rem;
+        }
+
+        .player-league-stats-value {
+            font-size: 2rem;
+        }
+    }
 </style>
 
 @code {

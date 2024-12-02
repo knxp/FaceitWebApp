@@ -217,6 +217,74 @@
     .equal {
         color: #7ad5ec;
     }
+
+    @@media (max-width: 768px) {
+        .comparison-box {
+            width: 95%;
+            padding: 15px;
+            margin: 15px auto;
+            transform: none;
+            left: 0;
+        }
+
+        .comparison-box h4 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr 1.2fr 1fr;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 1.4rem;
+            padding: 4px 0;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            padding: 4px 2px;
+        }
+
+        .notification {
+            font-size: 1.8rem;
+            padding: 12px 24px;
+        }
+
+        .share-button-container {
+            position: relative;
+            top: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .share-button {
+            font-size: 1rem;
+            padding: 6px 12px;
+        }
+
+        .share-button svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .stats-grid {
+            gap: 4px;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+        }
+    }
 </style>
 
 @code {

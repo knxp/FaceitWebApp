@@ -194,6 +194,50 @@
         flex: 1;
         text-align: right;
     }
+
+    @@media (max-width: 768px) {
+        .league-detailed-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .league-detailed-stats-column h5 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .league-detailed-stat-label {
+            font-size: 1.2rem;
+        }
+
+        .league-detailed-stat-value {
+            font-size: 1.4rem;
+        }
+
+        .league-detailed-stat-row {
+            margin-bottom: 8px;
+            padding: 6px 4px;
+        }
+    }
+
+    @@media (min-width: 769px) and (max-width: 1200px) {
+        .league-detailed-stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .league-detailed-stats-column h5 {
+            font-size: 2rem;
+        }
+
+        .league-detailed-stat-label {
+            font-size: 1.3rem;
+        }
+
+        .league-detailed-stat-value {
+            font-size: 1.5rem;
+        }
+    }
 </style>
 
 @code {

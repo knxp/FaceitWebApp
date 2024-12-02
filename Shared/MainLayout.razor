@@ -4,41 +4,43 @@
 <NavigationTracker />
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Max Faceit Stats</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <NavLink class="nav-link" href="">Home</NavLink>
-            </li>
-            <li class="nav-item dropdown">
-                <NavLink class="nav-link" href="player-stats">Player Stats</NavLink>
-                <div class="dropdown-menu" aria-labelledby="playerStatsDropdown">
-                    <NavLink class="dropdown-item" href="player-stats">Basic Stats</NavLink>
-                    <NavLink class="dropdown-item" href="player-detailed-stats">Detailed Stats</NavLink>
-                    <NavLink class="dropdown-item" href="player-league-stats">League Stats</NavLink>
-                </div>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="team-stats">Team Stats</NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="match-stats">Match Stats</NavLink>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link" href="compare-players" id="compareDropdown">Compare</a>
-                <div class="dropdown-menu" aria-labelledby="compareDropdown">
-                    <NavLink class="dropdown-item" href="compare-players">Players</NavLink>
-                    <NavLink class="dropdown-item" href="compare-teams">Teams</NavLink>
-                </div>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="faq">FAQ</NavLink>
-            </li>
-        </ul>
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Max Faceit Stats</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="">Home</NavLink>
+                </li>
+                <li class="nav-item dropdown">
+                    <NavLink class="nav-link" href="player-stats">Player Stats</NavLink>
+                    <div class="dropdown-menu" aria-labelledby="playerStatsDropdown">
+                        <NavLink class="dropdown-item" href="player-stats">Basic Stats</NavLink>
+                        <NavLink class="dropdown-item" href="player-detailed-stats">Detailed Stats</NavLink>
+                        <NavLink class="dropdown-item" href="player-league-stats">League Stats</NavLink>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="team-stats">Team Stats</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="match-stats">Match Stats</NavLink>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="compare-players" id="compareDropdown">Compare</a>
+                    <div class="dropdown-menu" aria-labelledby="compareDropdown">
+                        <NavLink class="dropdown-item" href="compare-players">Players</NavLink>
+                        <NavLink class="dropdown-item" href="compare-teams">Teams</NavLink>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="faq">FAQ</NavLink>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
 
@@ -142,5 +144,46 @@
 
     .btn-primary:hover {
         background-color: #e65c00;
+    }
+
+    @@media (max-width: 991px) {
+        .navbar-brand {
+            font-size: 1.8rem;
+        }
+
+        .nav-link {
+            font-size: 1.5rem;
+            padding: 0.3rem 0.8rem;
+        }
+
+        .dropdown-menu {
+            background-color: transparent;
+            border: none;
+            padding-left: 1rem;
+        }
+
+        .dropdown-item {
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-item {
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .navbar-collapse {
+            padding: 1rem 0;
+        }
+
+        .container {
+            padding: 0 15px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
     }
 </style>

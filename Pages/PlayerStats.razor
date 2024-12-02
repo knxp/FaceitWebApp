@@ -320,6 +320,39 @@
             transform: rotate(360deg);
         }
     }
+
+    @@media (max-width: 768px) {
+        .player-search-container {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .player-search-input,
+        .player-search-button,
+        .player-match-select {
+            width: 100%;
+            height: 45px;
+        }
+
+        .player-stats-layout {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .player-stats-container {
+            width: 100%;
+            padding: 15px;
+        }
+
+        .player-stat-label,
+        .player-stat-value {
+            font-size: 1.5rem;
+        }
+
+        .player-loading-text {
+            font-size: 1.5rem;
+        }
+    }
 </style>
 
 @code {

@@ -139,6 +139,54 @@
     .loss {
         color: #ff0000;
     }
+
+    @@media (max-width: 768px) {
+        .team-card {
+            width: 95%;
+            height: auto;
+            padding: 15px;
+            margin: 10px auto;
+        }
+
+        .team-info {
+            flex-direction: column;
+            align-items: center;
+            margin-left: 0;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+        }
+
+        .team-name {
+            font-size: 1.8rem;
+            margin: 10px 0;
+        }
+
+        .stats-grid {
+            width: 100%;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+        }
+
+        .recent-results {
+            margin-top: 15px;
+        }
+
+        .recent-results span {
+            font-size: 1.6rem;
+            width: 20px;
+            height: 20px;
+        }
+    }
 </style>
 
 @code {

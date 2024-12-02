@@ -192,6 +192,109 @@
         gap: 20px;
         flex-direction: column;
     }
+
+    @@media (max-width: 768px) {
+        .matchstats-container {
+            padding: 10px;
+            width: 100%;
+        }
+
+        .matchstats-search-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .matchstats-search-input {
+            width: 95%;
+            height: 45px;
+            font-size: 1rem;
+        }
+
+        .matchstats-search-button {
+            width: 95%;
+            height: 45px;
+            font-size: 1.1rem;
+        }
+
+        .matchstats-overview-container {
+            width: 95%;
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .matchstats-score-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .matchstats-team-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .matchstats-team-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            margin-top: 0;
+        }
+
+        .matchstats-team-name {
+            font-size: 1rem;
+            margin: 0;
+            padding: 3px 0;
+            text-align: center;
+            max-width: 100%;
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .matchstats-score {
+            font-size: 2.2rem;
+            margin: 0;
+            padding: 0 5px;
+            white-space: nowrap;
+        }
+
+        .matchstats-map-name {
+            font-size: 1.4rem;
+            margin: 10px 0 3px 0;
+            padding-bottom: 5px;
+        }
+
+        .matchstats-teams-container {
+            width: 95%;
+            gap: 10px;
+            margin: 0 auto;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .matchstats-team-name {
+            font-size: 0.9rem;
+        }
+
+        .matchstats-score {
+            font-size: 2rem;
+        }
+
+        .matchstats-map-name {
+            font-size: 1.2rem;
+        }
+
+        .matchstats-team-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+    }
 </style>
 
 @code {

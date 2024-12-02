@@ -150,6 +150,67 @@
         font-family: 'TolyerNo1', sans-serif;
         margin: 2rem 0;
     }
+
+    @@media (max-width: 768px) {
+        .comparison-box {
+            width: 95%;
+            padding: 15px;
+            margin: 15px auto;
+            transform: none;
+            left: 0;
+        }
+
+        .comparison-box h4 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .maps-grid {
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .stat-header {
+            font-size: 1.3rem;
+            padding-bottom: 10px;
+        }
+
+        .map-header {
+            font-size: 1.4rem;
+        }
+
+        .map-name {
+            font-size: 1.3rem;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            padding: 4px 2px;
+        }
+
+        .no-data-message {
+            font-size: 1.3rem;
+            margin: 1.5rem 0;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .maps-grid {
+            gap: 4px;
+        }
+
+        .stat-header {
+            font-size: 1.1rem;
+        }
+
+        .map-name {
+            font-size: 1.1rem;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+        }
+    }
 </style>
 
 @code {
@@ -158,11 +219,6 @@
 
     [Parameter]
     public List<MapStats> Team2Maps { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await JSRuntime.InvokeVoidAsync("import", "/css/team-comparison.css");
-    }
 
     private string GetComparisonClass(double value1, double value2)
     {

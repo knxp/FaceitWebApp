@@ -197,6 +197,34 @@
             transform: rotate(360deg);
         }
     }
+
+    @@media (max-width: 768px) {
+        .search-section {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 95%;
+        }
+
+        .search-button {
+            width: 95%;
+        }
+
+        .result-container {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .compare-container {
+            padding: 10px;
+        }
+
+        .compare-loading-text {
+            font-size: 1.6rem;
+        }
+    }
 </style>
 
 @code {

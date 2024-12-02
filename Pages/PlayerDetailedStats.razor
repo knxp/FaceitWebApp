@@ -406,6 +406,86 @@
             transform: rotate(360deg);
         }
     }
+
+    @@media (max-width: 768px) {
+        .detailed-stats-container {
+            width: 95%;
+            padding: 15px;
+            margin: 10px auto;
+        }
+
+        .detailed-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .detailed-stats-column h5 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .detailed-stat-label {
+            font-size: 1.3rem;
+        }
+
+        .detailed-stat-value {
+            font-size: 1.5rem;
+        }
+
+        .detailed-loading-text {
+            font-size: 1.5rem;
+        }
+
+        .detailed-tooltip-content {
+            width: 250px;
+            font-size: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            margin-left: 0;
+            margin-top: 10px;
+        }
+
+        .detailed-tooltip-content::after {
+            right: auto;
+            left: 50%;
+            top: -10px;
+            margin-top: 0;
+            margin-left: -5px;
+            border-color: transparent transparent #fd7d27 transparent;
+        }
+
+        .detailed-header-container {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .detailed-info-icon-container {
+            margin-top: 5px;
+        }
+    }
+
+    @@media (min-width: 769px) and (max-width: 1200px) {
+        .detailed-stats-container {
+            width: 95%;
+        }
+
+        .detailed-stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .detailed-stats-column h5 {
+            font-size: 2.5rem;
+        }
+
+        .detailed-stat-label {
+            font-size: 1.4rem;
+        }
+
+        .detailed-stat-value {
+            font-size: 1.7rem;
+        }
+    }
 </style>
 
 @code {
