@@ -11,7 +11,9 @@ namespace faceitWebApp.Models
         public string Region { get; set; }
         public int? regionRank { get; set; }
         public List<TeamInfo> Teams { get; set; } = new List<TeamInfo>();
-        
+        public double Rating { get; set; }
+        public double TotalRounds { get; set; }
+
         // Core Combat Stats
         public double Kills { get; set; }
         public double Assists { get; set; }

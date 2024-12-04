@@ -28,8 +28,9 @@ namespace faceitWebApp.Handlers
         public async Task<LeagueStatsCollection> GetLeagueStatsAsync(string playerId)
         {
             var collection = new LeagueStatsCollection();
-            var seasonStats = new Dictionary<string, (LeagueStats Stats, int MatchCount)>();
+            var seasonStats = new Dictionary<string, (LeagueStats Stats, int MatchCount, double TotalRounds)>();
             var overallStats = new Player { Id = playerId };
+            var ratingHandler = new RatingHandler();
 
             int offset = 0;
             const int limit = 100;
@@ -70,7 +71,7 @@ namespace faceitWebApp.Handlers
 
                 foreach (var result in results.Where(r => r.HasValue))
                 {
-                    var (matchStats, leagueInfo) = result.Value;
+                    var (matchStats, leagueInfo, totalRounds) = result.Value;
                     totalMatches++;
 
                     var seasonKey = $"{leagueInfo.Season}-{leagueInfo.Division}-{leagueInfo.Location}";
@@ -86,13 +87,15 @@ namespace faceitWebApp.Handlers
                             DivisionLocation = leagueInfo.DivisionLocation,
                             GameType = leagueInfo.GameType,
                             Stats = new Player { Id = playerId }
-                        }, 0);
+                        }, 0, 0);
                     }
 
                     UpdateStats(seasonStats[seasonKey].Stats.Stats, matchStats);
-                    seasonStats[seasonKey] = (seasonStats[seasonKey].Stats, seasonStats[seasonKey].MatchCount + 1);
-
-                    // Update overall stats
+                    seasonStats[seasonKey] = (
+                        seasonStats[seasonKey].Stats, 
+                        seasonStats[seasonKey].MatchCount + 1, 
+                        seasonStats[seasonKey].TotalRounds + totalRounds
+                    );
                     UpdateStats(overallStats, matchStats);
                 }
 
@@ -101,10 +104,16 @@ namespace faceitWebApp.Handlers
             }
 
             // Calculate averages and build collection
-            foreach (var (_, (stats, matchCount)) in seasonStats)
+            foreach (var (_, (stats, matchCount, totalRounds)) in seasonStats)
             {
                 CalculateAverages(stats.Stats, matchCount);
                 stats.MatchCount = matchCount;
+
+                if (int.TryParse(stats.Season.TrimStart('S'), out int seasonNumber) && seasonNumber >= 51)
+                {
+                    stats.Stats.Rating = ratingHandler.CalculateRating(stats.Stats, totalRounds, matchCount);
+                }
+
                 collection.SeasonStats.Add(stats);
             }
 
@@ -115,7 +124,7 @@ namespace faceitWebApp.Handlers
             return collection;
         }
 
-        private async Task<(Player Stats, LeagueStats LeagueInfo)?> ProcessMatchAsync(JToken match, string playerId)
+        private async Task<(Player Stats, LeagueStats LeagueInfo, double Rounds)?> ProcessMatchAsync(JToken match, string playerId)
         {
             try
             {
@@ -148,6 +157,14 @@ namespace faceitWebApp.Handlers
                 if (rounds?.Any() != true)
                     return null;
 
+                // Get total rounds from round_stats
+                double totalRounds = 0;
+                var roundStats = rounds[0]["round_stats"];
+                if (roundStats != null && roundStats["Rounds"] != null)
+                {
+                    totalRounds = double.Parse(roundStats["Rounds"].ToString());
+                }
+
                 var playerStats = rounds[0]["teams"]
                     .SelectMany(t => t["players"])
                     .FirstOrDefault(p => p["player_id"]?.ToString() == playerId)?["player_stats"] as JObject;
@@ -155,7 +172,7 @@ namespace faceitWebApp.Handlers
                 if (playerStats == null)
                     return null;
 
-                var stats = new Player();
+                var stats = new Player { TotalRounds = totalRounds };  // Initialize with totalRounds
 
                 // Basic stats for all seasons
                 stats.Kills = ParseStat(playerStats["Kills"]);
@@ -223,7 +240,7 @@ namespace faceitWebApp.Handlers
                         stats.MatchOneVTwoWinRate = (stats.OneVTwoWins / stats.OneVTwoCount) * 100;
                 }
 
-                return (stats, leagueInfo);
+                return (stats, leagueInfo, totalRounds);
             }
             catch
             {
@@ -262,6 +279,7 @@ namespace faceitWebApp.Handlers
                 KDRatio = ParseStat(stats["K/D Ratio"]),
                 KRRRatio = ParseStat(stats["K/R Ratio"]),
                 Damage = ParseStat(stats["Damage"]),
+                
 
                 // Headshot Stats
                 Headshots = ParseStat(stats["Headshots"]),

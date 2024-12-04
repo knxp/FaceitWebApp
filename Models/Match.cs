@@ -6,6 +6,7 @@ namespace faceitWebApp.Models
         public string Map { get; set; }
         public MatchTeam Team1 { get; set; }
         public MatchTeam Team2 { get; set; }
+        public double TotalRounds { get; set; }
     }
 
     public class MatchTeam
@@ -28,7 +29,8 @@ namespace faceitWebApp.Models
         public int Assists { get; set; }
         public double KDRatio { get; set; }
         public double ADR { get; set; }
-
+        public double Rating { get; set; }
+        
         // Special kills
         public int DoubleKills { get; set; }
         public int TripleKills { get; set; }
@@ -56,6 +58,7 @@ namespace faceitWebApp.Models
         public int OneVOneWins { get; set; }
         public int OneVTwoCount { get; set; }
         public int OneVTwoWins { get; set; }
+        public int ClutchKills { get; set; }
 
         // Damage stats
         public int Damage { get; set; }

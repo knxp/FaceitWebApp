@@ -26,10 +26,13 @@ namespace faceitWebApp.Handlers
             "Utility Damage Success Rate per Match"
         };
 
+        private readonly RatingHandler _ratingHandler;
+
         public FullStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["Faceit:ApiKey"]; 
+            _ratingHandler = new RatingHandler();
         }
 
         public async Task<Player> GetFullStatsAsync(string playerId, int matchLimit = 100)
@@ -78,7 +81,7 @@ namespace faceitWebApp.Handlers
                             stats[stat.Key] += stat.Value;
                         }
                     }
-
+                    
                     int matchCount = validResults.Count;
                     if (matchCount > 0)
                     {
@@ -146,6 +149,10 @@ namespace faceitWebApp.Handlers
                         // Other Stats
                         player.MVPs = Math.Round(stats["MVPs"] / matchCount, 2);
                         player.Result = Math.Round(stats["Result"] / matchCount, 2);
+
+                        // Calculate rating here, inside the if block
+                        player.Rating = _ratingHandler.CalculateRating(player, stats["TotalRounds"], validResults.Count);
+                        Console.WriteLine($"Player Rating: {player.Rating} (over {stats["TotalRounds"]} rounds)");
                     }
                 }
 
@@ -173,16 +180,25 @@ namespace faceitWebApp.Handlers
                 if (rounds == null || !rounds.Any())
                     return null;
 
+                var matchStatValues = new Dictionary<string, double>();
+                
+                // Get total rounds from round_stats
+                var roundStats = rounds[0]["round_stats"];
+                if (roundStats != null && roundStats["Rounds"] != null)
+                {
+                    matchStatValues["TotalRounds"] = double.Parse(roundStats["Rounds"].ToString());
+                }
+
                 var playerStats = rounds[0]["teams"]
                     .SelectMany(t => t["players"])
                     .FirstOrDefault(p => p["player_id"]?.ToString() == playerId)?["player_stats"] as JObject;
 
-                if (playerStats == null)
-                    return null;
-
-                var matchStatValues = new Dictionary<string, double>();
+                // Rest of the stats processing
                 foreach (var key in FullStatsDictionary.Stats.Keys)
                 {
+                    if (key == "TotalRounds") 
+                        continue; // Skip as we've already handled it
+
                     if (playerStats[key] != null)
                     {
                         var value = playerStats[key].ToString();

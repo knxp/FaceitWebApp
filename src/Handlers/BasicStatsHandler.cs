@@ -95,7 +95,7 @@ namespace faceitWebApp.Handlers
                         player.Kills = Math.Round(stats["Kills"] / matchCount, 2);
                         player.Assists = Math.Round(stats["Assists"] / matchCount, 2);
                         player.Deaths = Math.Round(stats["Deaths"] / matchCount, 2);
-                        player.KDRatio = Math.Round(stats["K/D Ratio"] / matchCount, 2);
+                        player.KDRatio = Math.Round(player.Kills / player.Deaths, 2);
                         player.KRRRatio = Math.Round(stats["K/R Ratio"] / matchCount, 2);
                         player.Headshots = Math.Round(stats["Headshots"] / matchCount, 2);
                         player.HeadshotsPercentage = Math.Round(stats["Headshots %"] / matchCount, 2);

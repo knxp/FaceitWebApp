@@ -14,6 +14,7 @@ namespace faceitWebApp.Dictionaries
             { "K/D Ratio", 0 },
             { "K/R Ratio", 0 },
             { "Damage", 0 },
+            { "TotalRounds", 0 },
 
             // Headshot Stats
             { "Headshots", 0 },

@@ -149,12 +149,14 @@ namespace faceitWebApp.Handlers
                     throw new Exception("Invalid team data");
                 }
 
+                var totalRounds = firstRound["round_stats"]?["Rounds"]?.ToObject<double>() ?? 0;
                 var match = new Models.Match
                 {
                     MatchId = matchId,
                     Map = firstRound["round_stats"]?["Map"]?.ToString(),
-                    Team1 = await ProcessTeam(teams[0]),
-                    Team2 = await ProcessTeam(teams[1])
+                    TotalRounds = totalRounds,
+                    Team1 = await ProcessTeam(teams[0], totalRounds),
+                    Team2 = await ProcessTeam(teams[1], totalRounds)
                 };
 
                 return match;
@@ -165,7 +167,7 @@ namespace faceitWebApp.Handlers
             }
         }
 
-        private async Task<MatchTeam> ProcessTeam(JToken teamToken)
+        private async Task<MatchTeam> ProcessTeam(JToken teamToken, double totalRounds)
         {
             var teamId = teamToken["team_id"]?.ToString();
             var avatar = !string.IsNullOrEmpty(teamId)
@@ -229,8 +231,25 @@ namespace faceitWebApp.Handlers
                         OneVTwoWins = ParseInt(stats?["1v2Wins"]),
 
                         // Damage stats
-                        Damage = ParseInt(stats?["Damage"])
+                        Damage = ParseInt(stats?["Damage"]),
                     };
+
+                    // Calculate rating directly using the MatchPlayer
+                    // Need to convert MatchPlayer to Player since CalculateRating expects a Player object
+                    var playerForRating = new Player
+                    {
+                        
+                        Kills = player.Kills,
+                        Deaths = player.Deaths, 
+                        Assists = player.Assists,
+                        ADR = player.ADR,
+                        KDRatio = player.KDRatio,
+                        DoubleKills = player.DoubleKills,
+                        TripleKills = player.TripleKills,
+                        QuadroKills = player.QuadKills,
+                        PentaKills = player.Aces
+                    };
+                    player.Rating = new RatingHandler().CalculateRating(playerForRating, totalRounds, 1);
 
                     team.Players.Add(player);
                 }

@@ -8,6 +8,7 @@
             <thead>
                 <tr>
                     <th title="Player Name">Player</th>
+                    <th title="Rating">HLTV</th>
                     <th title="Kills">K</th>
                     <th title="Deaths">D</th>
                     <th title="Assists">A</th>
@@ -28,7 +29,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var player in Team.Players.OrderByDescending(p => p.ADR))
+                @foreach (var player in Team.Players.OrderByDescending(p => p.Rating))
                 {
                     <tr class="matchstats-table-row">
                         <td class="matchstats-player-cell">
@@ -37,6 +38,7 @@
                                 @player.Nickname
                             </span>
                         </td>
+                        <td>@player.Rating.ToString("F2")</td>
                         <td>@player.Kills</td>
                         <td>@player.Deaths</td>
                         <td>@player.Assists</td>
