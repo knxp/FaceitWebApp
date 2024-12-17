@@ -185,7 +185,7 @@ namespace faceitWebApp.Handlers
                             
                             // Check the winner for this specific round
                             var roundWinner = round["round_stats"]?["Winner"]?.ToString();
-                            if (roundWinner == teamFaction)
+                            if (roundWinner == teamId)
                             {
                                 mapStats[mapName].Wins++;
                             }
