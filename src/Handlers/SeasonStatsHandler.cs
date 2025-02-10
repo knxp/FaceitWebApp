@@ -14,10 +14,8 @@ namespace faceitWebApp.Handlers
         private readonly HttpClient _httpClient;
         private readonly string _faceitApiKey;
         private readonly ActivePlayersHandler _activePlayersHandler;
-        private static readonly DateTime SEASON_START = new DateTime(2024, 10, 5);
-        private static readonly DateTime SEASON_END = new DateTime(2024, 12, 14);
         private const int BATCH_SIZE = 10;
-        private const int MAX_PARALLEL_REQUESTS = 5;
+        private const int MAX_PARALLEL_REQUESTS = 10;
 
         public SeasonStatsHandler(HttpClient httpClient, IConfiguration configuration, ActivePlayersHandler activePlayersHandler)
         {
@@ -26,33 +24,51 @@ namespace faceitWebApp.Handlers
             _activePlayersHandler = activePlayersHandler;
         }
 
-        public async Task<List<MapStats>> GetSeasonMapStatsAsync(string teamId, string teamName, List<TeamPlayer> players)
+        public async Task<List<MapStats>> GetSeasonMapStatsAsync(string teamId, string teamName, List<TeamPlayer> players, string seasonName)
         {
             var mapStats = new Dictionary<string, MapStats>();
-            var activePlayers = await _activePlayersHandler.GetActivePlayersAsync(teamId, teamName, players);
 
-            // Get the player with the most matches
-            var mostActivePlayer = activePlayers
-                .OrderByDescending(p => p.MatchesWithTeam)
-                .FirstOrDefault();
-
-            if (mostActivePlayer == null)
+            // Get season dates from the dictionary
+            if (!SeasonDates.Seasons.TryGetValue(seasonName, out var seasonDates))
             {
-                Console.WriteLine("No active players found");
+                Console.WriteLine($"Invalid season: {seasonName}");
                 return new List<MapStats>();
             }
-
-            Console.WriteLine($"Most active player: {mostActivePlayer.Nickname} with {mostActivePlayer.MatchesWithTeam} matches");
 
             try
             {
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
 
-                var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/players/{mostActivePlayer.PlayerId}/history?game=cs2&offset=0&limit=100");
+                // First, get the team leader's ID
+                var teamResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
+                if (!teamResponse.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Failed to get team info: {teamResponse.StatusCode}");
+                    return new List<MapStats>();
+                }
+
+                var teamContent = await teamResponse.Content.ReadAsStringAsync();
+                var teamJson = JObject.Parse(teamContent);
+                var leaderId = teamJson["leader"]?.ToString();
+
+                if (string.IsNullOrEmpty(leaderId))
+                {
+                    Console.WriteLine("No team leader found");
+                    return new List<MapStats>();
+                }
+
+                // Use Unix timestamps directly from SeasonDates
+                var fromTimestamp = seasonDates.Start;
+                var toTimestamp = seasonDates.End;
+
+                // Get matches using the team leader's ID
+                var response = await _httpClient.GetAsync(
+                    $"https://open.faceit.com/data/v4/players/{leaderId}/history?game=cs2&limit=100&from={fromTimestamp}&to={toTimestamp}");
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Failed to get player history: {response.StatusCode}");
+                    Console.WriteLine($"Failed to get match history: {response.StatusCode}");
                     return new List<MapStats>();
                 }
 
@@ -67,30 +83,26 @@ namespace faceitWebApp.Handlers
                 }
 
                 Console.WriteLine($"Total matches found: {matches.Count}");
+                
 
                 var seasonMatches = matches
                     .Where(match =>
                     {
+                        var teams = match["teams"] as JObject;
                         var startedAt = long.Parse(match["started_at"].ToString());
-                        var matchDate = DateTimeOffset.FromUnixTimeSeconds(startedAt).DateTime.ToUniversalTime();
                         var competitionName = match["competition_name"]?.ToString() ?? "";
-                        var isInSeason = matchDate >= SEASON_START && matchDate <= SEASON_END;
-                        var isEseaS51 = competitionName.Contains("ESEA S51", StringComparison.OrdinalIgnoreCase);
 
-                        if (isInSeason && isEseaS51)
-                        {
-                            Console.WriteLine($"Found season match: {matchDate} - {competitionName}");
-                            return true;
-                        }
-                        return false;
+                        return teams != null &&
+                               (teams["faction1"]?["team_id"]?.ToString() == teamId ||
+                                teams["faction2"]?["team_id"]?.ToString() == teamId) &&
+                               SeasonDates.IsMatchInSeason(startedAt, competitionName);
                     })
                     .ToList();
 
-                Console.WriteLine($"Season matches found: {seasonMatches.Count}");
+                Console.WriteLine($"Team matches found: {seasonMatches.Count}");
 
                 // Process matches in parallel batches
                 var semaphore = new SemaphoreSlim(MAX_PARALLEL_REQUESTS);
-                var tasks = new List<Task>();
                 var batches = (int)Math.Ceiling(seasonMatches.Count / (double)BATCH_SIZE);
 
                 for (int i = 0; i < batches; i++)
@@ -99,22 +111,23 @@ namespace faceitWebApp.Handlers
                         .Skip(i * BATCH_SIZE)
                         .Take(BATCH_SIZE);
 
-                    foreach (var match in batchMatches)
+                    var batchTasks = batchMatches.Select(async match =>
                     {
-                        tasks.Add(ProcessMatchAsync(match, teamId, mapStats, semaphore));
-                    }
+                        try
+                        {
+                            await ProcessMatchAsync(match, teamId, mapStats, semaphore);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Skipping match {match["match_id"]}: {ex.Message}");
+                            // Continue with next match
+                        }
+                    });
+
+                    await Task.WhenAll(batchTasks);
                 }
 
-                await Task.WhenAll(tasks);
-
-                var result = mapStats.Values.OrderByDescending(m => m.WinRate).ToList();
-                Console.WriteLine($"Final map stats count: {result.Count}");
-                foreach (var stat in result)
-                {
-                    Console.WriteLine($"Map: {stat.Map}, Matches: {stat.TotalMatches}, Wins: {stat.Wins}, WinRate: {stat.WinRate:F1}%");
-                }
-
-                return result;
+                return mapStats.Values.OrderByDescending(m => m.WinRate).ToList();
             }
             catch (Exception ex)
             {
@@ -150,7 +163,7 @@ namespace faceitWebApp.Handlers
                     var matchResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/matches/{matchId}/stats");
                     if (!matchResponse.IsSuccessStatusCode)
                     {
-                        Console.WriteLine($"Failed to get match stats: {matchResponse.StatusCode}");
+                        Console.WriteLine($"Skipping match {matchId}: Response --- {matchResponse.StatusCode}");
                         return;
                     }
 
@@ -160,7 +173,7 @@ namespace faceitWebApp.Handlers
 
                     if (rounds == null || !rounds.Any())
                     {
-                        Console.WriteLine($"No rounds found for match {matchId}");
+                        Console.WriteLine($"Skipping match {matchId}: No rounds data found");
                         return;
                     }
 
@@ -182,7 +195,7 @@ namespace faceitWebApp.Handlers
                             }
 
                             mapStats[mapName].TotalMatches++;
-                            
+
                             // Check the winner for this specific round
                             var roundWinner = round["round_stats"]?["Winner"]?.ToString();
                             if (roundWinner == teamId)

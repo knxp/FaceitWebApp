@@ -4,10 +4,12 @@
 <div class="season-selector">
     <button class="season-button @(selectedSeason == "overall" ? "active" : "")"
         @onclick="@(() => SwitchSeason("overall"))">Overall</button>
-    <button class="season-button @(selectedSeason == "season51" ? "active" : "")"
-        @onclick="@(() => SwitchSeason("season51"))">
-        Season 51
-    </button>
+    @foreach (var season in SeasonDates.Seasons.Keys)
+    {
+        <button class="season-button @(selectedSeason == season ? "active" : "")" @onclick="@(() => SwitchSeason(season))">
+            @season
+        </button>
+    }
 </div>
 
 <div class="map-stats-box">
@@ -17,7 +19,7 @@
         <div class="map-header-cell">Win Rate</div>
     </div>
     <div class="map-stats-grid">
-        @if (selectedSeason == "season51" && isLoadingSeasonStats)
+        @if (selectedSeason != "overall" && isLoadingSeasonStats)
         {
             <div class="loading-container">
                 <div class="loading-spinner"></div>
@@ -26,7 +28,11 @@
         }
         else
         {
-            var defaultMaps = new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Dust2" };
+            var defaultMaps = selectedSeason == "overall"
+            ? new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Train", "Dust2" }
+            : SeasonDates.MapPools.TryGetValue(selectedSeason, out var maps)
+            ? maps
+            : new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Dust2" }; // fallback maps
             var displayStats = selectedSeason == "overall" ? MapStats : SeasonMapStats;
 
             // Create dictionary with normalized map names (remove "de_" prefix)
@@ -39,16 +45,19 @@
             StringComparer.OrdinalIgnoreCase
             ) ?? new Dictionary<string, MapStats>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var mapName in defaultMaps)
+            foreach (var mapName in defaultMaps.OrderByDescending(m =>
             {
-                // Try to find the map with or without "de_" prefix
+                var normalizedMapName = m.Replace("de_", "", StringComparison.OrdinalIgnoreCase);
+                return existingMaps.GetValueOrDefault(normalizedMapName, new MapStats { Map = m }).TotalMatches;
+            }))
+            {
                 var normalizedMapName = mapName.Replace("de_", "", StringComparison.OrdinalIgnoreCase);
                 var mapStats = existingMaps.GetValueOrDefault(normalizedMapName, new MapStats { Map = mapName });
 
                 <div class="map-stat-row">
                     <span class="map-stat-label">@mapName</span>
                     <span class="stat-value matches">@mapStats.TotalMatches</span>
-                    <span class="map-stat-value">
+                    <span class="map-stat-value @GetWinRateClass(mapStats.WinRate)">
                         @(mapStats.TotalMatches > 0 ? $"{mapStats.WinRate:F1}%" : "No Matches")
                     </span>
                 </div>
@@ -122,8 +131,7 @@
         margin-bottom: 30px;
     }
 
-    @@keyframes
-    spin {
+    @@keyframes spin {
         to {
             transform: rotate(360deg);
         }
@@ -207,6 +215,21 @@
         font-size: 2rem;
     }
 
+    .win-rate-high {
+        color: #00FF00 !important;
+        /* Green */
+    }
+
+    .win-rate-low {
+        color: #ff6b6b !important;
+        /* Light Red */
+    }
+
+    .win-rate-neutral {
+        color: #e0e0e0 !important;
+        /* Gray */
+    }
+
     @@media (max-width: 768px) {
         .map-stats-box {
             width: 95%;
@@ -286,17 +309,19 @@
     private List<MapStats> SeasonMapStats;
     private bool isLoadingSeasonStats;
     private string previousTeamId;
+    private Dictionary<string, List<MapStats>> seasonStatsCache = new();
 
     protected override async Task OnParametersSetAsync()
     {
-        // If TeamId changes, reset season stats
+        // If TeamId changes, reset season stats and cache
         if (TeamId != previousTeamId)
         {
             previousTeamId = TeamId;
             SeasonMapStats = null;
+            seasonStatsCache.Clear(); // Clear the cache for the new team
 
-            // If we're currently on the season view, reload the stats
-            if (selectedSeason == "season51" && !string.IsNullOrEmpty(TeamId))
+            // If we're currently on a season view, reload the stats
+            if (selectedSeason != "overall" && !string.IsNullOrEmpty(TeamId))
             {
                 await LoadSeasonStats();
             }
@@ -310,15 +335,12 @@
 
         try
         {
-            SeasonMapStats = await SeasonStatsHandler.GetSeasonMapStatsAsync(TeamId, TeamName, Players);
-            Console.WriteLine($"Loaded season stats: {SeasonMapStats?.Count ?? 0} maps");
-            if (SeasonMapStats != null)
-            {
-                foreach (var stat in SeasonMapStats)
-                {
-                    Console.WriteLine($"Map: {stat.Map}, Matches: {stat.TotalMatches}, Wins: {stat.Wins}, WinRate: {stat.WinRate:F1}%");
-                }
-            }
+            SeasonMapStats = await SeasonStatsHandler.GetSeasonMapStatsAsync(
+            TeamId,
+            TeamName,
+            Players,
+            selectedSeason
+            );
         }
         finally
         {
@@ -333,11 +355,36 @@
 
         selectedSeason = season;
 
-        if (season == "season51" && SeasonMapStats == null && !string.IsNullOrEmpty(TeamId))
+        // Check if we already have the stats for this season in memory
+        if (season != "overall" && !string.IsNullOrEmpty(TeamId))
         {
-            await LoadSeasonStats();
+            if (seasonStatsCache.ContainsKey(season))
+            {
+                SeasonMapStats = seasonStatsCache[season];
+            }
+            else
+            {
+                await LoadSeasonStats();
+                seasonStatsCache[season] = SeasonMapStats;
+            }
         }
 
         StateHasChanged();
+    }
+
+    private string GetWinRateClass(double winRate)
+    {
+        if (winRate > 50)
+        {
+            return "win-rate-high";
+        }
+        else if (winRate < 50)
+        {
+            return "win-rate-low";
+        }
+        else
+        {
+            return "win-rate-neutral";
+        }
     }
 }

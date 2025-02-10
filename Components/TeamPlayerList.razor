@@ -233,6 +233,18 @@
     private List<ActivePlayer> processedPlayers;
     private bool isProcessing;
     private string previousTeamId;
+    private string currentSeason;
+
+    protected override void OnInitialized()
+    {
+        // Get the most recent season
+        currentSeason = SeasonDates.Seasons
+        .OrderByDescending(s => s.Value.Start)
+        .First()
+        .Key;
+
+        Console.WriteLine($"Using current season: {currentSeason}");
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -247,7 +259,11 @@
                 processedPlayers = null;
                 StateHasChanged();
 
-                processedPlayers = await ActivePlayersHandler.GetActivePlayersAsync(TeamId, TeamName, Players);
+                processedPlayers = await ActivePlayersHandler.GetActivePlayersAsync(
+                TeamId,
+                TeamName,
+                Players,
+                currentSeason);
                 previousTeamId = TeamId;
             }
             finally

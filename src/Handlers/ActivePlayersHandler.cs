@@ -6,6 +6,7 @@ using System.Linq;
 using faceitWebApp.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace faceitWebApp.Handlers
 {
@@ -14,10 +15,7 @@ namespace faceitWebApp.Handlers
         private readonly HttpClient _httpClient;
         private readonly string _faceitApiKey;
         private const int MIN_MATCHES_THRESHOLD = 3;
-        private static readonly DateTime START_DATE = new DateTime(2024, 10, 6);
-        private static readonly DateTime END_DATE = new DateTime(2024, 12, 15);
-        private const int MAX_PARALLEL_REQUESTS = 5;
-        private const int BATCH_SIZE = 10;
+        private const int MAX_PARALLEL_REQUESTS = 10;
 
         public ActivePlayersHandler(HttpClient httpClient, IConfiguration configuration)
         {
@@ -25,136 +23,126 @@ namespace faceitWebApp.Handlers
             _faceitApiKey = configuration["Faceit:ApiKey"];
         }
 
-        public async Task<List<ActivePlayer>> GetActivePlayersAsync(string teamId, string teamName, List<TeamPlayer> players)
+        public async Task<List<ActivePlayer>> GetActivePlayersAsync(string teamId, string teamName, List<TeamPlayer> players, string seasonName)
         {
-            var activePlayersList = new List<ActivePlayer>();
-            var semaphore = new SemaphoreSlim(MAX_PARALLEL_REQUESTS);
-            var tasks = new List<Task<ActivePlayer>>();
-
-            // Process players in parallel batches
-            for (int i = 0; i < players.Count; i += BATCH_SIZE)
+            // Validate season exists
+            if (!SeasonDates.Seasons.TryGetValue(seasonName, out var seasonDates))
             {
-                var batch = players.Skip(i).Take(BATCH_SIZE);
-                var batchTasks = batch.Select(player => ProcessPlayerActivityAsync(player, teamId, teamName, semaphore));
-                tasks.AddRange(batchTasks);
+                Console.WriteLine($"Invalid season: {seasonName}");
+                return new List<ActivePlayer>();
             }
 
-            var results = await Task.WhenAll(tasks);
-            activePlayersList.AddRange(results.Where(p => p != null));
+            // First get the team details to find the leader
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+
+            var teamResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
+            if (!teamResponse.IsSuccessStatusCode) return new List<ActivePlayer>();
+
+            var teamContent = await teamResponse.Content.ReadAsStringAsync();
+            var teamJson = JObject.Parse(teamContent);
+            var leaderId = teamJson["leader"]?.ToString();
+
+            if (string.IsNullOrEmpty(leaderId)) return new List<ActivePlayer>();
+
+            var fromTimestamp = seasonDates.Start;
+            var toTimestamp = seasonDates.End;
+
+            // Get matches from the leader's history
+            var response = await _httpClient.GetAsync(
+                $"https://open.faceit.com/data/v4/players/{leaderId}/history?game=cs2&from={fromTimestamp}&to={toTimestamp}&offset=0&limit=100");
+
+            if (!response.IsSuccessStatusCode) return new List<ActivePlayer>();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var json = JObject.Parse(content);
+            var matches = json["items"] as JArray;
+
+            if (matches == null || !matches.Any()) return new List<ActivePlayer>();
+
+            // Filter matches for this season
+            var seasonMatches = matches.Where(match =>
+            {
+                var startedAt = long.Parse(match["started_at"].ToString());
+                var competitionName = match["competition_name"]?.ToString() ?? "";
+                return SeasonDates.IsMatchInSeason(startedAt, competitionName);
+            }).ToList();
+
+            var activePlayersList = new List<ActivePlayer>();
+            var semaphore = new SemaphoreSlim(MAX_PARALLEL_REQUESTS);
+            var playerTasks = new List<Task<(TeamPlayer Player, int MatchesPlayed)>>();
+
+            // Process players in parallel
+            foreach (var player in players)
+            {
+                playerTasks.Add(ProcessPlayerMatchesAsync(player, seasonMatches, semaphore));
+            }
+
+            var results = await Task.WhenAll(playerTasks);
+
+            foreach (var result in results.Where(r => r.MatchesPlayed >= MIN_MATCHES_THRESHOLD))
+            {
+                var lastMatch = seasonMatches.First();
+                var lastMatchDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(lastMatch["started_at"].ToString())).UtcDateTime;
+
+                activePlayersList.Add(new ActivePlayer
+                {
+                    PlayerId = result.Player.PlayerId,
+                    Nickname = result.Player.Nickname,
+                    Avatar = result.Player.Avatar,
+                    Elo = result.Player.Elo,
+                    LastMatchDate = lastMatchDate,
+                    MatchesWithTeam = result.MatchesPlayed,
+                    IsActive = true
+                });
+            }
 
             return activePlayersList.OrderByDescending(p => p.MatchesWithTeam).ToList();
         }
 
-        private async Task<ActivePlayer> ProcessPlayerActivityAsync(TeamPlayer player, string teamId, string teamName, SemaphoreSlim semaphore)
+        private async Task<(TeamPlayer Player, int MatchesPlayed)> ProcessPlayerMatchesAsync(TeamPlayer player, List<JToken> seasonMatches, SemaphoreSlim semaphore)
         {
-            try
+            var matchesPlayed = 0;
+
+            foreach (var match in seasonMatches)
             {
                 await semaphore.WaitAsync();
                 try
                 {
-                    _httpClient.DefaultRequestHeaders.Clear();
-                    _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                    var matchId = match["match_id"].ToString();
+                    var matchResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/matches/{matchId}/stats");
 
-                    var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/players/{player.PlayerId}/history?game=cs2&offset=0&limit=100");
-                    if (!response.IsSuccessStatusCode) return null;
+                    if (!matchResponse.IsSuccessStatusCode) continue;
 
-                    var content = await response.Content.ReadAsStringAsync();
-                    var json = JObject.Parse(content);
-                    var items = json["items"] as JArray;
+                    var matchContent = await matchResponse.Content.ReadAsStringAsync();
+                    var matchJson = JObject.Parse(matchContent);
+                    var rounds = matchJson["rounds"] as JArray;
 
-                    if (items == null || !items.Any()) return null;
+                    if (rounds == null || !rounds.Any()) continue;
 
-                    var teamMatches = items
-                        .Where(match =>
-                        {
-                            var teams = match["teams"] as JObject;
-                            return teams != null &&
-                                   (teams["faction1"]?["team_id"]?.ToString() == teamId ||
-                                    teams["faction2"]?["team_id"]?.ToString() == teamId) &&
-                                    match["competition_name"]?.ToString().Contains("ESEA S51") == true;
-                        })
-                        .ToList();
-
-                    if (!teamMatches.Any()) return null;
-
-                    var matchTasks = teamMatches.Select(match => ProcessMatchDetailsAsync(match, player.PlayerId));
-                    var matchResults = await Task.WhenAll(matchTasks);
-                    var totalMatchesPlayed = matchResults.Sum();
-
-                    var lastMatch = teamMatches.First();
-                    var lastMatchDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(lastMatch["started_at"].ToString())).UtcDateTime;
-
-                    return new ActivePlayer
+                    foreach (var round in rounds)
                     {
-                        PlayerId = player.PlayerId,
-                        Nickname = player.Nickname,
-                        Avatar = player.Avatar,
-                        Elo = player.Elo,
-                        LastMatchDate = lastMatchDate,
-                        MatchesWithTeam = totalMatchesPlayed,
-                        IsActive = totalMatchesPlayed >= MIN_MATCHES_THRESHOLD
-                    };
+                        var teams = round["teams"] as JArray;
+                        if (teams == null) continue;
+
+                        foreach (var team in teams)
+                        {
+                            var matchPlayers = team["players"] as JArray;
+                            if (matchPlayers != null && matchPlayers.Any(p => p["player_id"]?.ToString() == player.PlayerId))
+                            {
+                                matchesPlayed++;
+                                break;
+                            }
+                        }
+                    }
                 }
                 finally
                 {
                     semaphore.Release();
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error processing player {player.Nickname}: {ex.Message}");
-                return null;
-            }
-        }
 
-        private async Task<int> ProcessMatchDetailsAsync(JToken match, string playerId)
-        {
-            try
-            {
-                var matchId = match["match_id"].ToString();
-                var matchResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/matches/{matchId}/stats");
-                if (!matchResponse.IsSuccessStatusCode) return 0;
-
-                var matchContent = await matchResponse.Content.ReadAsStringAsync();
-                var matchJson = JObject.Parse(matchContent);
-                var rounds = matchJson["rounds"] as JArray;
-
-                if (rounds == null || !rounds.Any()) return 0;
-
-                var roundsPlayed = 0;
-                var bestOf = rounds[0]["best_of"]?.ToString();
-
-                foreach (var round in rounds)
-                {
-                    var teams = round["teams"] as JArray;
-                    if (teams == null) continue;
-
-                    // Check if player participated in this round
-                    var playerParticipated = false;
-                    foreach (var team in teams)
-                    {
-                        var players = team["players"] as JArray;
-                        if (players != null && players.Any(p => p["player_id"]?.ToString() == playerId))
-                        {
-                            playerParticipated = true;
-                            break;
-                        }
-                    }
-
-                    if (playerParticipated)
-                    {
-                        roundsPlayed++;
-                        Console.WriteLine($"Player {playerId} participated in round {round["match_round"]} of match {matchId} (Best of: {bestOf})");
-                    }
-                }
-
-                return roundsPlayed;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error processing match details: {ex.Message}");
-                return 0;
-            }
+            return (player, matchesPlayed);
         }
     }
 }
