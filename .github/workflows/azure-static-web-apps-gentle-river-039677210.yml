@@ -39,19 +39,6 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o published
 
-      # Prepare Static Web App
-      - name: Prepare Static Web App
-        run: |
-          cp staticwebapp.config.json published/wwwroot/
-          cp web.config published/wwwroot/
-          mkdir -p published/wwwroot/css
-          mkdir -p published/wwwroot/js
-          cp -r wwwroot/css/* published/wwwroot/css/ || true
-          cp -r wwwroot/js/* published/wwwroot/js/ || true
-          cp wwwroot/favicon.png published/wwwroot/ || true
-          cp wwwroot/index.html published/wwwroot/
-          cp wwwroot/appsettings.json published/wwwroot/
-
       # OIDC Authentication
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
@@ -74,10 +61,11 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GENTLE_RIVER_039677210 }}
           action: "upload"
-          app_location: "/" 
+          app_location: "published/wwwroot" 
           api_location: "Api"
-          output_location: "wwwroot"
+          output_location: ""
           github_id_token: ${{ steps.idtoken.outputs.result }}
+          skip_app_build: true
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
