@@ -1,5 +1,11 @@
 ﻿@inherits LayoutComponentBase
 
+<div class="video-background">
+    <video autoplay muted loop playsinline id="bgVideo">
+        <source src="/videos/long.mp4" type="video/mp4">
+    </video>
+</div>
+
 <PageTitle>MaxFaceitStats Web App</PageTitle>
 <NavigationTracker />
 
@@ -49,18 +55,53 @@
 </div>
 
 <style>
+    .video-background {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1;
+    }
+
+    .video-background video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: cover;
+        opacity: 0.3;
+    }
+
+    /* Optional: Add a dark overlay to ensure text readability */
+    .video-background::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        /* Adjust opacity as needed */
+        z-index: -1;
+    }
+
+    /* Remove the existing background from body */
     body {
-        background-color: #1e1e1e;
+        margin: 0;
         color: #e0e0e0;
         font-family: 'TolyerNo1', sans-serif;
-        margin: 0;
     }
 
     .navbar {
-        background-color: #333;
+        background-color: rgb(51, 51, 51);
         border-bottom: 2px solid #fd7d27;
         padding: 0.8rem 1rem;
         min-height: 80px;
+        opacity: 0.85;
     }
 
     .navbar-brand,
@@ -146,44 +187,48 @@
         background-color: #e65c00;
     }
 
-    @@media (max-width: 991px) {
-        .navbar-brand {
-            font-size: 1.8rem;
+    @@media(max - width: 991px) {
+            .navbar-brand {
+                font-size: 1.8rem;
+            }
+
+            .nav-link {
+                font-size: 1.5rem;
+                padding: 0.3rem 0.8rem;
+            }
+
+            .dropdown-menu {
+                background-color: transparent;
+                border: none;
+                padding-left: 1rem;
+            }
+
+            .dropdown-item {
+                font-size: 1.2rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .nav-item {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+
+            .navbar-collapse {
+                padding: 1rem 0;
+            }
+
+            .container {
+                padding: 0 15px;
+            }
         }
 
-        .nav-link {
-            font-size: 1.5rem;
-            padding: 0.3rem 0.8rem;
-        }
+        @@media(max - width: 576px) {
+                .navbar-brand {
+                    font-size: 1.5rem;
+                }
+            }
+        </style>
 
-        .dropdown-menu {
-            background-color: transparent;
-            border: none;
-            padding-left: 1rem;
-        }
-
-        .dropdown-item {
-            font-size: 1.2rem;
-            padding: 0.5rem 1rem;
-        }
-
-        .nav-item {
-            margin-right: 0;
-            margin-bottom: 0.5rem;
-        }
-
-        .navbar-collapse {
-            padding: 1rem 0;
-        }
-
-        .container {
-            padding: 0 15px;
-        }
-    }
-
-    @@media (max-width: 576px) {
-        .navbar-brand {
-            font-size: 1.5rem;
-        }
-    }
-</style>
+        <script>
+            document.getElementById('bgVideo').playbackRate = 0.7; // Adjust speed as needed (0.7 = 70% speed)
+        </script>
