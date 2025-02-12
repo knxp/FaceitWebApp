@@ -19,7 +19,7 @@ namespace faceitWebApp.Handlers
         public BasicStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<Player> GetAverageBasicStatsAsync(string playerId, int matchLimit = 100)

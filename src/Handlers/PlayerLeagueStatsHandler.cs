@@ -22,7 +22,7 @@ namespace faceitWebApp.Handlers
         public PlayerLeagueStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<LeagueStatsCollection> GetLeagueStatsAsync(string playerId)

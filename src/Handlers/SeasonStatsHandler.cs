@@ -20,7 +20,7 @@ namespace faceitWebApp.Handlers
         public SeasonStatsHandler(HttpClient httpClient, IConfiguration configuration, ActivePlayersHandler activePlayersHandler)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
             _activePlayersHandler = activePlayersHandler;
         }
 

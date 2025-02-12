@@ -14,7 +14,7 @@ namespace faceitWebApp.Utilities
         public GetPlayerID(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<string> GetPlayerIDFromNicknameAsync(string nickname)

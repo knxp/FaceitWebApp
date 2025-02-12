@@ -15,7 +15,7 @@ namespace faceitWebApp.Utilities
         public GetMatchHistory(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<List<MatchHistory>> GetMatchHistoryAsync(string playerId)

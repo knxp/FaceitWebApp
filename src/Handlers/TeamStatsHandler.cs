@@ -17,7 +17,7 @@ namespace faceitWebApp.Handlers
         public TeamStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<(TeamInfo info, TeamStats stats, List<MapStats> mapStats)> GetTeamStatsAsync(string teamId, string gameId)

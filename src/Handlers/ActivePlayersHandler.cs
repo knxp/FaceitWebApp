@@ -20,7 +20,7 @@ namespace faceitWebApp.Handlers
         public ActivePlayersHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<List<ActivePlayer>> GetActivePlayersAsync(string teamId, string teamName, List<TeamPlayer> players, string seasonName)

@@ -17,7 +17,7 @@ namespace faceitWebApp.Utilities
         public GetTeamID(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         public async Task<(string TeamId, string ErrorMessage)> GetTeamIDFromUrlAsync(string input)

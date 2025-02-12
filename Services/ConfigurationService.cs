@@ -19,10 +19,10 @@ public class ConfigurationService : IConfigurationService
 
     public string GetFaceitApiKey()
     {
-        var apiKey = _configuration["Faceit:ApiKey"];
+        var apiKey = _configuration["faceitapikey"];
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new InvalidOperationException("Faceit:ApiKey not found in configuration");
+            throw new InvalidOperationException("faceitapikey not found in configuration");
         }
         return apiKey;
     }

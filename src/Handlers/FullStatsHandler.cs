@@ -31,7 +31,7 @@ namespace faceitWebApp.Handlers
         public FullStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"]; 
+            _faceitApiKey = configuration["faceitapikey"]; 
             _ratingHandler = new RatingHandler();
         }
 

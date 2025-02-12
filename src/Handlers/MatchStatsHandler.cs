@@ -18,7 +18,7 @@ namespace faceitWebApp.Handlers
         public MatchStatsHandler(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["Faceit:ApiKey"];
+            _faceitApiKey = configuration["faceitapikey"];
         }
 
         private string ExtractMatchId(string input)
