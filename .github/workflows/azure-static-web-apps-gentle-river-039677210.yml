@@ -39,6 +39,26 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -o published
 
+      # Add this step after Publish
+      - name: Prepare Static Web App
+        run: |
+          # Copy staticwebapp.config.json to the root of published/wwwroot
+          cp staticwebapp.config.json published/wwwroot/
+          cp web.config published/wwwroot/
+          
+          # Ensure CSS and JS directories exist
+          mkdir -p published/wwwroot/css
+          mkdir -p published/wwwroot/js
+          
+          # Copy static assets
+          cp -r wwwroot/css/* published/wwwroot/css/ || true
+          cp -r wwwroot/js/* published/wwwroot/js/ || true
+          
+          # Copy favicon and other assets
+          cp wwwroot/favicon.png published/wwwroot/ || true
+          cp wwwroot/index.html published/wwwroot/
+          cp wwwroot/appsettings.json published/wwwroot/
+
       # OIDC Authentication
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
