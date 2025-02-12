@@ -20,6 +20,7 @@ public class ConfigurationService : IConfigurationService
     public string GetFaceitApiKey()
     {
         var apiKey = _configuration["faceitapikey"];
+        Console.WriteLine($"API Key present: {!string.IsNullOrEmpty(apiKey)}"); // Temporary logging
         if (string.IsNullOrEmpty(apiKey))
         {
             throw new InvalidOperationException("faceitapikey not found in configuration");

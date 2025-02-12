@@ -23,105 +23,114 @@ namespace faceitWebApp.Handlers
         {
             _httpClient = httpClient;
             _faceitApiKey = configuration["faceitapikey"];
+            Console.WriteLine($"Handler API Key present: {!string.IsNullOrEmpty(_faceitApiKey)}"); // Temporary logging
         }
 
         public async Task<LeagueStatsCollection> GetLeagueStatsAsync(string playerId)
         {
-            var collection = new LeagueStatsCollection();
-            var seasonStats = new Dictionary<string, (LeagueStats Stats, int MatchCount, double TotalRounds)>();
-            var overallStats = new Player { Id = playerId };
-            var ratingHandler = new RatingHandler();
-
-            int offset = 0;
-            const int limit = 100;
-            int totalMatches = 0;
-            bool hasMoreMatches = true;
-
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
-
-            while (hasMoreMatches)
+            try
             {
-                var matchHistoryUrl = $"https://open.faceit.com/data/v4/players/{playerId}/history?game=cs2&offset={offset}&limit={limit}";
-                var response = await _httpClient.GetAsync(matchHistoryUrl);
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                Console.WriteLine($"Authorization Header: {_httpClient.DefaultRequestHeaders.Authorization}"); // Temporary logging
 
-                if (!response.IsSuccessStatusCode)
-                    break;
+                var collection = new LeagueStatsCollection();
+                var seasonStats = new Dictionary<string, (LeagueStats Stats, int MatchCount, double TotalRounds)>();
+                var overallStats = new Player { Id = playerId };
+                var ratingHandler = new RatingHandler();
 
-                var matchHistory = JObject.Parse(await response.Content.ReadAsStringAsync());
-                var matches = matchHistory["items"] as JArray;
+                int offset = 0;
+                const int limit = 100;
+                int totalMatches = 0;
+                bool hasMoreMatches = true;
 
-                if (matches == null || !matches.Any())
-                    break;
-
-                var eseaMatches = matches
-                    .Where(m =>
-                        m["competition_type"]?.ToString() == "championship" &&
-                        m["competition_name"]?.ToString().Contains("ESEA", StringComparison.OrdinalIgnoreCase) == true)
-                    .ToList();
-
-                if (!eseaMatches.Any())
+                while (hasMoreMatches)
                 {
-                    offset += limit;
-                    continue;
-                }
+                    var matchHistoryUrl = $"https://open.faceit.com/data/v4/players/{playerId}/history?game=cs2&offset={offset}&limit={limit}";
+                    var response = await _httpClient.GetAsync(matchHistoryUrl);
 
-                var matchTasks = eseaMatches.Select(match => ProcessMatchAsync(match, playerId));
-                var results = await Task.WhenAll(matchTasks);
+                    if (!response.IsSuccessStatusCode)
+                        break;
 
-                foreach (var result in results.Where(r => r.HasValue))
-                {
-                    var (matchStats, leagueInfo, totalRounds) = result.Value;
-                    totalMatches++;
+                    var matchHistory = JObject.Parse(await response.Content.ReadAsStringAsync());
+                    var matches = matchHistory["items"] as JArray;
 
-                    var seasonKey = $"{leagueInfo.Season}-{leagueInfo.Division}-{leagueInfo.Location}";
+                    if (matches == null || !matches.Any())
+                        break;
 
-                    // Update season stats
-                    if (!seasonStats.ContainsKey(seasonKey))
+                    var eseaMatches = matches
+                        .Where(m =>
+                            m["competition_type"]?.ToString() == "championship" &&
+                            m["competition_name"]?.ToString().Contains("ESEA", StringComparison.OrdinalIgnoreCase) == true)
+                        .ToList();
+
+                    if (!eseaMatches.Any())
                     {
-                        seasonStats[seasonKey] = (new LeagueStats
-                        {
-                            Season = leagueInfo.Season,
-                            Division = leagueInfo.Division,
-                            Location = leagueInfo.Location,
-                            DivisionLocation = leagueInfo.DivisionLocation,
-                            GameType = leagueInfo.GameType,
-                            Stats = new Player { Id = playerId }
-                        }, 0, 0);
+                        offset += limit;
+                        continue;
                     }
 
-                    UpdateStats(seasonStats[seasonKey].Stats.Stats, matchStats);
-                    seasonStats[seasonKey] = (
-                        seasonStats[seasonKey].Stats, 
-                        seasonStats[seasonKey].MatchCount + 1, 
-                        seasonStats[seasonKey].TotalRounds + totalRounds
-                    );
-                    UpdateStats(overallStats, matchStats);
+                    var matchTasks = eseaMatches.Select(match => ProcessMatchAsync(match, playerId));
+                    var results = await Task.WhenAll(matchTasks);
+
+                    foreach (var result in results.Where(r => r.HasValue))
+                    {
+                        var (matchStats, leagueInfo, totalRounds) = result.Value;
+                        totalMatches++;
+
+                        var seasonKey = $"{leagueInfo.Season}-{leagueInfo.Division}-{leagueInfo.Location}";
+
+                        // Update season stats
+                        if (!seasonStats.ContainsKey(seasonKey))
+                        {
+                            seasonStats[seasonKey] = (new LeagueStats
+                            {
+                                Season = leagueInfo.Season,
+                                Division = leagueInfo.Division,
+                                Location = leagueInfo.Location,
+                                DivisionLocation = leagueInfo.DivisionLocation,
+                                GameType = leagueInfo.GameType,
+                                Stats = new Player { Id = playerId }
+                            }, 0, 0);
+                        }
+
+                        UpdateStats(seasonStats[seasonKey].Stats.Stats, matchStats);
+                        seasonStats[seasonKey] = (
+                            seasonStats[seasonKey].Stats,
+                            seasonStats[seasonKey].MatchCount + 1,
+                            seasonStats[seasonKey].TotalRounds + totalRounds
+                        );
+                        UpdateStats(overallStats, matchStats);
+                    }
+
+                    offset += limit;
+                    hasMoreMatches = matches.Count == limit;
                 }
 
-                offset += limit;
-                hasMoreMatches = matches.Count == limit;
-            }
-
-            // Calculate averages and build collection
-            foreach (var (_, (stats, matchCount, totalRounds)) in seasonStats)
-            {
-                CalculateAverages(stats.Stats, matchCount);
-                stats.MatchCount = matchCount;
-
-                if (int.TryParse(stats.Season.TrimStart('S'), out int seasonNumber) && seasonNumber >= 51)
+                // Calculate averages and build collection
+                foreach (var (_, (stats, matchCount, totalRounds)) in seasonStats)
                 {
-                    stats.Stats.Rating = ratingHandler.CalculateRating(stats.Stats, totalRounds, matchCount);
+                    CalculateAverages(stats.Stats, matchCount);
+                    stats.MatchCount = matchCount;
+
+                    if (int.TryParse(stats.Season.TrimStart('S'), out int seasonNumber) && seasonNumber >= 51)
+                    {
+                        stats.Stats.Rating = ratingHandler.CalculateRating(stats.Stats, totalRounds, matchCount);
+                    }
+
+                    collection.SeasonStats.Add(stats);
                 }
 
-                collection.SeasonStats.Add(stats);
+                CalculateAverages(overallStats, totalMatches);
+                collection.OverallStats = overallStats;
+                collection.TotalMatches = totalMatches;
+
+                return collection;
             }
-
-            CalculateAverages(overallStats, totalMatches);
-            collection.OverallStats = overallStats;
-            collection.TotalMatches = totalMatches;
-
-            return collection;
+            catch
+            {
+                return null;
+            }
         }
 
         private async Task<(Player Stats, LeagueStats LeagueInfo, double Rounds)?> ProcessMatchAsync(JToken match, string playerId)
@@ -279,7 +288,7 @@ namespace faceitWebApp.Handlers
                 KDRatio = ParseStat(stats["K/D Ratio"]),
                 KRRRatio = ParseStat(stats["K/R Ratio"]),
                 Damage = ParseStat(stats["Damage"]),
-                
+
 
                 // Headshot Stats
                 Headshots = ParseStat(stats["Headshots"]),
@@ -417,8 +426,8 @@ namespace faceitWebApp.Handlers
             target.FirstKills += source.FirstKills;
             target.EntryCount += source.EntryCount;
             target.EntryWins += source.EntryWins;
-            target.MatchEntrySuccessRate += (source.MatchEntrySuccessRate)*100;
-            target.MatchEntryRate += (source.MatchEntryRate)*100;
+            target.MatchEntrySuccessRate += (source.MatchEntrySuccessRate) * 100;
+            target.MatchEntryRate += (source.MatchEntryRate) * 100;
 
             // Other Stats
             target.MVPs += source.MVPs;
