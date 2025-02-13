@@ -1,0 +1,274 @@
+@page "/faceitfinder"
+@page "/ff"
+@using faceitWebApp.Handlers
+@using faceitWebApp.Models
+@inject FaceitFinderHandler FaceitFinderHandler
+@inject IConfiguration Configuration
+
+<PageTitle>FACEIT Finder - Search</PageTitle>
+
+<div class="@(isLoading ? "faceit-finder-page-overlay" : "")">
+    <h3 class="text-center">FACEIT Finder</h3>
+
+    <div class="faceit-finder-page-search-container mb-4">
+        <input type="text" class="faceit-finder-page-search-input"
+            placeholder="Enter Steam Profile URL (e.g., https://steamcommunity.com/id/pxnkcs/)" @bind="steamUrl"
+            @onkeypress="@(e => { if (e.Key == "Enter") SearchPlayer(); })" disabled="@isLoading" />
+        <button @onclick="SearchPlayer" class="faceit-finder-page-search-button" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span>Search</span>
+            }
+        </button>
+    </div>
+
+    @if (error != null)
+    {
+        <div class="faceit-finder-page-error-message">
+            @error
+        </div>
+    }
+
+    @if (faceitPlayer != null)
+    {
+        <div class="faceit-finder-page-result-container">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@faceitPlayer.Nickname</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>Level: @faceitPlayer.Games.CS2.SkillLevel</p>
+                            <p>Elo: @faceitPlayer.Games.CS2.FaceitElo</p>
+                            <p>Country: @faceitPlayer.Country</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (isLoading)
+{
+    <div class="faceit-finder-page-loading-overlay">
+        <div class="faceit-finder-page-loading-content">
+            <div class="faceit-finder-page-spinner"></div>
+            <p class="faceit-finder-page-loading-text">Loading player stats...</p>
+        </div>
+    </div>
+}
+
+<style>
+    .faceit-finder-page-overlay {
+        position: relative;
+        filter: blur(
+                @(isLoading
+                                ?
+                                "2px"
+                                :
+                                "0")
+            );
+        pointer-events:
+            @(isLoading
+                        ?
+                        "none"
+                        :
+                        "auto")
+        ;
+        transition: filter 0.3s ease;
+    }
+
+    .faceit-finder-page-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .faceit-finder-page-loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .faceit-finder-page-search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .faceit-finder-page-search-input {
+        width: 400px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff !important;
+        font-size: 1.1rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .faceit-finder-page-search-input::placeholder {
+        color: #8d8d8d;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .faceit-finder-page-search-input:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
+        color: #ffffff !important;
+    }
+
+    .faceit-finder-page-search-button {
+        height: 50px;
+        min-width: 120px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .faceit-finder-page-search-button:hover {
+        background-color: #ff8f44;
+    }
+
+    .faceit-finder-page-result-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .faceit-finder-page-spinner {
+        width: 80px;
+        height: 80px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        animation: faceit-finder-page-spin 1s linear infinite;
+    }
+
+    .faceit-finder-page-loading-text {
+        color: #fd7d27;
+        font-size: 2rem;
+        margin-top: 1rem;
+        font-family: 'TolyerNo1', sans-serif;
+    }
+
+    .faceit-finder-page-error-message {
+        text-align: center;
+        color: #ff4444;
+        margin-top: 20px;
+        font-size: 1.2rem;
+    }
+
+        @@keyframes faceit-finder-page-spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+        @@media (max-width: 768px) {
+        .faceit-finder-page-search-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .faceit-finder-page-search-input {
+            width: 95%;
+            height: 45px;
+            font-size: 1rem;
+        }
+
+        .faceit-finder-page-search-button {
+            width: 95%;
+            height: 45px;
+            font-size: 1.1rem;
+            min-width: unset;
+        }
+
+        .faceit-finder-page-result-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .faceit-finder-page-loading-text {
+            font-size: 1.5rem;
+        }
+
+        .faceit-finder-page-error-message {
+            font-size: 1.1rem;
+            padding: 0 15px;
+        }
+
+        .faceit-finder-page-spinner {
+            width: 60px;
+            height: 60px;
+            border-width: 4px;
+        }
+    }
+</style>
+
+@code {
+    private string steamUrl;
+    private string error;
+    private bool isLoading;
+    private FaceitFinderPlayer faceitPlayer;
+
+    private async Task SearchPlayer()
+    {
+        if (string.IsNullOrWhiteSpace(steamUrl))
+        {
+            error = "Please enter a Steam profile URL";
+            return;
+        }
+
+        try
+        {
+            isLoading = true;
+            error = null;
+            faceitPlayer = null;
+
+            var (player, searchError) = await FaceitFinderHandler.SearchPlayerAsync(steamUrl);
+
+            if (searchError != null)
+            {
+                error = searchError;
+                return;
+            }
+
+            faceitPlayer = player;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
