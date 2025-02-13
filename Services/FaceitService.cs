@@ -9,11 +9,13 @@ public class FaceitService
 {
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
+    private readonly ApiKeyService _apiKeyService;
 
-    public FaceitService(HttpClient httpClient, IConfiguration configuration)
+    public FaceitService(HttpClient httpClient, IConfiguration configuration, ApiKeyService apiKeyService)
     {
         _httpClient = httpClient;
         _configuration = configuration;
+        _apiKeyService = apiKeyService;
     }
 
     public async Task<string> GetFaceitApiKey()
@@ -23,8 +25,7 @@ public class FaceitService
             return _configuration["faceitapikey"];
         }
 
-        var apiKeyService = new ApiKeyService(_httpClient);
-        var token = await apiKeyService.GetApiKeysToken();
+        var token = await _apiKeyService.GetApiKeysToken();
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
         return jwtToken.Claims.First(c => c.Type == "FaceitApiKey").Value;
