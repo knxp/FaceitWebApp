@@ -12,6 +12,21 @@
     },
     "routes": [
         {
+            "route": "/search/fb.php",
+            "redirect": "/",
+            "statusCode": 301
+        },
+        {
+            "route": "/search/*",
+            "redirect": "/",
+            "statusCode": 301
+        },
+        {
+            "route": "/*.php",
+            "redirect": "/",
+            "statusCode": 301
+        },
+        {
             "route": "/_framework/*",
             "headers": {
                 "Cache-Control": "public, max-age=604800, immutable"
