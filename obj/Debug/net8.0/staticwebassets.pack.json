@@ -109,6 +109,18 @@
       "PackagePath": "staticwebassets\\js\\blazorise.js"
     },
     {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\videos\\444.mp4",
+      "PackagePath": "staticwebassets\\videos\\444.mp4"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\videos\\long.mp4",
+      "PackagePath": "staticwebassets\\videos\\long.mp4"
+    },
+    {
+      "Id": "C:\\Users\\keato\\github-projects\\faceitWebApp\\wwwroot\\videos\\loop.mp4",
+      "PackagePath": "staticwebassets\\videos\\loop.mp4"
+    },
+    {
       "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.faceitWebApp.props",
       "PackagePath": "build\\faceitWebApp.props"
     },
