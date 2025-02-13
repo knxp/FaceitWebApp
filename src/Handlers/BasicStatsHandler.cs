@@ -7,19 +7,28 @@ using System.Collections.Generic;
 using faceitWebApp.Dictionaries;
 using faceitWebApp.Models;
 using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using faceitWebApp.Services;
 
 namespace faceitWebApp.Handlers
 {
     public class BasicStatsHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
         private const int MaxMatchLimit = 200;
 
-        public BasicStatsHandler(HttpClient httpClient, IConfiguration configuration)
+        public BasicStatsHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<Player> GetAverageBasicStatsAsync(string playerId, int matchLimit = 100)
@@ -38,8 +47,9 @@ namespace faceitWebApp.Handlers
 
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 // Calculate required API calls based on match limit
                 int requiredCalls = (int)Math.Ceiling(matchLimit / 100.0);

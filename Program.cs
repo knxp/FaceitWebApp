@@ -64,5 +64,8 @@ builder.Services.AddTransient<GetTeamID>();
 builder.Services.AddTransient<MatchStatsHandler>();
 builder.Services.AddTransient<ActivePlayersHandler>();
 builder.Services.AddTransient<SeasonStatsHandler>();
+builder.Services.AddScoped<FaceitFinderHandler>();
+builder.Services.AddScoped<ApiKeyService>();
+builder.Services.AddScoped<FaceitService>();
 
 await builder.Build().RunAsync();

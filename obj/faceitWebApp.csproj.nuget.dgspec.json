@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\keato\\github-projects\\faceitWebApp\\faceitWebApp.csproj": {}
+    "C:\\Users\\keato\\github-projects\\faceitwebapp\\faceitWebApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\keato\\github-projects\\faceitWebApp\\faceitWebApp.csproj": {
+    "C:\\Users\\keato\\github-projects\\faceitwebapp\\faceitWebApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\keato\\github-projects\\faceitWebApp\\faceitWebApp.csproj",
+        "projectUniqueName": "C:\\Users\\keato\\github-projects\\faceitwebapp\\faceitWebApp.csproj",
         "projectName": "faceitWebApp",
-        "projectPath": "C:\\Users\\keato\\github-projects\\faceitWebApp\\faceitWebApp.csproj",
+        "projectPath": "C:\\Users\\keato\\github-projects\\faceitwebapp\\faceitWebApp.csproj",
         "packagesPath": "C:\\Users\\keato\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\keato\\github-projects\\faceitWebApp\\obj\\",
+        "outputPath": "C:\\Users\\keato\\github-projects\\faceitwebapp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\keato\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -113,6 +113,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.4.0, )"
             }
           },
           "imports": [
