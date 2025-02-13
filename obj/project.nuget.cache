@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "7Kcn7Z3+Wm0=",
+  "dgSpecHash": "rPs5foPmcJA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\keato\\github-projects\\faceitwebapp\\faceitWebApp.csproj",
+  "projectFilePath": "C:\\Users\\keato\\github-projects\\faceitWebApp\\faceitWebApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\keato\\.nuget\\packages\\blazor-analytics\\3.12.0\\blazor-analytics.3.12.0.nupkg.sha512",
     "C:\\Users\\keato\\.nuget\\packages\\blazor.googletagmanager\\1.0.0\\blazor.googletagmanager.1.0.0.nupkg.sha512",
