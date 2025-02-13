@@ -16,7 +16,7 @@ namespace faceitWebApp.Services
         public ApiKeyService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _apiBaseUrl = configuration["ApiBaseUrl"] ?? "https://maxfaceitstats-api.azurewebsites.net";
+            _apiBaseUrl = configuration["ApiBaseUrl"] ?? "https://maxfaceitstats-api-c4b8dudcgsdxeraf.centralus-01.azurewebsites.net";
         }
 
         public async Task<string> GetApiKeysToken()
