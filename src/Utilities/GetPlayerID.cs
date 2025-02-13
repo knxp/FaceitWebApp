@@ -3,26 +3,35 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using faceitWebApp.Services;
 
 namespace faceitWebApp.Utilities
 {
     public class GetPlayerID
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
 
-        public GetPlayerID(HttpClient httpClient, IConfiguration configuration)
+        public GetPlayerID(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<string> GetPlayerIDFromNicknameAsync(string nickname)
         {
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 // First try exact match
                 var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/players?nickname={Uri.EscapeDataString(nickname)}");

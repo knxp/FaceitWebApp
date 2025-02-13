@@ -10,15 +10,25 @@ namespace faceitWebApp.Utilities
 {
     public class GetTeamID
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+       
         private readonly Regex _teamIdPattern = new Regex(@"teams/([a-fA-F0-9-]+)", RegexOptions.IgnoreCase);
 
-        public GetTeamID(HttpClient httpClient, IConfiguration configuration)
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
+
+        public GetTeamID(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
         }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
+        }
+
 
         public async Task<(string TeamId, string ErrorMessage)> GetTeamIDFromUrlAsync(string input)
         {
@@ -61,8 +71,9 @@ namespace faceitWebApp.Utilities
         {
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
 
@@ -89,8 +100,9 @@ namespace faceitWebApp.Utilities
         {
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/search/teams?nickname={Uri.EscapeDataString(nickname)}&game=cs2&offset=0&limit=1");
 

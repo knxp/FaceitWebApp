@@ -13,14 +13,21 @@ namespace faceitWebApp.Handlers
     public class ActivePlayersHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
         private const int MIN_MATCHES_THRESHOLD = 3;
         private const int MAX_PARALLEL_REQUESTS = 10;
 
-        public ActivePlayersHandler(HttpClient httpClient, IConfiguration configuration)
+        public ActivePlayersHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<List<ActivePlayer>> GetActivePlayersAsync(string teamId, string teamName, List<TeamPlayer> players, string seasonName)
@@ -33,8 +40,9 @@ namespace faceitWebApp.Handlers
             }
 
             // First get the team details to find the leader
+            var faceitApiKey = await GetFaceitApiKey();
             _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
             var teamResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
             if (!teamResponse.IsSuccessStatusCode) return new List<ActivePlayer>();

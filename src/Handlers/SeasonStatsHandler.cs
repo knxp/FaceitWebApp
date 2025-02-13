@@ -12,16 +12,23 @@ namespace faceitWebApp.Handlers
     public class SeasonStatsHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
         private readonly ActivePlayersHandler _activePlayersHandler;
         private const int BATCH_SIZE = 10;
         private const int MAX_PARALLEL_REQUESTS = 10;
 
-        public SeasonStatsHandler(HttpClient httpClient, IConfiguration configuration, ActivePlayersHandler activePlayersHandler)
+        public SeasonStatsHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService, ActivePlayersHandler activePlayersHandler)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
             _activePlayersHandler = activePlayersHandler;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<List<MapStats>> GetSeasonMapStatsAsync(string teamId, string teamName, List<TeamPlayer> players, string seasonName)
@@ -37,8 +44,9 @@ namespace faceitWebApp.Handlers
 
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 // First, get the team leader's ID
                 var teamResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
@@ -83,7 +91,7 @@ namespace faceitWebApp.Handlers
                 }
 
                 Console.WriteLine($"Total matches found: {matches.Count}");
-                
+
 
                 var seasonMatches = matches
                     .Where(match =>

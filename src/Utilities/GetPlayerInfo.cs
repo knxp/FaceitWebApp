@@ -11,20 +11,28 @@ namespace faceitWebApp.Utilities
     public class GetPlayerInfo
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
 
-        public GetPlayerInfo(HttpClient httpClient, IConfiguration configuration)
+        public GetPlayerInfo(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<Player> GetPlayerInfoAsync(string playerId, string input)
         {
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/players/{playerId}");
                 response.EnsureSuccessStatusCode();
@@ -73,7 +81,8 @@ namespace faceitWebApp.Utilities
                     {
                         foreach (var team in teams)
                         {
-                            if(team["game"]?.ToString() == "cs2"){
+                            if (team["game"]?.ToString() == "cs2")
+                            {
                                 player.Teams.Add(new TeamInfo
                                 {
                                     Name = team["name"]?.ToString(),
@@ -88,7 +97,7 @@ namespace faceitWebApp.Utilities
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching player info. Check spelling for: {input}");
+                throw new Exception($"Error fetching player info: {ex.Message}");
             }
         }
     }

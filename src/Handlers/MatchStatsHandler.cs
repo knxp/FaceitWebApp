@@ -7,18 +7,26 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
+using faceitWebApp.Services;
 
 namespace faceitWebApp.Handlers
 {
     public class MatchStatsHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
 
-        public MatchStatsHandler(HttpClient httpClient, IConfiguration configuration)
+        public MatchStatsHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         private string ExtractMatchId(string input)
@@ -75,7 +83,8 @@ namespace faceitWebApp.Handlers
             {
                 // Ensure authorization header is set
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                var faceitApiKey = await GetFaceitApiKey();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
                 if (response.IsSuccessStatusCode)
@@ -106,7 +115,8 @@ namespace faceitWebApp.Handlers
 
                 // Set authorization header
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                var faceitApiKey = await GetFaceitApiKey();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 // Use the complete API endpoint URL
                 var response = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/matches/{matchId}/stats");
@@ -238,9 +248,9 @@ namespace faceitWebApp.Handlers
                     // Need to convert MatchPlayer to Player since CalculateRating expects a Player object
                     var playerForRating = new Player
                     {
-                        
+
                         Kills = player.Kills,
-                        Deaths = player.Deaths, 
+                        Deaths = player.Deaths,
                         Assists = player.Assists,
                         ADR = player.ADR,
                         KDRatio = player.KDRatio,

@@ -13,25 +13,32 @@ namespace faceitWebApp.Handlers
     public class PlayerLeagueStatsHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
         private readonly Regex _eseaRegex = new Regex(
             @"ESEA\s+S(\d+)\s+(\w+)\s+(\w+)\s+(\w+)\s*-\s*(.+)",
             RegexOptions.Compiled | RegexOptions.IgnoreCase
         );
 
-        public PlayerLeagueStatsHandler(HttpClient httpClient, IConfiguration configuration)
+        public PlayerLeagueStatsHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
-            Console.WriteLine($"Handler API Key present: {!string.IsNullOrEmpty(_faceitApiKey)}"); // Temporary logging
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<LeagueStatsCollection> GetLeagueStatsAsync(string playerId)
         {
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
                 Console.WriteLine($"Authorization Header: {_httpClient.DefaultRequestHeaders.Authorization}"); // Temporary logging
 
                 var collection = new LeagueStatsCollection();

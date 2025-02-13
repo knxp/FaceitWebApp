@@ -36,7 +36,6 @@ void ConfigureFaceitHttpClient(HttpClient client)
 {
     client.BaseAddress = new Uri("https://open.faceit.com/data/v4/");
     client.DefaultRequestHeaders.Add("accept", "application/json");
-    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {builder.Configuration["faceitapikey"]}");
 }
 
 // Register HTTP clients with proper configuration

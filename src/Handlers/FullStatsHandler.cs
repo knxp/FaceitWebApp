@@ -7,13 +7,15 @@ using System.Collections.Generic;
 using faceitWebApp.Dictionaries;
 using faceitWebApp.Models;
 using System.Linq;
+using faceitWebApp.Services;
 
 namespace faceitWebApp.Handlers
 {
     public class FullStatsHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
         private readonly HashSet<string> _percentageStats = new HashSet<string>
         {
             "Match Entry Rate",
@@ -28,11 +30,17 @@ namespace faceitWebApp.Handlers
 
         private readonly RatingHandler _ratingHandler;
 
-        public FullStatsHandler(HttpClient httpClient, IConfiguration configuration)
+        public FullStatsHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"]; 
+            _configuration = configuration;
+            _faceitService = faceitService;
             _ratingHandler = new RatingHandler();
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<Player> GetFullStatsAsync(string playerId, int matchLimit = 100)
@@ -48,8 +56,9 @@ namespace faceitWebApp.Handlers
 
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 var matchHistoryUrl = $"https://open.faceit.com/data/v4/players/{playerId}/history?game=cs2&offset=0&limit=100";
                 var response = await _httpClient.GetAsync(matchHistoryUrl);
@@ -81,7 +90,7 @@ namespace faceitWebApp.Handlers
                             stats[stat.Key] += stat.Value;
                         }
                     }
-                    
+
                     int matchCount = validResults.Count;
                     if (matchCount > 0)
                     {
@@ -181,7 +190,7 @@ namespace faceitWebApp.Handlers
                     return null;
 
                 var matchStatValues = new Dictionary<string, double>();
-                
+
                 // Get total rounds from round_stats
                 var roundStats = rounds[0]["round_stats"];
                 if (roundStats != null && roundStats["Rounds"] != null)
@@ -196,7 +205,7 @@ namespace faceitWebApp.Handlers
                 // Rest of the stats processing
                 foreach (var key in FullStatsDictionary.Stats.Keys)
                 {
-                    if (key == "TotalRounds") 
+                    if (key == "TotalRounds")
                         continue; // Skip as we've already handled it
 
                     if (playerStats[key] != null)

@@ -12,20 +12,28 @@ namespace faceitWebApp.Handlers
     public class TeamStatsHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
 
-        public TeamStatsHandler(HttpClient httpClient, IConfiguration configuration)
+        public TeamStatsHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<(TeamInfo info, TeamStats stats, List<MapStats> mapStats)> GetTeamStatsAsync(string teamId, string gameId)
         {
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
                 // Create tasks for parallel execution
                 var infoTask = _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");

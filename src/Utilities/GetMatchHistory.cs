@@ -10,19 +10,27 @@ namespace faceitWebApp.Utilities
     public class GetMatchHistory
     {
         private readonly HttpClient _httpClient;
-        private readonly string _faceitApiKey;
+        private readonly IConfiguration _configuration;
+        private readonly FaceitService _faceitService;
 
-        public GetMatchHistory(HttpClient httpClient, IConfiguration configuration)
+        public GetMatchHistory(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
             _httpClient = httpClient;
-            _faceitApiKey = configuration["faceitapikey"];
+            _configuration = configuration;
+            _faceitService = faceitService;
+        }
+
+        private async Task<string> GetFaceitApiKey()
+        {
+            return await _faceitService.GetFaceitApiKey();
         }
 
         public async Task<List<MatchHistory>> GetMatchHistoryAsync(string playerId)
         {
             var matches = new List<MatchHistory>();
+            var faceitApiKey = await GetFaceitApiKey();
             _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + _faceitApiKey);
+            _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
             var url = $"https://open.faceit.com/data/v4/players/{playerId}/history?game=cs2&offset=0&limit=20";
             var response = await _httpClient.GetAsync(url);
