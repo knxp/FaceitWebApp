@@ -7,6 +7,14 @@
     <p class="hero-subtitle">Track and analyze your Faceit CS2 performance</p>
 </div>
 
+<div class="home-search-container">
+    <input type="text" @bind="searchInput" @bind:event="oninput" @onkeyup="HandleKeyPress"
+        placeholder="Faceit Finder - Enter Steam Profile URL" class="home-search-input" />
+    <button @onclick="HandleSearch" class="home-search-button">
+        SEARCH
+    </button>
+</div>
+
 <div class="features-grid">
     <a href="/player-stats" class="feature-card">
         <i class="fas fa-user"></i>
@@ -53,6 +61,70 @@
     </div>
 </div>
 
+@code {
+    private ElementReference supportSection;
+    private string searchInput = "";
+
+    [Inject]
+    public NavigationManager? NavManager { get; set; }
+
+    private async Task ScrollToSupport()
+    {
+        await supportSection.FocusAsync();
+        await JS.InvokeVoidAsync("scrollIntoView", supportSection, new { behavior = "smooth" });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Hide scroll indicator when near bottom
+            await JS.InvokeVoidAsync("eval", @"
+window.addEventListener('scroll', function() {
+const scrollIndicator = document.querySelector('.scroll-indicator');
+if (!scrollIndicator) return;
+
+const scrollPosition = window.scrollY + window.innerHeight;
+const documentHeight = document.documentElement.scrollHeight;
+
+if (scrollPosition > documentHeight - 100) {
+scrollIndicator.style.opacity = '0';
+} else {
+scrollIndicator.style.opacity = '0.8';
+}
+});
+");
+        }
+    }
+
+    private void HandleSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(searchInput))
+        {
+            // Extract vanity URL (everything after /id/ or /profiles/)
+            string vanityUrl = searchInput;
+            if (searchInput.Contains("/id/"))
+            {
+                vanityUrl = searchInput.Split("/id/")[1].TrimEnd('/');
+            }
+            else if (searchInput.Contains("/profiles/"))
+            {
+                vanityUrl = searchInput.Split("/profiles/")[1].TrimEnd('/');
+            }
+
+            NavManager?.NavigateTo($"/faceitfinder/{vanityUrl}?steamUrl={Uri.EscapeDataString(searchInput)}");
+        }
+    }
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            HandleSearch();
+        }
+    }
+}
+
 <style>
     .hero-section {
         text-align: center;
@@ -80,7 +152,7 @@
     .features-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        gap: 3rem;
         padding: 1rem;
         margin-bottom: 1rem;
     }
@@ -143,8 +215,7 @@
         opacity: 1;
     }
 
-    @@keyframes
-    float {
+    @@keyframes float {
         0% {
             transform: translate(-50%, 0);
         }
@@ -233,7 +304,65 @@
         font-size: 1.4rem;
     }
 
-    @@media (max-width: 768px) {
+    .home-search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .home-search-input {
+        display: flex;
+        justify-content: center;
+        width: 85%;
+        height: 70px;
+        background-color: rgba(30, 30, 30, 0.5);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff !important;
+        font-size: 1.1rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 22px;
+    }
+
+    .home-search-input::placeholder {
+        color: #8d8d8d;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+        font-size: 22px;
+        text-align: start;
+    }
+
+    .home-search-input:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
+        color: #ffffff !important;
+        font-size: 22px;
+    }
+
+    .home-search-button {
+        height: 70px;
+        min-width: 90px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.6rem;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .home-search-button:hover {
+        background-color: #ff8f44;
+    }
+
+        @@media (max-width: 768px) {
         .hero-section {
             padding: 2rem 1rem;
         }
@@ -287,36 +416,3 @@
         }
     }
 </style>
-
-@code {
-    private ElementReference supportSection;
-
-    private async Task ScrollToSupport()
-    {
-        await supportSection.FocusAsync();
-        await JS.InvokeVoidAsync("scrollIntoView", supportSection, new { behavior = "smooth" });
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Hide scroll indicator when near bottom
-            await JS.InvokeVoidAsync("eval", @"
-window.addEventListener('scroll', function() {
-const scrollIndicator = document.querySelector('.scroll-indicator');
-if (!scrollIndicator) return;
-
-const scrollPosition = window.scrollY + window.innerHeight;
-const documentHeight = document.documentElement.scrollHeight;
-
-if (scrollPosition > documentHeight - 100) {
-scrollIndicator.style.opacity = '0';
-} else {
-scrollIndicator.style.opacity = '0.8';
-}
-});
-");
-        }
-    }
-}

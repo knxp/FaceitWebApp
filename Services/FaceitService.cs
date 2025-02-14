@@ -30,4 +30,17 @@ public class FaceitService
         var jwtToken = handler.ReadJwtToken(token);
         return jwtToken.Claims.First(c => c.Type == "FaceitApiKey").Value;
     }
+
+    public async Task<string> GetSteamApiKey()
+    {
+        if (_configuration.GetValue<bool>("UseLocalKeys"))
+        {
+            return _configuration["steamapikey"];
+        }
+
+        var token = await _apiKeyService.GetApiKeysToken();
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        return jwtToken.Claims.First(c => c.Type == "SteamApiKey").Value;
+    }
 }

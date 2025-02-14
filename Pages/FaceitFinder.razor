@@ -1,32 +1,875 @@
 @page "/faceitfinder"
+@page "/faceitfinder/{steamProfileUrl}"
 @page "/ff"
-
-<PageTitle>FACEIT Finder - Coming Soon</PageTitle>
-
-<div class="faceit-finder-coming-soon">
-    <h3>FACEIT Finder</h3>
-    <div class="coming-soon-message">
-        Coming Soon
+@using faceitWebApp.Handlers
+@using faceitWebApp.Models
+@inject FaceitFinderHandler FaceitFinderHandler
+@inject IConfiguration Configuration
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.WebUtilities
+<PageTitle>FACEIT Finder - Search</PageTitle>
+<div class="@(isLoading ? "faceit-finder-page-overlay" : "")">
+    <h3 class="text-center">FACEIT Finder</h3>
+    <div class="faceit-finder-page-search-container mb-4">
+        <input type="text" class="faceit-finder-page-search-input" placeholder="Enter Steam Profile URL"
+            @bind="steamUrl" @onkeypress="@(e => { if (e.Key == "Enter") SearchPlayer(); })" disabled="@isLoading" />
+        <button @onclick="SearchPlayer" class="faceit-finder-page-search-button" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            }
+            else
+            {
+                <span>Search</span>
+            }
+        </button>
     </div>
-</div>
+    @if (error != null)
+    {
+        <div class="suspect-file">
+            <div class="file-header">
+                <div class="file-stamp">AT LARGE</div>
+                <h1 class="file-title">SUSPECT INFORMATION</h1>
+            </div>
 
+            <div class="file-content">
+                <div class="file-left-column">
+                    <div class="suspect-photo">
+                        <img src="/images/defaultPic.webp" alt="Suspect Photo" class="suspect-image" />
+                        <div class="photo-label">SUSPECT PHOTO</div>
+                    </div>
+
+                    <div class="primary-details">
+                        <div class="detail-row">
+                            <span class="detail-label">ALIAS:</span>
+                            <span class="detail-value">UNIDENTIFIED</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">LAST KNOWN LOCATION:</span>
+                            <span class="detail-value">UNKNOWN</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">STATUS:</span>
+                            <span class="detail-value status-inactive">NO FACEIT PROFILE DETECTED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-divider"></div>
+
+                <div class="file-right-column">
+                    <div class="section-header">THREAT ADVISORY</div>
+                    <div class="intel-content">
+                        <div class="detail-row">
+                            <span class="detail-label">WARNING:</span>
+                            <span class="detail-value">NO PROFILE DETECTED</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">RISK LEVEL:</span>
+                            <span class="detail-value">POTENTIALLY HIGH</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">NOTES:</span>
+                            <span class="detail-value">APPROACH WITH
+                                SUSPICION</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (faceitPlayer != null)
+    {
+        <div class="suspect-file">
+            <div class="file-header">
+                <div class="file-stamp">CONFIDENTIAL</div>
+                <h1 class="file-title">SUSPECT INFORMATION</h1>
+                <div class="file-number">FILE #@(faceitPlayer.PlayerId.Substring(0, 8))</div>
+            </div>
+
+            <div class="file-content">
+                <div class="file-left-column">
+                    <div class="suspect-photo">
+                        <img src="@(string.IsNullOrEmpty(faceitPlayer.Avatar) ? "/images/defaultPic.webp" : faceitPlayer.Avatar)"
+                            alt="Suspect Photo" class="suspect-image" onerror="this.src='/images/defaultPic.webp'" />
+                        <div class="photo-label">SUSPECT PHOTO</div>
+                    </div>
+
+                    <div class="primary-details">
+                        <div class="detail-row">
+                            <span class="detail-label">ALIAS:</span>
+                            <span class="detail-value">@faceitPlayer.Nickname</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">LAST KNOWN LOCATION:</span>
+                            <span class="detail-value">@faceitPlayer.Country.ToUpper() - @faceitPlayer.Region</span>
+                        </div>
+
+                        @if (faceitPlayer.LatestMatchDate.HasValue)
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">LAST ACTIVE:</span>
+                                <span class="detail-value">@faceitPlayer.LatestMatchDate.Value.ToString("MMM dd, yyyy")</span>
+                            </div>
+                        }
+
+                        <div class="detail-row">
+                            <span class="detail-label">PROFILE URL:</span>
+                            <span class="detail-value">
+                                <a href="@faceitPlayer.ProfileURL" target="_blank" class="profile-link">VIEW FULL
+                                    DOSSIER</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-divider"></div>
+
+                <div class="file-right-column">
+                    <div class="section-header">ADDITIONAL INTEL</div>
+                    <div class="intel-content">
+                        <div class="detail-row">
+                            <span class="detail-label">THREAT ASSESSMENT:</span>
+                            <span class="detail-value">@GetThreatLevel(faceitPlayer.SkillLevel)</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">THREAT LEVEL:</span>
+                            <span class="detail-value">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="level-badge">
+                                    <title>Skill level @faceitPlayer.SkillLevel</title>
+                                    <circle cx="12" cy="12" r="12" fill="#121212"></circle>
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M16.686 17.467a7.2 7.2 0 1 0-9.371 0l-1.563 1.822A9.58 9.58 0 0 1 2.4 12 9.6 9.6 0 0 1 12 2.4a9.6 9.6 0 0 1 9.6 9.6 9.58 9.58 0 0 1-3.352 7.29l-1.562-1.823z"
+                                        fill="#CDCDCD" fill-opacity=".1"></path>
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M17.934 7.92a7.2 7.2 0 1 0-10.62 9.546L5.752 19.29A9.58 9.58 0 0 1 2.4 12a9.6 9.6 0 0 1 17.512-5.44l-1.978 1.36z"
+                                        fill="@GetLevelColor(faceitPlayer.SkillLevel)"></path>
+                                    <text x="12" y="15" font-size="8" fill="@GetLevelColor(faceitPlayer.SkillLevel)"
+                                        text-anchor="middle" font-family="Arial">@faceitPlayer.SkillLevel</text>
+                                </svg>
+                            </span>
+                        </div>
+
+                        <div class="detail-row">
+                            <span class="detail-label">COMBAT RATING:</span>
+                            <span class="detail-value">@faceitPlayer.FaceitElo</span>
+                        </div>
+
+                        <div class="section-header">AFFILIATION</div>
+
+                        @if (!string.IsNullOrEmpty(faceitPlayer.TeamName))
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">CURRENT TEAM:</span>
+                                <span class="detail-value">@faceitPlayer.TeamName</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(faceitPlayer.TeamDivision))
+                        {
+                            <div class="detail-row">
+                                <span class="detail-label">DIVISION:</span>
+                                <span class="detail-value">@faceitPlayer.TeamDivision.ToUpper()</span>
+                            </div>
+                        }
+
+                        <div class="detail-row">
+                            <span class="detail-label">ESEA STATUS:</span>
+                            @if (faceitPlayer.HasEseaMembership)
+                            {
+                                <span class="detail-value status-active">ACTIVE MEMBER</span>
+                            }
+                            else
+                            {
+                                <span class="detail-value status-inactive">NO ACTIVE MEMBERSHIP</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+@if (isLoading)
+{
+    <div class="faceit-finder-page-loading-overlay">
+        <div class="faceit-finder-page-loading-content">
+            <div class="faceit-finder-page-spinner"></div>
+            <p class="faceit-finder-page-loading-text">Loading player stats...</p>
+        </div>
+    </div>
+}
 <style>
-    .faceit-finder-coming-soon {
-        text-align: center;
-        padding: 50px 20px;
+    .faceit-finder-page-overlay {
+        position: relative;
+        filter: blur(
+                @(isLoading
+                                ?
+                                "2px"
+                                :
+                                "0")
+            );
+        pointer-events:
+            @(isLoading
+                        ?
+                        "none"
+                        :
+                        "auto")
+        ;
+        transition: filter 0.3s ease;
     }
 
-    .coming-soon-message {
+    .faceit-finder-page-loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .faceit-finder-page-loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .faceit-finder-page-search-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .faceit-finder-page-search-input {
+        width: 400px;
+        height: 50px;
+        background-color: rgba(30, 30, 30, 0.7);
+        border: 1px solid #fd7d27;
+        border-radius: 8px;
+        color: #ffffff !important;
+        font-size: 1.1rem;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .faceit-finder-page-search-input::placeholder {
+        color: #8d8d8d;
+        text-transform: none;
+        font-family: Arial, sans-serif;
+    }
+
+    .faceit-finder-page-search-input:focus {
+        background-color: rgba(30, 30, 30, 0.9);
+        border-color: #ff8f44;
+        box-shadow: 0 0 0 2px rgba(253, 125, 39, 0.2);
+        color: #ffffff !important;
+    }
+
+    .faceit-finder-page-search-button {
+        height: 50px;
+        min-width: 120px;
+        background-color: #fd7d27;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+
+    .faceit-finder-page-search-button:hover {
+        background-color: #ff8f44;
+    }
+
+    .faceit-finder-page-result-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
         margin-top: 30px;
-        font-size: 2rem;
+    }
+
+    .faceit-finder-page-spinner {
+        width: 80px;
+        height: 80px;
+        border: 6px solid rgba(253, 125, 39, 0.1);
+        border-left-color: #fd7d27;
+        border-radius: 50%;
+        animation: faceit-finder-page-spin 1s linear infinite;
+    }
+
+    .faceit-finder-page-loading-text {
         color: #fd7d27;
+        font-size: 2rem;
+        margin-top: 1rem;
         font-family: 'TolyerNo1', sans-serif;
     }
 
-    @@media
-    (max-width: 768px) {
-        .coming-soon-message {
+    .faceit-finder-page-error-message {
+        text-align: center;
+        color: #ff4444;
+        margin-top: 20px;
+        font-size: 1.2rem;
+    }
+
+        @@keyframes faceit-finder-page-spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+        @@media (max-width: 768px) {
+        .faceit-finder-page-search-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .faceit-finder-page-search-input {
+            width: 95%;
+            height: 45px;
+            font-size: 1rem;
+        }
+
+        .faceit-finder-page-search-button {
+            width: 95%;
+            height: 45px;
+            font-size: 1.1rem;
+            min-width: unset;
+        }
+
+        .faceit-finder-page-result-container {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .faceit-finder-page-loading-text {
+            font-size: 1.5rem;
+        }
+
+        .faceit-finder-page-error-message {
+            font-size: 1.1rem;
+            padding: 0 15px;
+        }
+
+        .faceit-finder-page-spinner {
+            width: 60px;
+            height: 60px;
+            border-width: 4px;
+        }
+    }
+
+    .faceit-card {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #fd7d27;
+        border-radius: 15px;
+        padding: 30px;
+        width: fit-content(500px);
+        height: 400px;
+        margin: 20px auto;
+    }
+
+    .faceit-info {
+        display: flex;
+        gap: 40px;
+        height: 100%;
+    }
+
+    .faceit-avatar-container {
+        flex: 0 0 auto;
+    }
+
+    .faceit-avatar {
+        width: 300px;
+        height: 300px;
+        border-radius: 20px;
+        object-fit: cover;
+    }
+
+    .faceit-stats-container {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .faceit-nickname {
+        font-size: 4rem;
+        font-weight: bold;
+        color: #ffffff;
+        font-family: 'TolyerNo1', sans-serif;
+        letter-spacing: 3px;
+    }
+
+    .faceit-level {
+        display: flex;
+        align-items: center;
+    }
+
+    .faceit-level-badge {
+        width: 100px;
+        height: 100px;
+    }
+
+    .faceit-elo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .faceit-elo-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .faceit-elo-number {
+        font-size: 3.5rem;
+        font-weight: bold;
+        color: #ffffff;
+        font-family: 'TolyerNo1', sans-serif;
+        letter-spacing: 2px;
+    }
+
+    .faceit-location {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .faceit-country,
+    .faceit-region {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #ffce46;
+        font-family: 'TolyerNo1', sans-serif;
+        letter-spacing: 2px;
+    }
+
+        @@media (max-width: 850px) {
+        .faceit-card {
+            width: 95%;
+            height: auto;
+            padding: 20px;
+        }
+
+        .faceit-info {
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .faceit-avatar {
+            width: 200px;
+            height: 200px;
+        }
+
+        .faceit-stats-container {
+            align-items: center;
+            text-align: center;
+        }
+
+        .faceit-nickname {
+            font-size: 3rem;
+        }
+
+        .faceit-level-badge {
+            width: 80px;
+            height: 80px;
+        }
+
+        .faceit-elo-number {
+            font-size: 2.5rem;
+        }
+
+        .faceit-country,
+        .faceit-region {
+            font-size: 2rem;
+        }
+    }
+
+    .suspect-file {
+        background-color: #1a1a1a;
+        border: 2px solid #fd7d27;
+        width: 1200px;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 30px;
+        margin-bottom: 50px;
+        padding: 30px;
+        font-family: 'Courier New', monospace;
+        box-shadow: 0 0 20px rgba(253, 125, 39, 0.2);
+    }
+
+    .file-header {
+        text-align: center;
+        border-bottom: 2px solid #fd7d27;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .file-stamp {
+        position: absolute;
+        top: -15px;
+        right: -10px;
+        background-color: #fd7d27;
+        color: #000;
+        padding: 5px 15px;
+        transform: rotate(15deg);
+        font-weight: bold;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+    }
+
+    .file-title {
+        font-size: 3rem;
+        color: #fd7d27;
+        margin: 0;
+        font-weight: bold;
+        letter-spacing: 5px;
+    }
+
+    .file-number {
+        color: #fd7d27;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        margin-top: 10px;
+    }
+
+    .file-content {
+        display: flex;
+        gap: 30px;
+        padding: 20px;
+    }
+
+    .file-left-column {
+        flex: 0 0 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .file-right-column {
+        flex: 1;
+
+        max-width: 600px;
+        background-color: rgba(253, 125, 39, 0.1);
+        border: 1px solid #fd7d27;
+        padding: 20px;
+    }
+
+    .file-divider {
+        width: 2px;
+        background-color: #fd7d27;
+        margin: 0 10px;
+    }
+
+    .suspect-photo {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .suspect-image {
+        width: 300px;
+        height: 300px;
+        border: 2px solid #fd7d27;
+        object-fit: cover;
+    }
+
+    .photo-label {
+        margin-top: 10px;
+        color: #fd7d27;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+
+    }
+
+    .primary-details {
+        display: flex;
+        flex-direction: column;
+        margin-right: -20px;
+        margin-left: -20px;
+        gap: 20px;
+        background-color: rgba(253, 125, 39, 0.1);
+        border: 1px solid #fd7d27;
+        padding: 20px;
+    }
+
+    .section-header {
+        color: #fd7d27;
+        font-size: 1.8rem;
+        font-weight: bold;
+        letter-spacing: 3px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #fd7d27;
+        padding-bottom: 10px;
+        margin-top: 20px;
+    }
+
+    .intel-content {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .intel-content .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: nowrap;
+        max-width: 550px;
+    }
+
+    .intel-content .detail-value {
+        flex: 1;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    .intel-content .detail-row .detail-label,
+    .intel-content .detail-row .detail-value {
+        font-size: 1.8rem;
+    }
+
+    .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: nowrap;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+        border-bottom: 1px solid rgba(253, 125, 39, 0.2);
+    }
+
+    /* Remove bottom border from last items in each column */
+    .primary-details .detail-row:last-child,
+    .intel-content .detail-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .detail-label {
+        flex: 0 0 auto;
+        min-width: 50px;
+        font-size: 1.5rem;
+
+    }
+
+    .detail-value {
+        flex: 1;
+        white-space: nowrap;
+        font-size: 1.3rem;
+    }
+
+    .level-10 {
+        color: #ff0000;
+    }
+
+    .level-9 {
+        color: #ff4400;
+    }
+
+    .level-8 {
+        color: #ff8800;
+    }
+
+    .level-7 {
+        color: #ffcc00;
+    }
+
+    .level-6 {
+        color: #ffff00;
+    }
+
+    .level-5 {
+        color: #ccff00;
+    }
+
+    .level-4 {
+        color: #88ff00;
+    }
+
+    .level-3 {
+        color: #44ff00;
+    }
+
+    .level-2 {
+        color: #00ff00;
+    }
+
+    .level-1 {
+        color: #00ff44;
+    }
+
+        @@media (max-width: 1250px) {
+        .suspect-file {
+            width: 95%;
+            padding: 15px;
+        }
+
+        .file-content {
+            flex-direction: column;
+        }
+
+        .file-left-column {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+
+        .file-divider {
+            display: none;
+        }
+
+        .suspect-image {
+            width: 150px;
+            height: 150px;
+        }
+
+        .file-title {
+            font-size: 2rem;
+        }
+
+        .detail-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-label {
+            font-size: 1.2rem;
+            min-width: unset;
+        }
+
+        .detail-value {
             font-size: 1.5rem;
         }
     }
+
+    .level-badge {
+        height: 48px;
+        width: 48px;
+        vertical-align: middle;
+        margin-right: 8px;
+        display: inline-block;
+    }
+
+    .status-active {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+
+    .status-inactive {
+        color: #f44336;
+        font-weight: bold;
+    }
+
+    .profile-link {
+        color: #fd7d27;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .profile-link:hover {
+        color: #ff9f5b;
+        text-decoration: underline;
+    }
 </style>
+@code {
+    [Parameter]
+    public string? steamProfileUrl { get; set; }
+
+    [SupplyParameterFromQuery]
+    public string? steamUrl { get; set; }
+
+    private string error;
+    private bool isLoading;
+    private FaceitFinderPlayer faceitPlayer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check query parameter first, then route parameter
+        string urlToSearch = steamUrl ?? steamProfileUrl;
+
+        if (!string.IsNullOrEmpty(urlToSearch))
+        {
+            steamUrl = urlToSearch; // Set the steamUrl before calling SearchPlayer
+            await SearchPlayer(); // Now calls SearchPlayer without parameters
+        }
+    }
+
+    private async Task SearchPlayer()
+    {
+        if (string.IsNullOrWhiteSpace(steamUrl))
+        {
+            error = "Please enter a Steam profile URL";
+            return;
+        }
+        try
+        {
+            isLoading = true;
+            error = null;
+            faceitPlayer = null;
+            var (player, searchError) = await FaceitFinderHandler.SearchPlayerAsync(steamUrl);
+            if (searchError != null)
+            {
+                error = searchError;
+                return;
+            }
+            faceitPlayer = player;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string GetLevelColor(int level)
+    {
+        return level switch
+        {
+            1 => "#acacac", // White/Silver
+            2 => "#48ff70", // Green
+            3 => "#48ff70", // Green
+            4 => "#d5e400", // Yellow
+            5 => "#d5e400", // Yellow
+            6 => "#d5e400", // Yellow
+            7 => "#d5e400", // Yellow
+            8 => "#d68c03", // Orange
+            9 => "#d68c03", // Orange
+            10 => "#FF0000", // Bright Red
+            _ => "#acacac" // Default color
+        };
+    }
+
+    private string GetThreatLevel(int level) => level switch
+    {
+        10 => "YOURE COOKED",
+        9 => "AHH SHIT",
+        8 => "REAL GAMER",
+        7 => "HE AIGHT",
+        6 => "GAMER",
+        5 => "HARDSTUCK",
+        4 => "GRANDMA",
+        3 => "BOT",
+        2 => "ASSCHEEKS",
+        1 => "NONE",
+        _ => "UNKNOWN"
+    };
+}
