@@ -39,7 +39,7 @@ namespace faceitWebApp.Handlers
                 var faceitApiKey = await GetFaceitApiKey();
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
-                Console.WriteLine($"Authorization Header: {_httpClient.DefaultRequestHeaders.Authorization}"); // Temporary logging
+                
 
                 var collection = new LeagueStatsCollection();
                 var seasonStats = new Dictionary<string, (LeagueStats Stats, int MatchCount, double TotalRounds)>();

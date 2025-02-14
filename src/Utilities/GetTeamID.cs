@@ -10,12 +10,10 @@ namespace faceitWebApp.Utilities
 {
     public class GetTeamID
     {
-       
-        private readonly Regex _teamIdPattern = new Regex(@"teams/([a-fA-F0-9-]+)", RegexOptions.IgnoreCase);
-
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly FaceitService _faceitService;
+        private readonly Regex _teamIdPattern = new Regex(@"teams/([a-fA-F0-9-]+)", RegexOptions.IgnoreCase);
 
         public GetTeamID(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
         {
@@ -29,7 +27,6 @@ namespace faceitWebApp.Utilities
             return await _faceitService.GetFaceitApiKey();
         }
 
-
         public async Task<(string TeamId, string ErrorMessage)> GetTeamIDFromUrlAsync(string input)
         {
             if (string.IsNullOrWhiteSpace(input))
@@ -39,6 +36,10 @@ namespace faceitWebApp.Utilities
 
             try
             {
+                var faceitApiKey = await GetFaceitApiKey();
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
+
                 // Decode URL if it's encoded
                 input = Uri.UnescapeDataString(input);
 
