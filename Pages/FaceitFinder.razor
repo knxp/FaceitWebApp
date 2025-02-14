@@ -24,63 +24,18 @@
             }
         </button>
     </div>
-    @if (error != null)
+
+    @if (!string.IsNullOrEmpty(error))
     {
-        <div class="suspect-file">
-            <div class="file-header">
-                <div class="file-stamp">AT LARGE</div>
-                <h1 class="file-title">SUSPECT INFORMATION</h1>
-            </div>
-
-            <div class="file-content">
-                <div class="file-left-column">
-                    <div class="suspect-photo">
-                        <img src="/images/defaultPic.webp" alt="Suspect Photo" class="suspect-image" />
-                        <div class="photo-label">SUSPECT PHOTO</div>
-                    </div>
-
-                    <div class="primary-details">
-                        <div class="detail-row">
-                            <span class="detail-label">ALIAS:</span>
-                            <span class="detail-value">UNIDENTIFIED</span>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">LAST KNOWN LOCATION:</span>
-                            <span class="detail-value">UNKNOWN</span>
-                        </div>
-
-                        <div class="detail-row">
-                            <span class="detail-label">STATUS:</span>
-                            <span class="detail-value status-inactive">NO FACEIT PROFILE DETECTED</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="file-divider"></div>
-
-                <div class="file-right-column">
-                    <div class="section-header">THREAT ADVISORY</div>
-                    <div class="intel-content">
-                        <div class="detail-row">
-                            <span class="detail-label">WARNING:</span>
-                            <span class="detail-value">NO PROFILE DETECTED</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">RISK LEVEL:</span>
-                            <span class="detail-value">POTENTIALLY HIGH</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">NOTES:</span>
-                            <span class="detail-value">APPROACH WITH
-                                SUSPICION</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="error-message">
+            @error
+            <div class="error-example">
+                Example: https://steamcommunity.com/id/username
             </div>
         </div>
     }
-    else if (faceitPlayer != null)
+
+    @if (faceitPlayer != null)
     {
         <div class="suspect-file">
             <div class="file-header">
@@ -252,7 +207,7 @@
     }
 
     .faceit-finder-page-search-input {
-        width: 400px;
+        width: 500px;
         height: 50px;
         background-color: rgba(30, 30, 30, 0.7);
         border: 1px solid #fd7d27;
@@ -790,6 +745,20 @@
         color: #ff9f5b;
         text-decoration: underline;
     }
+
+    .error-message {
+        color: #ff4444;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 1.2rem;
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+
+    .error-example {
+        color: #8d8d8d;
+        font-size: 1rem;
+        margin-top: 5px;
+    }
 </style>
 @code {
     [Parameter]
@@ -821,6 +790,19 @@
             error = "Please enter a Steam profile URL";
             return;
         }
+
+        if (!steamUrl.Contains("steamcommunity.com"))
+        {
+            error = "Please enter a valid Steam profile URL";
+            return;
+        }
+
+        if (!steamUrl.Contains("/id/") && !steamUrl.Contains("/profiles/"))
+        {
+            error = "Invalid Steam profile URL format";
+            return;
+        }
+
         try
         {
             isLoading = true;

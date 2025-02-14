@@ -9,11 +9,21 @@
 
 <div class="home-search-container">
     <input type="text" @bind="searchInput" @bind:event="oninput" @onkeyup="HandleKeyPress"
-        placeholder="Faceit Finder - Enter Steam Profile URL" class="home-search-input" />
+        placeholder="Enter Steam Profile URL..." class="home-search-input" />
     <button @onclick="HandleSearch" class="home-search-button">
         SEARCH
     </button>
 </div>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="error-message">
+        @error
+        <div class="error-example">
+            Example: https://steamcommunity.com/id/username
+        </div>
+    </div>
+}
 
 <div class="features-grid">
     <a href="/player-stats" class="feature-card">
@@ -64,6 +74,7 @@
 @code {
     private ElementReference supportSection;
     private string searchInput = "";
+    private string error = "";
 
     [Inject]
     public NavigationManager? NavManager { get; set; }
@@ -99,21 +110,38 @@ scrollIndicator.style.opacity = '0.8';
 
     private void HandleSearch()
     {
-        if (!string.IsNullOrWhiteSpace(searchInput))
+        if (string.IsNullOrWhiteSpace(searchInput))
         {
-            // Extract vanity URL (everything after /id/ or /profiles/)
-            string vanityUrl = searchInput;
-            if (searchInput.Contains("/id/"))
-            {
-                vanityUrl = searchInput.Split("/id/")[1].TrimEnd('/');
-            }
-            else if (searchInput.Contains("/profiles/"))
-            {
-                vanityUrl = searchInput.Split("/profiles/")[1].TrimEnd('/');
-            }
-
-            NavManager?.NavigateTo($"/faceitfinder/{vanityUrl}?steamUrl={Uri.EscapeDataString(searchInput)}");
+            error = "Please enter a Steam profile URL";
+            return;
         }
+
+        if (!searchInput.Contains("steamcommunity.com"))
+        {
+            error = "Please enter a valid Steam profile URL";
+            return;
+        }
+
+        if (!searchInput.Contains("/id/") && !searchInput.Contains("/profiles/"))
+        {
+            error = "Invalid Steam profile URL format";
+            return;
+        }
+
+        error = ""; // Clear error if validation passes
+
+        // Extract vanity URL (everything after /id/ or /profiles/)
+        string vanityUrl = searchInput;
+        if (searchInput.Contains("/id/"))
+        {
+            vanityUrl = searchInput.Split("/id/")[1].TrimEnd('/');
+        }
+        else if (searchInput.Contains("/profiles/"))
+        {
+            vanityUrl = searchInput.Split("/profiles/")[1].TrimEnd('/');
+        }
+
+        NavManager?.NavigateTo($"/faceitfinder/{vanityUrl}?steamUrl={Uri.EscapeDataString(searchInput)}");
     }
 
     private void HandleKeyPress(KeyboardEventArgs e)
@@ -360,6 +388,20 @@ scrollIndicator.style.opacity = '0.8';
 
     .home-search-button:hover {
         background-color: #ff8f44;
+    }
+
+    .error-message {
+        color: #ff4444;
+        text-align: center;
+        margin-top: 10px;
+        font-size: 1.2rem;
+        font-family: 'Trebuchet MS', sans-serif;
+    }
+
+    .error-example {
+        color: #8d8d8d;
+        font-size: 1rem;
+        margin-top: 5px;
     }
 
         @@media (max-width: 768px) {
