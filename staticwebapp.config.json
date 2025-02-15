@@ -51,6 +51,12 @@
             }
         },
         {
+            "route": "/videos/*",
+            "headers": {
+                "Cache-Control": "public, max-age=31536000, immutable"
+            }
+        },
+        {
             "route": "/*",
             "serve": "/index.html",
             "statusCode": 200
@@ -63,7 +69,7 @@
         }
     },
     "globalHeaders": {
-        "content-security-policy": "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://open.faceit.com https://cdn.jsdelivr.net; img-src 'self' data: https: https://assets.faceit-cdn.net https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com; font-src 'self' data: https: https://fonts.gstatic.com https://use.fontawesome.com; connect-src 'self' https://maxfaceitstats-api.azurewebsites.net https://maxfaceitstats-api-c4b8dudcgsdxeraf.centralus-01.azurewebsites.net https://open.faceit.com https://fonts.googleapis.com wss://* https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://use.fontawesome.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.googletagmanager.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://pagead2.googlesyndication.com; frame-src 'self' https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com;",
+        "content-security-policy": "default-src 'self' 'unsafe-eval' 'unsafe-inline' https://open.faceit.com https://cdn.jsdelivr.net; img-src 'self' data: https: https://assets.faceit-cdn.net https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com; font-src 'self' data: https: https://fonts.gstatic.com https://use.fontawesome.com; connect-src 'self' https://maxfaceitstats-api.azurewebsites.net https://maxfaceitstats-api-c4b8dudcgsdxeraf.centralus-01.azurewebsites.net https://open.faceit.com https://fonts.googleapis.com https://api.steampowered.com https://steamcommunity.com wss://* https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://use.fontawesome.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.googletagmanager.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://pagead2.googlesyndication.com; frame-src 'self' https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com;",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
