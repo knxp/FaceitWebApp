@@ -1,4 +1,5 @@
 @page "/faq"
+@page "/privacy"
 
 <div class="faq-container">
     <h1 class="faq-title">Frequently Asked Questions</h1>
@@ -54,7 +55,7 @@
     </div>
 
     <div class="faq-section">
-        <h2>Common Questions</h2>  
+        <h2>Common Questions</h2>
 
         <div class="faq-item">
             <h3>Why can't i see detailed stats for every league season?</h3>
@@ -74,6 +75,60 @@
             <p>Unfortunately faceit does not record kills for each gun. Only pistol and sniper kills. Whenever Faceit
                 makes api updates, I will include any additional stats.
             </p>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h2>Privacy Policy</h2>
+        <div class="faq-answer">
+            <div class="privacy-section">
+                <h3>Information We Collect</h3>
+                <p>When using Max Faceit Stats, we collect:</p>
+                <ul>
+                    <li>Steam Profile URLs you search for</li>
+                    <li>FACEIT profile information accessed through public APIs</li>
+                    <li>Usage data through Google Analytics</li>
+                    <li>Cookies and similar tracking technologies</li>
+                </ul>
+
+                <h3>How We Use Cookies</h3>
+                <p>We use cookies to:</p>
+                <ul>
+                    <li>Analyze site traffic and usage patterns</li>
+                    <li>Remember your preferences</li>
+                    <li>Improve your browsing experience</li>
+                    <li>Track analytics data</li>
+                </ul>
+
+                <h3>Third-Party Services</h3>
+                <p>We use the following third-party services:</p>
+                <ul>
+                    <li>Google Analytics for site usage tracking</li>
+                    <li>FACEIT API for player statistics</li>
+                    <li>Steam API for profile information</li>
+                </ul>
+
+                <h3>Data Storage</h3>
+                <p>We do not store any personal information. All player data is retrieved in real-time from FACEIT and
+                    Steam APIs.</p>
+
+                <h3>Your Rights</h3>
+                <p>You have the right to:</p>
+                <ul>
+                    <li>Opt-out of cookies (except essential ones)</li>
+                    <li>Access publicly available information</li>
+                    <li>Contact us about privacy concerns</li>
+                </ul>
+
+                <h3>Contact</h3>
+                <p>For privacy-related questions, you can reach us through:</p>
+                <ul>
+                    <li>Discord: pxnkcs</li>
+
+                </ul>
+
+                <p class="privacy-footer">Last Updated: @DateTime.UtcNow.ToString("MMMM dd, yyyy")</p>
+            </div>
         </div>
     </div>
 </div>
@@ -99,7 +154,7 @@
         border-radius: 10px;
         padding: 2rem;
         margin-bottom: 2rem;
-        
+
     }
 
     .faq-section h2 {
@@ -197,94 +252,145 @@
         line-height: 1.6;
     }
 
-    @@media (max-width: 768px) {
-        .faq-container {
-            padding: 1rem;
+    @@media(max - width: 768px) {
+            .faq-container {
+                padding: 1rem;
+            }
+
+            .faq-title {
+                font-size: 2.8rem;
+                margin-bottom: 2rem;
+            }
+
+            .faq-section {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .faq-section h2 {
+                font-size: 2.8rem;
+                color: #fd7d27;
+                font-family: 'TolyerNo1', sans-serif;
+                margin-bottom: 2rem;
+                letter-spacing: 0.6px;
+                border-bottom: 3px solid #fd7d2780;
+                padding-bottom: 10px;
+            }
+
+            .faq-section h3 {
+                font-size: 1.8rem;
+                color: #fd7d27;
+                font-family: 'TolyerNo1', sans-serif;
+                margin-bottom: 1.2rem;
+            }
+
+            .faq-answer {
+                font-size: 1.2rem;
+            }
+
+            .faq-answer h2 {
+                font-size: 2.8rem;
+                color: #fd7d27;
+                font-family: 'TolyerNo1', sans-serif;
+                margin-bottom: 2rem;
+                letter-spacing: 0.6px;
+                border-bottom: 3px solid #fd7d2780;
+                padding-bottom: 10px;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-row>div {
+                border-right: none;
+                border-bottom: 1px solid rgba(253, 125, 39, 0.3);
+            }
+
+            .comparison-row>div:last-child {
+                border-bottom: none;
+            }
+
+            .comparison-row.header {
+                display: none;
+                /* Hide header on mobile for better space usage */
+            }
+
+            /* Add labels for mobile view */
+            .feature::before {
+                content: "Feature: ";
+                color: #fd7d27;
+                font-weight: bold;
+            }
+
+            .faceit::before {
+                content: "FACEIT.com: ";
+                color: #fd7d27;
+                font-weight: bold;
+            }
+
+            .tracker::before {
+                content: "Max Faceit Stats: ";
+                color: #fd7d27;
+                font-weight: bold;
+            }
+
+            .faq-item h3 {
+                font-size: 1.5rem;
+            }
+
+            .faq-item p {
+                font-size: 1.2rem;
+            }
         }
 
-        .faq-title {
-            font-size: 2.8rem;
-            margin-bottom: 2rem;
-        }
-
-        .faq-section {
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .faq-section h2 {
-            font-size: 2.8rem;
+        .privacy-section h3 {
             color: #fd7d27;
-            font-family: 'TolyerNo1', sans-serif;
-            margin-bottom: 2rem;
-            letter-spacing: 0.6px;
-            border-bottom: 3px solid #fd7d2780;
-            padding-bottom: 10px;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 0.8rem 0;
+            font-family: 'Trebuchet MS', sans-serif;
         }
 
-        .faq-section h3 {
-            font-size: 1.8rem;
+        .privacy-section p,
+        .privacy-section li {
+            font-size: 1rem;
+            line-height: 1.4;
+            font-family: 'Trebuchet MS', sans-serif;
+        }
+
+        .privacy-section ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0.5rem;
+        }
+
+        .privacy-section ul li {
+            padding: 0.3rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .privacy-section ul li:before {
+            content: "•";
             color: #fd7d27;
-            font-family: 'TolyerNo1', sans-serif;
-            margin-bottom: 1.2rem;
+            position: absolute;
+            left: 0;
         }
 
-        .faq-answer {
-            font-size: 1.2rem;
-        }
-
-        .faq-answer h2 {
-            font-size: 2.8rem;
+        .privacy-section a {
             color: #fd7d27;
-            font-family: 'TolyerNo1', sans-serif;
-            margin-bottom: 2rem;
-            letter-spacing: 0.6px;
-            border-bottom: 3px solid #fd7d2780;
-            padding-bottom: 10px;
+            text-decoration: none;
+            transition: color 0.3s;
         }
 
-        .comparison-row {
-            grid-template-columns: 1fr;
+        .privacy-section a:hover {
+            color: #ff8f44;
         }
 
-        .comparison-row > div {
-            border-right: none;
-            border-bottom: 1px solid rgba(253, 125, 39, 0.3);
+        .privacy-footer {
+            margin-top: 1.5rem;
+            color: #8d8d8d;
+            font-style: italic;
+            font-size: 0.9rem;
         }
-
-        .comparison-row > div:last-child {
-            border-bottom: none;
-        }
-
-        .comparison-row.header {
-            display: none; /* Hide header on mobile for better space usage */
-        }
-
-        /* Add labels for mobile view */
-        .feature::before {
-            content: "Feature: ";
-            color: #fd7d27;
-            font-weight: bold;
-        }
-
-        .faceit::before {
-            content: "FACEIT.com: ";
-            color: #fd7d27;
-            font-weight: bold;
-        }
-
-        .tracker::before {
-            content: "Max Faceit Stats: ";
-            color: #fd7d27;
-            font-weight: bold;
-        }
-
-        .faq-item h3 {
-            font-size: 1.5rem;
-        }
-
-        .faq-item p {
-            font-size: 1.2rem;
-        }
-    }
-</style>
+    </style>
