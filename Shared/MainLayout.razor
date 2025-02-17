@@ -111,17 +111,22 @@
     .nav-link {
         color: #fd7d27 !important;
         font-family: 'TolyerNo1', sans-serif;
-        font-size: 2rem;
-        transition: opacity 0.3s;
-        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
     }
 
     .navbar-brand {
         font-size: 2.5rem;
     }
 
+    .nav-link {
+        font-size: 2rem;
+    }
+
+    .navbar-brand:hover,
     .nav-link:hover {
-        opacity: 0.8;
+        transform: scale(1.1);
+        text-shadow: 0 0 25px rgba(253, 125, 39, 0.6);
+        color: #ff8f44 !important;
     }
 
     .navbar-nav {
@@ -142,7 +147,7 @@
     }
 
     .dropdown-menu {
-        background-color: #333;
+        background-color: #333333;
         border: 1px solid #fd7d27;
         margin-top: 0;
         padding: 0.5rem 0;
@@ -152,12 +157,14 @@
         color: #fd7d27 !important;
         font-family: 'TolyerNo1', sans-serif;
         font-size: 1.5rem;
-        transition: background-color 0.3s;
-        padding: 0.7rem 1.5rem;
+        transition: all 0.3s ease;
     }
 
     .dropdown-item:hover {
-        background-color: rgba(253, 125, 39, 0.2);
+        transform: scale(1.1);
+        text-shadow: 0 0 25px rgba(253, 125, 39, 0.6);
+        color: #ff8f44 !important;
+        background-color: transparent;
     }
 
     .card {

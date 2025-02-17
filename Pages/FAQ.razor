@@ -79,55 +79,62 @@
     </div>
 
     <div class="faq-section">
-        <h2>Privacy Policy</h2>
-        <div class="faq-answer">
-            <div class="privacy-section">
-                <h3>Information We Collect</h3>
-                <p>When using Max Faceit Stats, we collect:</p>
-                <ul>
-                    <li>Steam Profile URLs you search for</li>
-                    <li>FACEIT profile information accessed through public APIs</li>
-                    <li>Usage data through Google Analytics</li>
-                    <li>Cookies and similar tracking technologies</li>
-                </ul>
+        <div class="privacy-header" @onclick="TogglePrivacy">
+            <h2>Privacy Policy</h2>
+            <span class="toggle-icon @(isPrivacyExpanded ? "expanded" : "")">▼</span>
+        </div>
 
-                <h3>How We Use Cookies</h3>
-                <p>We use cookies to:</p>
-                <ul>
-                    <li>Analyze site traffic and usage patterns</li>
-                    <li>Remember your preferences</li>
-                    <li>Improve your browsing experience</li>
-                    <li>Track analytics data</li>
-                </ul>
+        <div class="privacy-content @(isPrivacyExpanded ? "show" : "")">
+            <div class="faq-answer">
+                <div class="privacy-section">
+                    <h3>Information We Collect</h3>
+                    <p>When using Max Faceit Stats, we collect:</p>
+                    <ul>
+                        <li>Steam Profile URLs you search for</li>
+                        <li>FACEIT profile information accessed through public APIs</li>
+                        <li>Usage data through Google Analytics</li>
+                        <li>Cookies and similar tracking technologies</li>
+                    </ul>
 
-                <h3>Third-Party Services</h3>
-                <p>We use the following third-party services:</p>
-                <ul>
-                    <li>Google Analytics for site usage tracking</li>
-                    <li>FACEIT API for player statistics</li>
-                    <li>Steam API for profile information</li>
-                </ul>
+                    <h3>How We Use Cookies</h3>
+                    <p>We use cookies to:</p>
+                    <ul>
+                        <li>Analyze site traffic and usage patterns</li>
+                        <li>Remember your preferences</li>
+                        <li>Improve your browsing experience</li>
+                        <li>Track analytics data</li>
+                    </ul>
 
-                <h3>Data Storage</h3>
-                <p>We do not store any personal information. All player data is retrieved in real-time from FACEIT and
-                    Steam APIs.</p>
+                    <h3>Third-Party Services</h3>
+                    <p>We use the following third-party services:</p>
+                    <ul>
+                        <li>Google Analytics for site usage tracking</li>
+                        <li>FACEIT API for player statistics</li>
+                        <li>Steam API for profile information</li>
+                    </ul>
 
-                <h3>Your Rights</h3>
-                <p>You have the right to:</p>
-                <ul>
-                    <li>Opt-out of cookies (except essential ones)</li>
-                    <li>Access publicly available information</li>
-                    <li>Contact us about privacy concerns</li>
-                </ul>
+                    <h3>Data Storage</h3>
+                    <p>We do not store any personal information. All player data is retrieved in real-time from FACEIT
+                        and
+                        Steam APIs.</p>
 
-                <h3>Contact</h3>
-                <p>For privacy-related questions, you can reach us through:</p>
-                <ul>
-                    <li>Discord: pxnkcs</li>
+                    <h3>Your Rights</h3>
+                    <p>You have the right to:</p>
+                    <ul>
+                        <li>Opt-out of cookies (except essential ones)</li>
+                        <li>Access publicly available information</li>
+                        <li>Contact us about privacy concerns</li>
+                    </ul>
 
-                </ul>
+                    <h3>Contact</h3>
+                    <p>For privacy-related questions, you can reach us through:</p>
+                    <ul>
+                        <li>Discord: pxnkcs</li>
 
-                <p class="privacy-footer">Last Updated: @DateTime.UtcNow.ToString("MMMM dd, yyyy")</p>
+                    </ul>
+
+                    <p class="privacy-footer">Last Updated: @DateTime.UtcNow.ToString("MMMM dd, yyyy")</p>
+                </div>
             </div>
         </div>
     </div>
@@ -253,9 +260,9 @@
     }
 
     @@media(max - width: 768px) {
-            .faq-container {
-                padding: 1rem;
-            }
+        .faq-container {
+            padding: 1rem;
+        }
 
             .faq-title {
                 font-size: 2.8rem;
@@ -393,4 +400,52 @@
             font-style: italic;
             font-size: 0.9rem;
         }
+
+        .privacy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            margin: 0;
+        }
+
+        .privacy-header h2 {
+            margin: 0;
+            padding: 0;
+        }
+
+        .faq-section:has(.privacy-header) {
+            padding: 1rem 2rem;
+        }
+
+        .toggle-icon {
+            color: #fd7d27;
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .toggle-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .privacy-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .privacy-content.show {
+            max-height: 2000px;
+            margin-top: 1rem;
+        }
     </style>
+
+@code {
+    private bool isPrivacyExpanded = false;
+
+    private void TogglePrivacy()
+    {
+        isPrivacyExpanded = !isPrivacyExpanded;
+    }
+}
