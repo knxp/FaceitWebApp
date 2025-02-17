@@ -17,10 +17,8 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="">Home</NavLink>
-                </li>
+            <ul class="navbar-nav me-auto">
+                
                 <li class="nav-item dropdown">
                     <NavLink class="nav-link" href="player-stats">Player Stats</NavLink>
                     <div class="dropdown-menu" aria-labelledby="playerStatsDropdown">
@@ -50,6 +48,13 @@
                 </li>
             </ul>
         </div>
+        <a href="https://x.com/pxnkcs" target="_blank" class="social-link ms-auto">
+            <svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                    fill="currentColor" />
+            </svg>
+        </a>
     </div>
 </nav>
 
@@ -119,7 +124,7 @@
     }
 
     .nav-link {
-        font-size: 2rem;
+        font-size: 2.1rem;
     }
 
     .navbar-brand:hover,
@@ -236,6 +241,27 @@
                 .navbar-brand {
                     font-size: 1.5rem;
                 }
+            }
+
+            .social-link {
+                display: flex;
+                align-items: center;
+                color: #fd7d27 !important;
+                transition: all 0.3s ease;
+                padding-right: .3rem;
+                padding-top: .6rem;
+                /* Add some right padding */
+            }
+
+            .x-logo {
+                width: 30px;
+                height: 30px;
+            }
+
+            .social-link:hover {
+                transform: scale(1.1);
+                text-shadow: 0 0 25px rgba(253, 125, 39, 0.6);
+                color: #ff8f44 !important;
             }
         </style>
 
