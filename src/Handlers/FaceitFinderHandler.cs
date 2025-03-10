@@ -161,12 +161,44 @@ namespace faceitWebApp.Handlers
                             .GetProperty("cs2")
                             .GetProperty("faceit_elo").GetInt32(),
                         ProfileURL = jsonResponse.GetProperty("faceit_url").GetString().Replace("{lang}", "en"),
-                        HasEseaMembership = hasEseaMembership
+                        HasEseaMembership = hasEseaMembership,
+                        AccountCreated = jsonResponse.TryGetProperty("activated_at", out var activatedAt)
+                            ? DateTime.Parse(activatedAt.GetString())
+                            : DateTime.MinValue
                     };
+
+                    // After creating the player object, fetch their CS2 stats
+                    using var statsRequest = new HttpRequestMessage(HttpMethod.Get,
+                        $"https://open.faceit.com/data/v4/players/{player.PlayerId}/stats/cs2");
+                    statsRequest.Headers.Add("Authorization", $"Bearer {faceitApiKey}");
+
+                    var statsResponse = await _httpClient.SendAsync(statsRequest);
+
+                    if (statsResponse.IsSuccessStatusCode)
+                    {
+                        var statsContent = await statsResponse.Content.ReadAsStringAsync();
+                        var statsJson = JsonSerializer.Deserialize<JsonElement>(statsContent);
+
+                        if (statsJson.TryGetProperty("lifetime", out var lifetime))
+                        {
+                            if (lifetime.TryGetProperty("Matches", out var matches))
+                            {
+                                player.TotalMatches = int.Parse(matches.GetString());
+                            }
+                            if (lifetime.TryGetProperty("ADR", out var adr))
+                            {
+                                player.AverageDamagePerRound = double.Parse(adr.GetString());
+                            }
+                            if (lifetime.TryGetProperty("Average Headshots %", out var hs))
+                            {
+                                player.HeadshotPercentage = double.Parse(hs.GetString());
+                            }
+                        }
+                    }
 
                     // Get player's match history
                     using var historyRequest = new HttpRequestMessage(HttpMethod.Get,
-                        $"https://open.faceit.com/data/v4/players/{player.PlayerId}/history?game=cs2&offset=0&limit=20");
+                        $"https://open.faceit.com/data/v4/players/{player.PlayerId}/history?game=cs2&offset=0&limit=50");
                     historyRequest.Headers.Add("Authorization", "Bearer " + faceitApiKey);
 
                     var historyResponse = await _httpClient.SendAsync(historyRequest);
@@ -184,7 +216,9 @@ namespace faceitWebApp.Handlers
                                 var firstMatch = matches[0];
                                 if (firstMatch.TryGetProperty("started_at", out var startedAt))
                                 {
-                                    player.LatestMatchDate = DateTimeOffset.FromUnixTimeSeconds(startedAt.GetInt64()).DateTime;
+                                    // Convert Unix timestamp to UTC then to local time
+                                    var utcDate = DateTimeOffset.FromUnixTimeSeconds(startedAt.GetInt64()).UtcDateTime;
+                                    player.LatestMatchDate = utcDate.ToLocalTime();
                                 }
 
                                 // Only look for team info if they have ESEA membership
@@ -211,9 +245,9 @@ namespace faceitWebApp.Handlers
                                                     var parts = compName.Split(' ');
                                                     for (int i = 0; i < parts.Length; i++)
                                                     {
-                                                        if (parts[i] == "Open" || parts[i] == "Intermediate" ||
+                                                        if (parts[i] == "Open1-8" || parts[i] == "Open9-10" || parts[i] == "Intermediate" ||
                                                             parts[i] == "Main" || parts[i] == "Advanced" ||
-                                                            parts[i] == "Premier")
+                                                            parts[i] == "ECL")
                                                         {
                                                             player.TeamDivision = parts[i];
                                                             goto FoundTeam;
@@ -236,9 +270,9 @@ namespace faceitWebApp.Handlers
                                                     var parts = compName.Split(' ');
                                                     for (int i = 0; i < parts.Length; i++)
                                                     {
-                                                        if (parts[i] == "Open" || parts[i] == "Intermediate" ||
+                                                        if (parts[i] == "Open1-8" || parts[i] == "Open9-10" || parts[i] == "Intermediate" ||
                                                             parts[i] == "Main" || parts[i] == "Advanced" ||
-                                                            parts[i] == "Premier")
+                                                            parts[i] == "ECL")
                                                         {
                                                             player.TeamDivision = parts[i];
                                                             goto FoundTeam;

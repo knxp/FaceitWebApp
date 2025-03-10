@@ -15,5 +15,9 @@ namespace faceitWebApp.Models
         public string TeamId { get; set; }
         public string TeamDivision { get; set; }
         public DateTime? LatestMatchDate { get; set; }
+        public int TotalMatches { get; set; }
+        public double AverageDamagePerRound { get; set; }
+        public double HeadshotPercentage { get; set; }
+        public DateTime AccountCreated { get; set; }
     }
 }
