@@ -128,9 +128,9 @@ scrollIndicator.style.opacity = '0.8';
             return;
         }
 
-        error = ""; // Clear error if validation passes
+        error = "";
 
-        // Extract vanity URL (everything after /id/ or /profiles/)
+        // Extract vanity URL
         string vanityUrl = searchInput;
         if (searchInput.Contains("/id/"))
         {
@@ -141,7 +141,7 @@ scrollIndicator.style.opacity = '0.8';
             vanityUrl = searchInput.Split("/profiles/")[1].TrimEnd('/');
         }
 
-        NavManager?.NavigateTo($"/faceitfinder/{vanityUrl}?steamUrl={Uri.EscapeDataString(searchInput)}");
+        NavManager?.NavigateTo($"/faceitfinder/{vanityUrl}");
     }
 
     private void HandleKeyPress(KeyboardEventArgs e)

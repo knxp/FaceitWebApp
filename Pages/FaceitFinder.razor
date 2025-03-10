@@ -9,6 +9,7 @@
 @using Microsoft.AspNetCore.WebUtilities
 @inject IAnalytics Analytics
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 
 <PageTitle>FACEIT Finder - Search</PageTitle>
@@ -915,8 +916,11 @@
     [Parameter]
     public string? steamProfileUrl { get; set; }
 
+    private string? steamUrl { get; set; }
+
+    [Parameter]
     [SupplyParameterFromQuery]
-    public string? steamUrl { get; set; }
+    public bool loading { get; set; }
 
     private string error;
     private bool isLoading;
@@ -925,18 +929,17 @@
     protected override async Task OnInitializedAsync()
     {
         await Analytics.TrackEvent("Page View", new Dictionary<string, object>
-{
-{ "Page", "Faceit Finder" },
-{ "Timestamp", DateTime.UtcNow }
-});
-
-        // Check query parameter first, then route parameter
-        string urlToSearch = steamUrl ?? steamProfileUrl;
-
-        if (!string.IsNullOrEmpty(urlToSearch))
         {
-            steamUrl = urlToSearch; // Set the steamUrl before calling SearchPlayer
-            await SearchPlayer(); // Now calls SearchPlayer without parameters
+            { "Page", "Faceit Finder" },
+            { "Timestamp", DateTime.UtcNow }
+        });
+
+        if (!string.IsNullOrEmpty(steamProfileUrl))
+        {
+            // Reconstruct full Steam URL based on vanity
+            steamUrl = $"https://steamcommunity.com/id/{steamProfileUrl}";
+            isLoading = true;
+            await SearchPlayer();
         }
     }
 
@@ -954,24 +957,31 @@
             return;
         }
 
-        if (!steamUrl.Contains("/id/") && !steamUrl.Contains("/profiles/"))
-        {
-            error = "Invalid Steam profile URL format";
-            return;
-        }
-
         try
         {
             isLoading = true;
             error = null;
             faceitPlayer = null;
 
-            // Track the search event
+            // Extract vanity URL for the browser URL
+            string vanityUrl = steamUrl;
+            if (steamUrl.Contains("/id/"))
+            {
+                vanityUrl = steamUrl.Split("/id/")[1].TrimEnd('/');
+            }
+            else if (steamUrl.Contains("/profiles/"))
+            {
+                vanityUrl = steamUrl.Split("/profiles/")[1].TrimEnd('/');
+            }
+
+            // Update the URL without triggering a page reload
+            NavigationManager.NavigateTo($"/faceitfinder/{vanityUrl}", false);
+
             await Analytics.TrackEvent("Faceit Finder Search", new Dictionary<string, object>
-{
-{ "Steam URL", steamUrl },
-{ "Timestamp", DateTime.UtcNow }
-});
+            {
+                { "Steam URL", steamUrl },
+                { "Timestamp", DateTime.UtcNow }
+            });
 
             var (player, searchError) = await FaceitFinderHandler.SearchPlayerAsync(steamUrl);
             if (searchError != null)
