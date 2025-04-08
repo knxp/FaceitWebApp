@@ -36,7 +36,7 @@
                                 {
                                     <span class="team-player-list-matches-count @(processedPlayer?.MatchesWithTeam == 0 ? "inactive" : "")">
                                         @(processedPlayer?.MatchesWithTeam > 0
-                                            ? $"{processedPlayer.MatchesWithTeam} matches this season"
+                                            ? $"{processedPlayer.MatchesWithTeam} {(processedPlayer.MatchesWithTeam == 1 ? "match" : "matches")} this season"
                                             : "Non active player")
                                     </span>
                                 }
