@@ -15,7 +15,7 @@ namespace faceitWebApp.Handlers
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly FaceitService _faceitService;
-        private const int MIN_MATCHES_THRESHOLD = 3;
+        private const int MIN_MATCHES_THRESHOLD = 1;
         private const int MAX_PARALLEL_REQUESTS = 10;
 
         public ActivePlayersHandler(HttpClient httpClient, IConfiguration configuration, FaceitService faceitService)
@@ -35,7 +35,6 @@ namespace faceitWebApp.Handlers
             // Validate season exists
             if (!SeasonDates.Seasons.TryGetValue(seasonName, out var seasonDates))
             {
-                Console.WriteLine($"Invalid season: {seasonName}");
                 return new List<ActivePlayer>();
             }
 
@@ -45,13 +44,19 @@ namespace faceitWebApp.Handlers
             _httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + faceitApiKey);
 
             var teamResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
-            if (!teamResponse.IsSuccessStatusCode) return new List<ActivePlayer>();
+            if (!teamResponse.IsSuccessStatusCode)
+            {
+                return new List<ActivePlayer>();
+            }
 
             var teamContent = await teamResponse.Content.ReadAsStringAsync();
             var teamJson = JObject.Parse(teamContent);
             var leaderId = teamJson["leader"]?.ToString();
 
-            if (string.IsNullOrEmpty(leaderId)) return new List<ActivePlayer>();
+            if (string.IsNullOrEmpty(leaderId))
+            {
+                return new List<ActivePlayer>();
+            }
 
             var fromTimestamp = seasonDates.Start;
             var toTimestamp = seasonDates.End;
@@ -60,13 +65,19 @@ namespace faceitWebApp.Handlers
             var response = await _httpClient.GetAsync(
                 $"https://open.faceit.com/data/v4/players/{leaderId}/history?game=cs2&from={fromTimestamp}&to={toTimestamp}&offset=0&limit=100");
 
-            if (!response.IsSuccessStatusCode) return new List<ActivePlayer>();
+            if (!response.IsSuccessStatusCode)
+            {
+                return new List<ActivePlayer>();
+            }
 
             var content = await response.Content.ReadAsStringAsync();
             var json = JObject.Parse(content);
             var matches = json["items"] as JArray;
 
-            if (matches == null || !matches.Any()) return new List<ActivePlayer>();
+            if (matches == null || !matches.Any())
+            {
+                return new List<ActivePlayer>();
+            }
 
             // Filter matches for this season
             var seasonMatches = matches.Where(match =>
@@ -88,21 +99,24 @@ namespace faceitWebApp.Handlers
 
             var results = await Task.WhenAll(playerTasks);
 
-            foreach (var result in results.Where(r => r.MatchesPlayed >= MIN_MATCHES_THRESHOLD))
+            foreach (var result in results)
             {
-                var lastMatch = seasonMatches.First();
-                var lastMatchDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(lastMatch["started_at"].ToString())).UtcDateTime;
-
-                activePlayersList.Add(new ActivePlayer
+                if (result.MatchesPlayed >= 1)
                 {
-                    PlayerId = result.Player.PlayerId,
-                    Nickname = result.Player.Nickname,
-                    Avatar = result.Player.Avatar,
-                    Elo = result.Player.Elo,
-                    LastMatchDate = lastMatchDate,
-                    MatchesWithTeam = result.MatchesPlayed,
-                    IsActive = true
-                });
+                    var lastMatch = seasonMatches.First();
+                    var lastMatchDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(lastMatch["started_at"].ToString())).UtcDateTime;
+
+                    activePlayersList.Add(new ActivePlayer
+                    {
+                        PlayerId = result.Player.PlayerId,
+                        Nickname = result.Player.Nickname,
+                        Avatar = result.Player.Avatar,
+                        Elo = result.Player.Elo,
+                        LastMatchDate = lastMatchDate,
+                        MatchesWithTeam = result.MatchesPlayed,
+                        IsActive = true
+                    });
+                }
             }
 
             return activePlayersList.OrderByDescending(p => p.MatchesWithTeam).ToList();
