@@ -72,6 +72,10 @@
         justify-content: right;
         gap: 10px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
     }
 
     .season-button {
@@ -90,6 +94,7 @@
         text-align: center;
         justify-content: center;
         gap: 10px;
+        flex-shrink: 0;
     }
 
     .season-button:hover {
@@ -238,7 +243,10 @@
         }
 
         .season-selector {
+            justify-content: flex-start;
+            gap: 8px;
             margin-bottom: 15px;
+            padding: 0 10px;
         }
 
         .season-button {
@@ -246,6 +254,7 @@
             min-width: 100px;
             padding: 5px 15px;
             font-size: 1.2rem;
+            flex: 0 0 auto;
         }
 
         .map-header {
