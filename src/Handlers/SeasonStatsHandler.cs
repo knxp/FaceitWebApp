@@ -38,7 +38,6 @@ namespace faceitWebApp.Handlers
             // Get season dates from the dictionary
             if (!SeasonDates.Seasons.TryGetValue(seasonName, out var seasonDates))
             {
-                Console.WriteLine($"Invalid season: {seasonName}");
                 return new List<MapStats>();
             }
 
@@ -52,7 +51,6 @@ namespace faceitWebApp.Handlers
                 var teamResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/teams/{teamId}");
                 if (!teamResponse.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Failed to get team info: {teamResponse.StatusCode}");
                     return new List<MapStats>();
                 }
 
@@ -62,7 +60,6 @@ namespace faceitWebApp.Handlers
 
                 if (string.IsNullOrEmpty(leaderId))
                 {
-                    Console.WriteLine("No team leader found");
                     return new List<MapStats>();
                 }
 
@@ -76,7 +73,6 @@ namespace faceitWebApp.Handlers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Failed to get match history: {response.StatusCode}");
                     return new List<MapStats>();
                 }
 
@@ -86,12 +82,8 @@ namespace faceitWebApp.Handlers
 
                 if (matches == null)
                 {
-                    Console.WriteLine("No matches found in response");
                     return new List<MapStats>();
                 }
-
-                Console.WriteLine($"Total matches found: {matches.Count}");
-
 
                 var seasonMatches = matches
                     .Where(match =>
@@ -106,8 +98,6 @@ namespace faceitWebApp.Handlers
                                SeasonDates.IsMatchInSeason(startedAt, competitionName);
                     })
                     .ToList();
-
-                Console.WriteLine($"Team matches found: {seasonMatches.Count}");
 
                 // Process matches in parallel batches
                 var semaphore = new SemaphoreSlim(MAX_PARALLEL_REQUESTS);
@@ -127,7 +117,6 @@ namespace faceitWebApp.Handlers
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Skipping match {match["match_id"]}: {ex.Message}");
                             // Continue with next match
                         }
                     });
@@ -139,7 +128,6 @@ namespace faceitWebApp.Handlers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error getting season stats: {ex.Message}");
                 return new List<MapStats>();
             }
         }
@@ -166,12 +154,9 @@ namespace faceitWebApp.Handlers
                 try
                 {
                     var matchId = match["match_id"].ToString();
-                    Console.WriteLine($"Processing match: {matchId}");
-
                     var matchResponse = await _httpClient.GetAsync($"https://open.faceit.com/data/v4/matches/{matchId}/stats");
                     if (!matchResponse.IsSuccessStatusCode)
                     {
-                        Console.WriteLine($"Skipping match {matchId}: Response --- {matchResponse.StatusCode}");
                         return;
                     }
 
@@ -181,7 +166,6 @@ namespace faceitWebApp.Handlers
 
                     if (rounds == null || !rounds.Any())
                     {
-                        Console.WriteLine($"Skipping match {matchId}: No rounds data found");
                         return;
                     }
 
@@ -191,7 +175,6 @@ namespace faceitWebApp.Handlers
                         var mapName = round["round_stats"]?["Map"]?.ToString();
                         if (string.IsNullOrEmpty(mapName))
                         {
-                            Console.WriteLine($"No map name found for match {matchId}");
                             continue;
                         }
 
@@ -210,8 +193,6 @@ namespace faceitWebApp.Handlers
                             {
                                 mapStats[mapName].Wins++;
                             }
-
-                            Console.WriteLine($"Updated stats for {mapName}: Matches={mapStats[mapName].TotalMatches}, Wins={mapStats[mapName].Wins}");
                         }
                     }
                 }
@@ -222,7 +203,7 @@ namespace faceitWebApp.Handlers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing match: {ex.Message}");
+                // Continue with next match
             }
         }
     }

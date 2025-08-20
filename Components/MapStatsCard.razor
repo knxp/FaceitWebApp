@@ -29,10 +29,10 @@
         else
         {
             var defaultMaps = selectedSeason == "overall"
-            ? new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Train", "Dust2" }
+            ? new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Vertigo", "Train", "Dust2", "Overpass" }
             : SeasonDates.MapPools.TryGetValue(selectedSeason, out var maps)
             ? maps
-            : new[] { "Ancient", "Anubis", "Inferno", "Mirage", "Nuke", "Dust2" }; // fallback maps
+            : new[] { "Ancient", "Inferno", "Mirage", "Nuke", "Dust2", "Overpass" }; // fallback maps
             var displayStats = selectedSeason == "overall" ? MapStats : SeasonMapStats;
 
             // Create dictionary with normalized map names (remove "de_" prefix)
